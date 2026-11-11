@@ -122,3 +122,13 @@ asnber_err_t asnber_pkix_certificate_builder_encode(
 - 扩展采用“通用 TLV + 高频便捷函数”混合方案：`add_extension` 接受完整扩展值 DER（如 SAN 的 `SEQUENCE` 编码），`add_basic_constraints`/`add_key_usage`/`add_extended_key_usage` 生成常用值。三条 DER 约束在构建期强制：`critical = 0` 时完全省略 BOOLEAN；`pathLenConstraint` 仅在 `is_ca != 0` 时允许；同一 Extensions 内 OID 重复返回 `ASNBER_E_INVALID_VALUE`。
 - `encode` 要求各必填字段齐全（version 可缺省），成功后返回新分配缓冲，由 `asnber_buf_release(ctx, &buf)` 释放；失败清空输出。
 - 同一签名算法同时写入 `TBSCertificate.signature` 与 `Certificate.signatureAlgorithm`，两者不做二次比较。
+
+## CertificateList 构造与读取
+
+`asnber_pkix_crl_open` 打开 DER 编码的 `CertificateList`。路径别名：`tbsCertList` → `toBeSigned`、`signatureAlgorithm` → `algorithmIdentifier`、`signatureValue` → `signature`。`version` 缺省为 0。`nextUpdate` 缺省时 `*out_present = 0`。吊销项只读序列号（十进制）和 `revocationDate`。
+
+扩展读取：`asnber_pkix_crl_extension_count` / `extension_at` 读 `crlExtensions`；`asnber_pkix_crl_entry_extension_count` / `entry_extension_at` 读某条吊销记录的 `crlEntryExtensions`。字段缺省时条数为 0。`critical` 缺省为 0。`extnValue` 返回 OCTET STRING 内容，借用句柄。
+
+`asnber_pkix_crl_builder_*` 组装同一结构。`set_version` 只接受 0 或 1；0 省略 INTEGER。`add_revoked` 追加序列号与吊销时间。`add_extension` 与 `add_entry_extension` 写入扩展，`extn_value_der` 是一条完整 DER TLV，同一集合内 OID 不得重复。出现任一扩展时 `version` 必须为 1，否则 `encode` 返回 `ASNBER_E_INVALID_VALUE`。builder 不解释扩展，也不判断吊销。
+
+cert-decode 裁剪表不含 `CertificateList`，对该表调用 `open` 会失败。完整表的根类型编号是 28。

@@ -201,6 +201,108 @@ static int test_v1_without_revocations(void)
     ASNBER_TEST_CHECK(present == 0);
     ASNBER_TEST_CHECK(asnber_pkix_crl_revoked_count(crl, &count) == ASNBER_OK);
     ASNBER_TEST_CHECK(count == 0);
+    ASNBER_TEST_CHECK(asnber_pkix_crl_extension_count(crl, &count) == ASNBER_OK);
+    ASNBER_TEST_CHECK(count == 0);
+
+    asnber_pkix_crl_close(crl);
+    asnber_buf_release(ctx, &encoded);
+    asnber_pkix_crl_builder_destroy(builder);
+    asnber_ctx_destroy(ctx);
+    return 0;
+}
+
+static int test_extensions(void)
+{
+    asnber_ctx_t *ctx = make_ctx();
+    asnber_pkix_crl_builder_t *builder = NULL;
+    asnber_pkix_crl_t *crl = NULL;
+    asnber_buf_t encoded;
+    asnber_pkix_name_attribute_t attribute;
+    asnber_pkix_name_rdn_t rdn;
+    asnber_time_t this_update;
+    asnber_time_t revoked_at;
+    const uint8_t serial[1] = {0x02};
+    const uint8_t signature[1] = {0x11};
+    const uint8_t crl_number[3] = {0x02, 0x01, 0x01};
+    const uint8_t reason[3] = {0x0A, 0x01, 0x01};
+    const char *oid = NULL;
+    size_t oid_size = 0;
+    const uint8_t *value = NULL;
+    size_t value_size = 0;
+    int critical = 1;
+    size_t count = 99;
+
+    ASNBER_TEST_CHECK(ctx != NULL);
+    memset(&encoded, 0, sizeof(encoded));
+    memset(&attribute, 0, sizeof(attribute));
+    attribute.oid = "2.5.4.6";
+    attribute.value = (const uint8_t *)"CN";
+    attribute.value_size = 2;
+    rdn.attributes = &attribute;
+    rdn.count = 1;
+    make_time(&this_update, 2020, 1, 2);
+    make_time(&revoked_at, 2020, 6, 1);
+
+    ASNBER_TEST_CHECK(asnber_pkix_crl_builder_create(ctx, &builder) == ASNBER_OK);
+    ASNBER_TEST_CHECK(asnber_pkix_crl_builder_set_signature_algorithm(
+                        builder, "1.2.840.113549.1.1.11", NULL, 0) == ASNBER_OK);
+    ASNBER_TEST_CHECK(asnber_pkix_crl_builder_set_issuer(builder, &rdn, 1) ==
+                    ASNBER_OK);
+    ASNBER_TEST_CHECK(asnber_pkix_crl_builder_set_this_update(
+                        builder, &this_update) == ASNBER_OK);
+    ASNBER_TEST_CHECK(asnber_pkix_crl_builder_add_revoked(
+                        builder, serial, sizeof(serial), &revoked_at) == ASNBER_OK);
+    ASNBER_TEST_CHECK(asnber_pkix_crl_builder_set_signature_value(
+                        builder, signature, sizeof(signature), 0) == ASNBER_OK);
+    ASNBER_TEST_CHECK(asnber_pkix_crl_builder_add_extension(
+                        builder, "2.5.29.20", 0, crl_number, sizeof(crl_number)) ==
+                    ASNBER_OK);
+    ASNBER_TEST_CHECK(asnber_pkix_crl_builder_encode(builder, &encoded) ==
+                    ASNBER_E_INVALID_VALUE);
+    ASNBER_TEST_CHECK(asnber_pkix_crl_builder_set_version(builder, 1) == ASNBER_OK);
+    ASNBER_TEST_CHECK(asnber_pkix_crl_builder_add_extension(
+                        builder, "2.5.29.20", 0, crl_number, sizeof(crl_number)) ==
+                    ASNBER_E_INVALID_VALUE);
+    ASNBER_TEST_CHECK(asnber_pkix_crl_builder_add_extension(
+                        builder, "2.5.29.20", 0, NULL, 0) == ASNBER_E_INVALID_ARG);
+    ASNBER_TEST_CHECK(asnber_pkix_crl_builder_add_entry_extension(
+                        builder, 1, "2.5.29.21", 1, reason, sizeof(reason)) ==
+                    ASNBER_E_INVALID_ARG);
+    ASNBER_TEST_CHECK(asnber_pkix_crl_builder_add_entry_extension(
+                        builder, 0, "2.5.29.21", 1, reason, sizeof(reason)) ==
+                    ASNBER_OK);
+    ASNBER_TEST_CHECK(asnber_pkix_crl_builder_add_entry_extension(
+                        builder, 0, "2.5.29.21", 0, reason, sizeof(reason)) ==
+                    ASNBER_E_INVALID_VALUE);
+    ASNBER_TEST_CHECK(asnber_pkix_crl_builder_encode(builder, &encoded) == ASNBER_OK);
+
+    ASNBER_TEST_CHECK(asnber_pkix_crl_open(ctx, encoded.data, encoded.size, &crl) ==
+                    ASNBER_OK);
+    ASNBER_TEST_CHECK(asnber_pkix_crl_extension_count(crl, &count) == ASNBER_OK);
+    ASNBER_TEST_CHECK(count == 1);
+    ASNBER_TEST_CHECK(asnber_pkix_crl_extension_at(crl, 0, &oid, &oid_size,
+                                                &critical, &value, &value_size) ==
+                    ASNBER_OK);
+    ASNBER_TEST_CHECK(oid != NULL && strcmp(oid, "2.5.29.20") == 0);
+    ASNBER_TEST_CHECK(critical == 0);
+    ASNBER_TEST_CHECK(value != NULL && value_size == sizeof(crl_number) &&
+                    memcmp(value, crl_number, sizeof(crl_number)) == 0);
+    ASNBER_TEST_CHECK(asnber_pkix_crl_extension_at(crl, 1, &oid, &oid_size,
+                                                &critical, &value, &value_size) ==
+                    ASNBER_E_INVALID_ARG);
+    ASNBER_TEST_CHECK(asnber_pkix_crl_entry_extension_count(crl, 0, &count) ==
+                    ASNBER_OK);
+    ASNBER_TEST_CHECK(count == 1);
+    critical = 0;
+    ASNBER_TEST_CHECK(asnber_pkix_crl_entry_extension_at(
+                        crl, 0, 0, &oid, &oid_size, &critical, &value,
+                        &value_size) == ASNBER_OK);
+    ASNBER_TEST_CHECK(oid != NULL && strcmp(oid, "2.5.29.21") == 0);
+    ASNBER_TEST_CHECK(critical == 1);
+    ASNBER_TEST_CHECK(value != NULL && value_size == sizeof(reason) &&
+                    memcmp(value, reason, sizeof(reason)) == 0);
+    ASNBER_TEST_CHECK(asnber_pkix_crl_entry_extension_count(crl, 1, &count) ==
+                    ASNBER_E_INVALID_ARG);
 
     asnber_pkix_crl_close(crl);
     asnber_buf_release(ctx, &encoded);
@@ -215,6 +317,9 @@ int main(void)
         return 1;
     }
     if (test_v1_without_revocations() != 0) {
+        return 1;
+    }
+    if (test_extensions() != 0) {
         return 1;
     }
     return 0;

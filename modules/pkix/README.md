@@ -33,7 +33,7 @@ asnber_pkix_certificate_builder_destroy(builder);
 ```
 
 - 公共头：`asnber/pkix/pkix.h`（构造侧 API 在 `pkix_builder.h`，由 `pkix.h` 一并包含）
-- CRL：`asnber_pkix_crl_open` 读 CertificateList，`asnber_pkix_crl_builder_*` 组装。不判断吊销。cert-decode 裁剪表没有这个类型，open 会失败。
+- CRL：`asnber_pkix_crl_open` 读 CertificateList，`asnber_pkix_crl_builder_*` 组装，含 CRL 扩展和条目扩展。不判断吊销，不解释扩展。出现扩展时 version 必须为 1。cert-decode 裁剪表没有这个类型，open 会失败。
 - 链接目标：`asnber::pkix::shared` 或 `asnber::pkix::static`（需 `find_package(asnber-pkix CONFIG REQUIRED)`）
 
 ## 描述表与缓存

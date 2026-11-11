@@ -194,6 +194,29 @@ ASNBER_PKIX_API asnber_err_t asnber_pkix_crl_revoked_serial(
 ASNBER_PKIX_API asnber_err_t asnber_pkix_crl_revoked_date(
     const asnber_pkix_crl_t *crl, size_t index, asnber_time_t *out_time);
 
+/* crlExtensions 条数；字段缺省时为 0。 */
+ASNBER_PKIX_API asnber_err_t asnber_pkix_crl_extension_count(
+    const asnber_pkix_crl_t *crl, size_t *out_count);
+
+/*
+ * 按下标读取 CRL 扩展。extnValue 是 OCTET STRING 内容（内层 DER），借用句柄。
+ * critical 缺省时 *out_critical = 0。越界返回 ASNBER_E_INVALID_ARG。
+ */
+ASNBER_PKIX_API asnber_err_t asnber_pkix_crl_extension_at(
+    const asnber_pkix_crl_t *crl, size_t index, const char **out_oid,
+    size_t *out_oid_size, int *out_critical, const uint8_t **out_value,
+    size_t *out_value_size);
+
+/* 某条吊销记录的 crlEntryExtensions 条数；字段缺省时为 0。记录越界返回 ASNBER_E_INVALID_ARG。 */
+ASNBER_PKIX_API asnber_err_t asnber_pkix_crl_entry_extension_count(
+    const asnber_pkix_crl_t *crl, size_t revoked_index, size_t *out_count);
+
+/* 按下标读取吊销条目扩展。语义同 asnber_pkix_crl_extension_at。 */
+ASNBER_PKIX_API asnber_err_t asnber_pkix_crl_entry_extension_at(
+    const asnber_pkix_crl_t *crl, size_t revoked_index, size_t index,
+    const char **out_oid, size_t *out_oid_size, int *out_critical,
+    const uint8_t **out_value, size_t *out_value_size);
+
 #ifdef __cplusplus
 }
 #endif

@@ -6,7 +6,7 @@
 
 ### 新增
 
-- `asnber-pkix`：CertificateList 的结构读取与 builder。不判断吊销，不写条目扩展和 CRL 扩展。这些符号属于下一个 minor。
+- `asnber-pkix`：CertificateList 的结构读取与 builder，含 CRL 扩展和条目扩展。不判断吊销，不解释扩展。出现扩展时 version 必须为 1。这些符号属于下一个 minor。
 - `asnber-pkcs8`：EncryptedPrivateKeyInfo builder。只组装算法标识和密文字节，不加密。
 - `asnber_example_pool_estimate`：对一份描述表和一份 DER 二分求最小静态池。
 

@@ -357,6 +357,69 @@ extern "C" ASNBER_PKIX_API asnber_err_t asnber_pkix_crl_revoked_serial(
     return asnber_node_get_bigint_decimal(serial, out_decimal, out_size);
 }
 
+const asnber_node_t *unwrapExplicit(const asnber_node_t *node) noexcept
+{
+    if (node != nullptr && asnber_node_tag_class(node) == ASNBER_TAG_CONTEXT &&
+        asnber_node_child_count(node) == 1) {
+        return asnber_node_child_at(node, 0);
+    }
+    return node;
+}
+
+asnber_err_t extensionList(const asnber_pkix_crl_t *crl, const char *path,
+                         const asnber_node_t **out_list) noexcept
+{
+    const asnber_node_t *node = nullptr;
+    asnber_err_t status = findPath(crl, path, &node);
+    if (status != ASNBER_OK) {
+        return status;
+    }
+    *out_list = unwrapExplicit(node);
+    return ASNBER_OK;
+}
+
+asnber_err_t extensionAt(const asnber_node_t *list, size_t index,
+                       const char **out_oid, size_t *out_oid_size,
+                       int *out_critical, const uint8_t **out_value,
+                       size_t *out_value_size) noexcept
+{
+    if (list == nullptr || index >= asnber_node_child_count(list)) {
+        return ASNBER_E_INVALID_ARG;
+    }
+    const asnber_node_t *extension = asnber_node_child_at(list, index);
+    const asnber_node_t *oid = asnber_node_child_by_name(extension, "extnID");
+    const asnber_node_t *value = asnber_node_child_by_name(extension, "extnValue");
+    if (oid == nullptr || value == nullptr) {
+        return ASNBER_E_SCHEMA_FIELD;
+    }
+    const char *dotted = nullptr;
+    size_t dotted_size = 0;
+    asnber_err_t status = asnber_node_get_oid(oid, &dotted, &dotted_size);
+    if (status != ASNBER_OK) {
+        return status;
+    }
+    const uint8_t *octets = nullptr;
+    size_t octets_size = 0;
+    status = asnber_node_get_octets(value, &octets, &octets_size);
+    if (status != ASNBER_OK) {
+        return status;
+    }
+    int critical = 0;
+    const asnber_node_t *flag = asnber_node_child_by_name(extension, "critical");
+    if (flag != nullptr) {
+        status = asnber_node_get_bool(flag, &critical);
+        if (status != ASNBER_OK) {
+            return status;
+        }
+    }
+    *out_oid = dotted;
+    *out_oid_size = dotted_size;
+    *out_critical = critical;
+    *out_value = octets;
+    *out_value_size = octets_size;
+    return ASNBER_OK;
+}
+
 extern "C" ASNBER_PKIX_API asnber_err_t asnber_pkix_crl_revoked_date(
     const asnber_pkix_crl_t *crl, size_t index, asnber_time_t *out_time)
 {
@@ -374,4 +437,76 @@ extern "C" ASNBER_PKIX_API asnber_err_t asnber_pkix_crl_revoked_date(
         return ASNBER_E_SCHEMA_FIELD;
     }
     return readTime(when, out_time);
+}
+
+extern "C" ASNBER_PKIX_API asnber_err_t asnber_pkix_crl_extension_count(
+    const asnber_pkix_crl_t *crl, size_t *out_count)
+{
+    if (crl == nullptr || out_count == nullptr) {
+        return ASNBER_E_INVALID_ARG;
+    }
+    const asnber_node_t *list = nullptr;
+    asnber_err_t status = extensionList(crl, "tbsCertList.crlExtensions", &list);
+    if (status != ASNBER_OK) {
+        return status;
+    }
+    *out_count = list == nullptr ? 0 : asnber_node_child_count(list);
+    return ASNBER_OK;
+}
+
+extern "C" ASNBER_PKIX_API asnber_err_t asnber_pkix_crl_extension_at(
+    const asnber_pkix_crl_t *crl, size_t index, const char **out_oid,
+    size_t *out_oid_size, int *out_critical, const uint8_t **out_value,
+    size_t *out_value_size)
+{
+    if (crl == nullptr || out_oid == nullptr || out_oid_size == nullptr ||
+        out_critical == nullptr || out_value == nullptr ||
+        out_value_size == nullptr) {
+        return ASNBER_E_INVALID_ARG;
+    }
+    const asnber_node_t *list = nullptr;
+    asnber_err_t status = extensionList(crl, "tbsCertList.crlExtensions", &list);
+    if (status != ASNBER_OK) {
+        return status;
+    }
+    return extensionAt(list, index, out_oid, out_oid_size, out_critical, out_value,
+                       out_value_size);
+}
+
+extern "C" ASNBER_PKIX_API asnber_err_t asnber_pkix_crl_entry_extension_count(
+    const asnber_pkix_crl_t *crl, size_t revoked_index, size_t *out_count)
+{
+    if (crl == nullptr || out_count == nullptr) {
+        return ASNBER_E_INVALID_ARG;
+    }
+    const asnber_node_t *entry = nullptr;
+    asnber_err_t status = revokedEntry(crl, revoked_index, &entry);
+    if (status != ASNBER_OK) {
+        return status;
+    }
+    const asnber_node_t *list =
+        asnber_node_child_by_name(entry, "crlEntryExtensions");
+    *out_count = list == nullptr ? 0 : asnber_node_child_count(list);
+    return ASNBER_OK;
+}
+
+extern "C" ASNBER_PKIX_API asnber_err_t asnber_pkix_crl_entry_extension_at(
+    const asnber_pkix_crl_t *crl, size_t revoked_index, size_t index,
+    const char **out_oid, size_t *out_oid_size, int *out_critical,
+    const uint8_t **out_value, size_t *out_value_size)
+{
+    if (crl == nullptr || out_oid == nullptr || out_oid_size == nullptr ||
+        out_critical == nullptr || out_value == nullptr ||
+        out_value_size == nullptr) {
+        return ASNBER_E_INVALID_ARG;
+    }
+    const asnber_node_t *entry = nullptr;
+    asnber_err_t status = revokedEntry(crl, revoked_index, &entry);
+    if (status != ASNBER_OK) {
+        return status;
+    }
+    const asnber_node_t *list =
+        asnber_node_child_by_name(entry, "crlEntryExtensions");
+    return extensionAt(list, index, out_oid, out_oid_size, out_critical, out_value,
+                       out_value_size);
 }

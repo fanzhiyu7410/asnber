@@ -21,10 +21,13 @@ using asnber::module_detail::copyBytes;
 using asnber::module_detail::copyText;
 using asnber::module_detail::createBigIntegerNode;
 using asnber::module_detail::createBitStringNode;
+using asnber::module_detail::createExtensionsNode;
 using asnber::module_detail::createIntegerNode;
 using asnber::module_detail::createNameNode;
 using asnber::module_detail::createNode;
 using asnber::module_detail::createTimeNode;
+using asnber::module_detail::ensureCapacity;
+using asnber::module_detail::extension_entry;
 using asnber::module_detail::kTagIa5String;
 using asnber::module_detail::kTagPrintableString;
 using asnber::module_detail::kTagSequence;
@@ -150,10 +153,84 @@ asnber_err_t copyName(asnber_ctx_t *ctx, name_store *out,
     return ASNBER_OK;
 }
 
+struct ext_store {
+    char *oid;
+    bool critical;
+    byte_span value;
+};
+
 struct revoked_entry {
     byte_span serial;
     asnber_time_t when;
+    ext_store *extensions;
+    size_t extension_count;
+    size_t extension_capacity;
 };
+
+void freeExtensions(ext_store *extensions, size_t count)
+{
+    if (extensions == nullptr) {
+        return;
+    }
+    for (size_t i = 0; i < count; ++i) {
+        std::free(extensions[i].oid);
+        std::free(extensions[i].value.data);
+    }
+    std::free(extensions);
+}
+
+bool hasExtension(const ext_store *extensions, size_t count, const char *oid)
+{
+    for (size_t i = 0; i < count; ++i) {
+        if (std::strcmp(extensions[i].oid, oid) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+asnber_err_t appendExtension(ext_store **extensions, size_t *count,
+                           size_t *capacity, const char *oid, bool critical,
+                           const uint8_t *value, size_t value_size)
+{
+    if (!ensureCapacity(extensions, *count, capacity)) {
+        return ASNBER_E_NOMEM;
+    }
+    char *oid_copy = copyText(oid);
+    uint8_t *value_copy = copyBytes(value, value_size);
+    if (oid_copy == nullptr || value_copy == nullptr) {
+        std::free(oid_copy);
+        std::free(value_copy);
+        return ASNBER_E_NOMEM;
+    }
+    ext_store &entry = (*extensions)[*count];
+    entry.oid = oid_copy;
+    entry.critical = critical;
+    entry.value.data = value_copy;
+    entry.value.size = value_size;
+    ++*count;
+    return ASNBER_OK;
+}
+
+asnber_err_t writeExtensions(asnber_doc_t *doc, asnber_node_t *parent,
+                           const ext_store *extensions, size_t count)
+{
+    extension_entry *views = static_cast<extension_entry *>(
+        std::calloc(count, sizeof(extension_entry)));
+    if (views == nullptr) {
+        return ASNBER_E_NOMEM;
+    }
+    for (size_t i = 0; i < count; ++i) {
+        views[i].oid = extensions[i].oid;
+        views[i].critical = extensions[i].critical;
+        views[i].value = extensions[i].value.data;
+        views[i].value_size = extensions[i].value.size;
+    }
+    asnber_node_t *ignored = nullptr;
+    asnber_err_t rc = createExtensionsNode(doc, parent, views, count, &ignored);
+    std::free(views);
+    return rc;
+}
 
 } /* namespace */
 
@@ -176,6 +253,9 @@ struct asnber_pkix_crl_builder {
     bool signature_value_set;
     byte_span signature_value;
     uint8_t signature_value_unused_bits;
+    ext_store *extensions;
+    size_t extension_count;
+    size_t extension_capacity;
 };
 
 namespace {
@@ -227,6 +307,18 @@ asnber_err_t buildCrl(const asnber_pkix_crl_builder_t &builder,
             if (rc == ASNBER_OK) {
                 rc = createTimeNode(doc, entry, &builder.revoked[i].when, &ignored);
             }
+            if (rc == ASNBER_OK && builder.revoked[i].extension_count != 0) {
+                rc = writeExtensions(doc, entry, builder.revoked[i].extensions,
+                                     builder.revoked[i].extension_count);
+            }
+        }
+    }
+    if (rc == ASNBER_OK && builder.extension_count != 0) {
+        asnber_node_t *wrapped = nullptr;
+        rc = createNode(doc, tbs, ASNBER_TAG_CONTEXT, 0, 1, &wrapped);
+        if (rc == ASNBER_OK) {
+            rc = writeExtensions(doc, wrapped, builder.extensions,
+                                 builder.extension_count);
         }
     }
     if (rc == ASNBER_OK) {
@@ -298,8 +390,11 @@ extern "C" ASNBER_PKIX_API void asnber_pkix_crl_builder_destroy(
     freeName(&builder->issuer);
     for (size_t i = 0; i < builder->revoked_count; ++i) {
         std::free(builder->revoked[i].serial.data);
+        freeExtensions(builder->revoked[i].extensions,
+                       builder->revoked[i].extension_count);
     }
     std::free(builder->revoked);
+    freeExtensions(builder->extensions, builder->extension_count);
     std::free(builder->signature_value.data);
     std::memset(builder, 0, sizeof(*builder));
     std::free(builder);
@@ -447,9 +542,13 @@ extern "C" ASNBER_PKIX_API asnber_err_t asnber_pkix_crl_builder_add_revoked(
         builder->revoked = grown;
         builder->revoked_capacity = capacity;
     }
-    builder->revoked[builder->revoked_count].serial.data = copy;
-    builder->revoked[builder->revoked_count].serial.size = serial_size;
-    builder->revoked[builder->revoked_count].when = *revocation_date;
+    revoked_entry &added = builder->revoked[builder->revoked_count];
+    added.serial.data = copy;
+    added.serial.size = serial_size;
+    added.when = *revocation_date;
+    added.extensions = nullptr;
+    added.extension_count = 0;
+    added.extension_capacity = 0;
     ++builder->revoked_count;
     return ASNBER_OK;
 }
@@ -480,6 +579,68 @@ asnber_pkix_crl_builder_set_signature_value(asnber_pkix_crl_builder_t *builder,
     return ASNBER_OK;
 }
 
+namespace {
+
+asnber_err_t checkExtension(asnber_ctx_t *ctx, const char *oid,
+                          const uint8_t *value, size_t value_size)
+{
+    if (oid == nullptr || value == nullptr || value_size == 0) {
+        return ASNBER_E_INVALID_ARG;
+    }
+    asnber_err_t rc = validateOid(ctx, oid);
+    if (rc != ASNBER_OK) {
+        return rc;
+    }
+    return validateSingleDer(ctx, value, value_size, nullptr);
+}
+
+} /* namespace */
+
+extern "C" ASNBER_PKIX_API asnber_err_t asnber_pkix_crl_builder_add_extension(
+    asnber_pkix_crl_builder_t *builder, const char *extn_oid, int critical,
+    const uint8_t *extn_value_der, size_t extn_value_size)
+{
+    if (builder == nullptr) {
+        return ASNBER_E_INVALID_ARG;
+    }
+    asnber_err_t rc = checkExtension(builder->ctx, extn_oid, extn_value_der,
+                                   extn_value_size);
+    if (rc != ASNBER_OK) {
+        return rc;
+    }
+    if (hasExtension(builder->extensions, builder->extension_count, extn_oid)) {
+        return ASNBER_E_INVALID_VALUE;
+    }
+    return appendExtension(&builder->extensions, &builder->extension_count,
+                           &builder->extension_capacity, extn_oid, critical != 0,
+                           extn_value_der, extn_value_size);
+}
+
+extern "C" ASNBER_PKIX_API asnber_err_t
+asnber_pkix_crl_builder_add_entry_extension(
+    asnber_pkix_crl_builder_t *builder, size_t revoked_index, const char *extn_oid,
+    int critical, const uint8_t *extn_value_der, size_t extn_value_size)
+{
+    if (builder == nullptr) {
+        return ASNBER_E_INVALID_ARG;
+    }
+    if (revoked_index >= builder->revoked_count) {
+        return ASNBER_E_INVALID_ARG;
+    }
+    asnber_err_t rc = checkExtension(builder->ctx, extn_oid, extn_value_der,
+                                   extn_value_size);
+    if (rc != ASNBER_OK) {
+        return rc;
+    }
+    revoked_entry &entry = builder->revoked[revoked_index];
+    if (hasExtension(entry.extensions, entry.extension_count, extn_oid)) {
+        return ASNBER_E_INVALID_VALUE;
+    }
+    return appendExtension(&entry.extensions, &entry.extension_count,
+                           &entry.extension_capacity, extn_oid, critical != 0,
+                           extn_value_der, extn_value_size);
+}
+
 extern "C" ASNBER_PKIX_API asnber_err_t asnber_pkix_crl_builder_encode(
     const asnber_pkix_crl_builder_t *builder, asnber_buf_t *out_buf)
 {
@@ -490,6 +651,13 @@ extern "C" ASNBER_PKIX_API asnber_err_t asnber_pkix_crl_builder_encode(
     if (!builder->signature_algorithm_set || !builder->issuer_set ||
         !builder->this_update_set || !builder->signature_value_set) {
         return ASNBER_E_INVALID_STATE;
+    }
+    bool has_extensions = builder->extension_count != 0;
+    for (size_t i = 0; i < builder->revoked_count && !has_extensions; ++i) {
+        has_extensions = builder->revoked[i].extension_count != 0;
+    }
+    if (has_extensions && builder->version != 1) {
+        return ASNBER_E_INVALID_VALUE;
     }
     asnber_doc_t *doc = nullptr;
     asnber_err_t rc = buildCrl(*builder, &doc);

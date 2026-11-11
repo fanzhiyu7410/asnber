@@ -175,7 +175,8 @@ ASNBER_PKIX_API asnber_err_t asnber_pkix_certificate_builder_encode(
 /*
  * CertificateList 结构组装。不签名、不决定吊销。issuer 复用证书侧的
  * RDN 结构。version 只接受 0（省略，v1）与 1（写出 INTEGER 1，v2）。
- * 吊销项只写 userCertificate 与 revocationDate，不写条目扩展。
+ * 吊销项写 userCertificate、revocationDate，以及可选的条目扩展。
+ * CRL 扩展与条目扩展出现时，version 必须是 1（v2）。
  */
 typedef struct asnber_pkix_crl_builder asnber_pkix_crl_builder_t;
 
@@ -205,11 +206,23 @@ ASNBER_PKIX_API asnber_err_t asnber_pkix_crl_builder_set_next_update(
 
 /*
  * 追加一条吊销记录。serial 为无符号大端幅值。可多次调用。
- * 不写 crlEntryExtensions。
+ * 条目扩展用 asnber_pkix_crl_builder_add_entry_extension 追加到已有记录上。
  */
 ASNBER_PKIX_API asnber_err_t asnber_pkix_crl_builder_add_revoked(
     asnber_pkix_crl_builder_t *builder, const uint8_t *serial, size_t serial_size,
     const asnber_time_t *revocation_date);
+
+/*
+ * 追加 CRL 扩展或某条吊销记录的扩展。extn_value_der 是 extnValue 的内容
+ * （一条完整 DER TLV），同一集合里 OID 不得重复。critical 非 0 时写出
+ * BOOLEAN TRUE，为 0 时按 DEFAULT FALSE 省略。
+ */
+ASNBER_PKIX_API asnber_err_t asnber_pkix_crl_builder_add_extension(
+    asnber_pkix_crl_builder_t *builder, const char *extn_oid, int critical,
+    const uint8_t *extn_value_der, size_t extn_value_size);
+ASNBER_PKIX_API asnber_err_t asnber_pkix_crl_builder_add_entry_extension(
+    asnber_pkix_crl_builder_t *builder, size_t revoked_index, const char *extn_oid,
+    int critical, const uint8_t *extn_value_der, size_t extn_value_size);
 
 /* 外层 signature BIT STRING。模块不计算签名。 */
 ASNBER_PKIX_API asnber_err_t asnber_pkix_crl_builder_set_signature_value(
@@ -218,7 +231,8 @@ ASNBER_PKIX_API asnber_err_t asnber_pkix_crl_builder_set_signature_value(
 
 /*
  * 签名算法、issuer、thisUpdate、signatureValue 必须已设置，否则返回
- * ASNBER_E_INVALID_STATE。成功时 out_buf 由 ctx 分配。
+ * ASNBER_E_INVALID_STATE。出现 CRL 扩展或条目扩展时 version 必须为 1，
+ * 否则返回 ASNBER_E_INVALID_VALUE。成功时 out_buf 由 ctx 分配。
  */
 ASNBER_PKIX_API asnber_err_t asnber_pkix_crl_builder_encode(
     const asnber_pkix_crl_builder_t *builder, asnber_buf_t *out_buf);
