@@ -20,6 +20,9 @@ cmake_policy(SET CMP0092 NEW)
 # 写入我们的选项，这样 CMake 就不会在 ItemDefinitionGroup 里重复写 Sync。
 if(MSVC)
   set(CMAKE_CXX_FLAGS_INIT "/EHs-c- /GR-")
+  # 源文件是 UTF-8。不带这个选项时，cl 按系统代码页 936 读文件，
+  # 中文注释会成批报 C4819。目录选项覆盖后续全部目标，含测试辅助库。
+  add_compile_options(/utf-8)
 endif()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
