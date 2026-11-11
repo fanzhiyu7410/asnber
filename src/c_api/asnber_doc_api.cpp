@@ -246,10 +246,16 @@ extern "C" asnber_err_t asnber_node_create(asnber_doc_t *docHandle,
         return ASNBER_E_INVALID_ARG;
     }
 
-    if (tag_class < ASNBER_TAG_UNIVERSAL || tag_class > ASNBER_TAG_PRIVATE) {
+    /*
+     * 调用方可以传入枚举范围外的类别。按枚举类型读取是未定义行为，
+     * 所以按对象表示拷成整数再判断。
+     */
+    uint32_t rawClass = 0;
+    std::memcpy(&rawClass, &tag_class, sizeof(tag_class));
+    if (rawClass > static_cast<uint32_t>(ASNBER_TAG_PRIVATE)) {
         return ASNBER_E_INVALID_ARG;
     }
-    if (tag_class == ASNBER_TAG_UNIVERSAL && tag_number == 0) {
+    if (rawClass == static_cast<uint32_t>(ASNBER_TAG_UNIVERSAL) && tag_number == 0) {
         /* UNIVERSAL 0 是 EOC，不是合法内容类型。 */
         asnber::contextSetError(doc->ctx, ASNBER_E_INVALID_ARG, SIZE_MAX, 0);
         return ASNBER_E_INVALID_ARG;
@@ -268,7 +274,7 @@ extern "C" asnber_err_t asnber_node_create(asnber_doc_t *docHandle,
 
     asnber::Node *node = nullptr;
     const asnber_err_t rc = asnber::documentCreateNode(
-        doc, parent, static_cast<uint32_t>(tag_class), tag_number,
+        doc, parent, rawClass, tag_number,
         constructed != 0, depth, SIZE_MAX, 0, nullptr, 0, &node);
     if (rc != ASNBER_OK) {
         return rc;

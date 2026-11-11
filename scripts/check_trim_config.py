@@ -186,6 +186,11 @@ POSITIVE_CASES = [
 ]
 
 
+def normalized(text: str) -> str:
+    """折叠空白。CMake 会按列宽把 FATAL_ERROR 拆行，诊断片段不能依赖换行位置。"""
+    return " ".join(text.split())
+
+
 def configure(cmake: str, build_dir: Path, definitions: list[str]) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
         [cmake, "-S", str(ROOT), "-B", str(build_dir), *definitions],
@@ -212,7 +217,7 @@ def main(argv: list[str]) -> int:
         if result.returncode == 0:
             print(f"FAIL {name}: configure 成功，预期失败")
             failed += 1
-        elif expected not in combined:
+        elif expected not in normalized(combined):
             print(f"FAIL {name}: 缺少诊断片段 '{expected}'")
             print(combined)
             failed += 1
