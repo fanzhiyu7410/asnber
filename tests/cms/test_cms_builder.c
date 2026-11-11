@@ -663,6 +663,50 @@ static int build_attribute_cert_choice(asnber_ctx_t *ctx)
     return 0;
 }
 
+/* certificates-only：没有签名者，digestAlgorithms 也为空。 */
+static int build_certificates_only(asnber_ctx_t *ctx)
+{
+    asnber_cms_builder_t *builder = NULL;
+    asnber_buf_t encoded;
+    asnber_cms_content_info_t *info = NULL;
+    asnber_cms_signed_data_t *signed_data = NULL;
+    const uint8_t *content = NULL;
+    size_t content_size = 0;
+    size_t count = 99;
+
+    memset(&encoded, 0, sizeof(encoded));
+    ASNBER_TEST_CHECK(asnber_cms_builder_create(ctx, &builder) == ASNBER_OK);
+    ASNBER_TEST_CHECK(asnber_cms_builder_set_version(builder, 1) == ASNBER_OK);
+    ASNBER_TEST_CHECK(asnber_cms_builder_set_econtent_type(builder, kDataOid) ==
+                    ASNBER_OK);
+    ASNBER_TEST_CHECK(asnber_cms_builder_add_certificate(
+                        builder, kCertRsaSelfsigned, kCertRsaSelfsignedSize) ==
+                    ASNBER_OK);
+    ASNBER_TEST_CHECK(asnber_cms_builder_encode(builder, &encoded) == ASNBER_OK);
+
+    ASNBER_TEST_CHECK(asnber_cms_content_info_open(ctx, encoded.data, encoded.size,
+                                               &info) == ASNBER_OK);
+    ASNBER_TEST_CHECK(asnber_cms_content_info_content(info, &content,
+                                                  &content_size) == ASNBER_OK);
+    ASNBER_TEST_CHECK(asnber_cms_signed_data_open(ctx, content, content_size,
+                                              &signed_data) == ASNBER_OK);
+    ASNBER_TEST_CHECK(asnber_cms_signed_data_signer_count(signed_data, &count) ==
+                    ASNBER_OK);
+    ASNBER_TEST_CHECK(count == 0);
+    ASNBER_TEST_CHECK(asnber_cms_signed_data_digest_algorithm_count(
+                        signed_data, &count) == ASNBER_OK);
+    ASNBER_TEST_CHECK(count == 0);
+    ASNBER_TEST_CHECK(asnber_cms_signed_data_certificate_count(signed_data,
+                                                           &count) == ASNBER_OK);
+    ASNBER_TEST_CHECK(count == 1);
+
+    asnber_cms_signed_data_close(signed_data);
+    asnber_cms_content_info_close(info);
+    asnber_buf_release(ctx, &encoded);
+    asnber_cms_builder_destroy(builder);
+    return 0;
+}
+
 /* 负例：必填缺失、重复设置、非法 OID / TLV / 属性集合。 */
 static int builder_negative_cases(asnber_ctx_t *ctx)
 {
@@ -680,6 +724,9 @@ static int builder_negative_cases(asnber_ctx_t *ctx)
                     ASNBER_E_INVALID_STATE);
     ASNBER_TEST_CHECK(asnber_cms_builder_set_econtent_type(builder, kDataOid) ==
                     ASNBER_OK);
+    /* 只有 version 与 eContentType，没有证书、CRL 或签名者。 */
+    ASNBER_TEST_CHECK(asnber_cms_builder_encode(builder, &encoded) ==
+                    ASNBER_E_INVALID_STATE);
     ASNBER_TEST_CHECK(asnber_cms_builder_set_econtent_type(builder, kDataOid) ==
                     ASNBER_E_INVALID_STATE);
     ASNBER_TEST_CHECK(asnber_cms_builder_add_digest_algorithm(
@@ -835,6 +882,7 @@ int main(void)
     ASNBER_TEST_CHECK(build_multicert(ctx) == 0);
     ASNBER_TEST_CHECK(build_keyid_with_attrs(ctx) == 0);
     ASNBER_TEST_CHECK(build_attribute_cert_choice(ctx) == 0);
+    ASNBER_TEST_CHECK(build_certificates_only(ctx) == 0);
     ASNBER_TEST_CHECK(builder_negative_cases(ctx) == 0);
 
     asnber_ctx_destroy(ctx);

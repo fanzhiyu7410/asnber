@@ -472,6 +472,15 @@ static int check_set_unknown_field(asnber_ctx_t *ctx)
         options.schema = schema;
         ASNBER_TEST_CHECK(asnber_encode_buffer(ctx, doc, &options, &buf) ==
                         ASNBER_E_SCHEMA_FIELD);
+        {
+            asnber_error_info_t info;
+            memset(&info, 0, sizeof(info));
+            info.struct_size = sizeof(info);
+            ASNBER_TEST_CHECK(asnber_ctx_get_error(ctx, &info) == ASNBER_OK);
+            ASNBER_TEST_CHECK(info.code == ASNBER_E_SCHEMA_FIELD);
+            ASNBER_TEST_CHECK(info.path != NULL);
+            ASNBER_TEST_CHECK(strstr(info.path, "Bag") != NULL);
+        }
         ASNBER_TEST_CHECK(asnber_buf_release(ctx, &buf) == ASNBER_OK);
         ASNBER_TEST_CHECK(validate_strict(ctx, doc, schema) ==
                         ASNBER_E_SCHEMA_FIELD);

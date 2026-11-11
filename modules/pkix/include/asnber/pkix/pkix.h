@@ -125,6 +125,75 @@ ASNBER_PKIX_API asnber_err_t asnber_pkix_certificate_validity(
     const asnber_pkix_certificate_t *cert, asnber_time_t *out_not_before,
     asnber_time_t *out_not_after);
 
+/*
+ * CertificateList（CRL）结构访问。只解析字段，不判断证书是否被吊销。
+ * 需要完整 PKIX 描述表；cert-decode 裁剪表不含 CertificateList，open 会失败。
+ * 句柄借用 ctx，访问器返回的指针借用句柄。
+ */
+typedef struct asnber_pkix_crl asnber_pkix_crl_t;
+
+/* 打开一张 DER 编码的 CertificateList。失败时 *out_crl 置 NULL。 */
+ASNBER_PKIX_API asnber_err_t asnber_pkix_crl_open(asnber_ctx_t *ctx,
+                                                const uint8_t *der,
+                                                size_t der_size,
+                                                asnber_pkix_crl_t **out_crl);
+
+/* 关闭 CRL 句柄；crl == NULL 为空操作。 */
+ASNBER_PKIX_API void asnber_pkix_crl_close(asnber_pkix_crl_t *crl);
+
+/*
+ * 按路径取节点。相对 CertificateList 根；空串表示根。
+ * tbsCertList / signatureAlgorithm / signatureValue 会改写成描述表里的
+ * toBeSigned / algorithmIdentifier / signature。路径不存在时返回
+ * ASNBER_OK 且 *out_node = NULL。
+ */
+ASNBER_PKIX_API asnber_err_t asnber_pkix_crl_find(const asnber_pkix_crl_t *crl,
+                                                const char *path,
+                                                const asnber_node_t **out_node);
+
+/* 外层签名算法 OID（点分十进制，借用句柄）。 */
+ASNBER_PKIX_API asnber_err_t asnber_pkix_crl_signature_algorithm_oid(
+    const asnber_pkix_crl_t *crl, const char **out_dotted, size_t *out_size);
+
+/* 外层签名值 BIT STRING 内容。 */
+ASNBER_PKIX_API asnber_err_t asnber_pkix_crl_signature_value(
+    const asnber_pkix_crl_t *crl, const uint8_t **out_data, size_t *out_size,
+    size_t *out_bit_length, uint8_t *out_unused_bits);
+
+/* issuer 的完整原始 DER（含 tag/len，借用句柄）。 */
+ASNBER_PKIX_API asnber_err_t asnber_pkix_crl_issuer_der(
+    const asnber_pkix_crl_t *crl, const uint8_t **out_data, size_t *out_size);
+
+/*
+ * version：字段缺省时返回 0（v1）。出现时原样返回，只接受 0、1、2。
+ */
+ASNBER_PKIX_API asnber_err_t asnber_pkix_crl_version(const asnber_pkix_crl_t *crl,
+                                                   uint32_t *out_version);
+
+/* thisUpdate。out_time 由本函数整结构写入。 */
+ASNBER_PKIX_API asnber_err_t asnber_pkix_crl_this_update(
+    const asnber_pkix_crl_t *crl, asnber_time_t *out_time);
+
+/*
+ * nextUpdate。缺省时返回 ASNBER_OK，*out_present = 0，不写 *out_time。
+ * 存在时 *out_present = 1 并写入时间。
+ */
+ASNBER_PKIX_API asnber_err_t asnber_pkix_crl_next_update(
+    const asnber_pkix_crl_t *crl, asnber_time_t *out_time, int *out_present);
+
+/* revokedCertificates 条数；字段缺省时为 0。 */
+ASNBER_PKIX_API asnber_err_t asnber_pkix_crl_revoked_count(
+    const asnber_pkix_crl_t *crl, size_t *out_count);
+
+/* 按下标读取被吊销证书序列号（十进制文本，借用句柄）。越界返回 ASNBER_E_INVALID_ARG。 */
+ASNBER_PKIX_API asnber_err_t asnber_pkix_crl_revoked_serial(
+    const asnber_pkix_crl_t *crl, size_t index, const char **out_decimal,
+    size_t *out_size);
+
+/* 按下标读取 revocationDate。越界返回 ASNBER_E_INVALID_ARG。 */
+ASNBER_PKIX_API asnber_err_t asnber_pkix_crl_revoked_date(
+    const asnber_pkix_crl_t *crl, size_t index, asnber_time_t *out_time);
+
 #ifdef __cplusplus
 }
 #endif

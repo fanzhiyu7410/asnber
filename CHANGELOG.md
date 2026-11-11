@@ -2,6 +2,19 @@
 
 本文件记录对外可见的版本变更；格式参考 Keep a Changelog，版本号遵循语义化版本。
 
+## [Unreleased]
+
+### 新增
+
+- `asnber-pkix`：CertificateList 的结构读取与 builder。不判断吊销，不写条目扩展和 CRL 扩展。这些符号属于下一个 minor。
+- `asnber-pkcs8`：EncryptedPrivateKeyInfo builder。只组装算法标识和密文字节，不加密。
+- `asnber_example_pool_estimate`：对一份描述表和一份 DER 二分求最小静态池。
+
+### 变更
+
+- CMS SignedData builder 可以输出 certificates-only / CRL-only。没有签名者时 `digestAlgorithms` 可以为空；证书、CRL、签名者三者全空仍然拒绝。
+- schema 编码失败时，`asnber_error_info_t.path` 带上最内层的类型名或 `类型名/字段名`。
+
 ## [0.1.0] - 2026-11-11
 
 首个版本。核心库、描述表工具和标准模块一起发布。

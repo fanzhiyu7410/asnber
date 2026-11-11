@@ -161,7 +161,7 @@ CMS / PKCS#7 标准结构模块（RFC 5652），以 `.asn1` 描述表驱动，�
 - **signedAttrs 原样承载**：输入必须是完整、规范的 `SET OF Attribute`（外层 `0x31`，非空且元素为 `SEQUENCE`）；模块只把外层标签改写为 `0xA0`（`unsignedAttrs` 为 `0xA1`），长度字节与内容逐字节不变，不重建、不排序。签名覆盖的是 `SET OF` 编码，调用方必须对同一份字节签名，否则验签失败。非规范输入返回 `ASNBER_E_NON_CANONICAL`，空集合或元素不是 `SEQUENCE` 返回 `ASNBER_E_INVALID_VALUE`。
 - **证书/CRL 不解析**：除“恰好一个完整规范 DER TLV”外，只检查分支根标签——证书须为 `Certificate` 的 `SEQUENCE` 或 `CertificateChoices` 的 `[0..3]` 备选，CRL 须为 `CertificateList` 的 `SEQUENCE` 或 `RevocationInfoChoice` 的 `other [1]`；不解析内部、不做信任判断；输出按 DER `SET OF` 规则排序。
 - **sid 根标签**：`issuerAndSerialNumber` 形式的 `issuer` 须为 `SEQUENCE`、`serialNumber` 须为 `INTEGER`；不符返回 `ASNBER_E_INVALID_VALUE`。
-- **`signerInfos` / `recipientInfos` 非空**：builder 侧 `encode` 要求至少一条 signer（SignedData）或至少一条 recipient（EnvelopedData，可跨五类 `add_*` 累计）；`SignedData` 不支持输出 certificates-only（空 `signerInfos`）。只读侧不受此限，空 `signerInfos` 可成功 `open` 且 `signer_count` 返回 0。
+- **`signerInfos` / `recipientInfos`**：SignedData 没有签名者时必须至少有一张证书或一份 CRL，此时 `digestAlgorithms` 可以为空（certificates-only / CRL-only）。有签名者时仍要求至少一条 digestAlgorithm。EnvelopedData 的 `encode` 仍要求至少一条 recipient。只读侧空 `signerInfos` 可成功 `open` 且 `signer_count` 返回 0。
 - **EnvelopedData 写侧不推导版本**：`version` 与各 `RecipientInfo.version` 均显式给值；不做密钥协商、KEK/口令派生、内容加密或 MAC 计算，`encryptedKey` / `encryptedContent` 由调用方给值并原样承载。
 - **错误模型**：必填缺失、重复设置单值字段返回 `ASNBER_E_INVALID_STATE`；OID 非法、根标签/分支不符返回 `ASNBER_E_INVALID_VALUE`；非单一合法 TLV 返回 `ASNBER_E_TRUNCATED` / `ASNBER_E_MALFORMED_LENGTH` / `ASNBER_E_TRAILING_DATA` / `ASNBER_E_NON_CANONICAL` 等核心错误码。失败不产出半成品缓冲。
 - **输出所有权**：成功时 `asnber_buf_t` 由上下文分配，调用方用 `asnber_buf_release` 归还。
@@ -265,7 +265,7 @@ cmake --build build-cms-regen --target asnber_cms_table_verify
 
 ## 状态
 
-0.1.0：ContentInfo / SignedData 只读字段访问与结构构造（builder + DER 编码）；只读与构造 C 用例在 MinGW（GCC 13.2，`-Werror`）、MSVC 与 ASan/UBSan 构建下 ctest 通过，5 份样本构造往返逐字节一致。证书集合覆盖 `certificate`/`extendedCertificate`/`v1AttrCert`/`v2AttrCert`/`other` 全部分支：`certificate_at` 一律返回判别与完整原始 TLV，结构化访问器只对 `certificate` 生效，其余分支返回 `ASNBER_E_UNSUPPORTED`。构造侧不生成签名/摘要、不做加解密、不校验证书链；`encode` 要求至少一条 signer，不支持 certificates-only 输出。
+0.1.0：ContentInfo / SignedData 只读字段访问与结构构造（builder + DER 编码）；只读与构造 C 用例在 MinGW（GCC 13.2，`-Werror`）、MSVC 与 ASan/UBSan 构建下 ctest 通过，5 份样本构造往返逐字节一致。证书集合覆盖 `certificate`/`extendedCertificate`/`v1AttrCert`/`v2AttrCert`/`other` 全部分支：`certificate_at` 一律返回判别与完整原始 TLV，结构化访问器只对 `certificate` 生效，其余分支返回 `ASNBER_E_UNSUPPORTED`。构造侧不生成签名/摘要、不做加解密、不校验证书链。没有签名者时可以输出 certificates-only 或 CRL-only，`digestAlgorithms` 允许为空；三者全空仍然拒绝。有签名者时仍要求至少一条 digestAlgorithm。
 
 0.2.0 第一块（未发版，`Unreleased`）：新增 `EnvelopedData` 只读句柄与 27 个导出符号；五份真实样本 + `ori` 构造级用例 + 空 `recipientInfos` 负例 + 整段往返。MinGW GCC 13 Release（共享/静态）全量 ctest 36/36 通过，`-DASNBER_CMS_REGENERATE_TABLE=ON` 下三表逐字节自校验通过。
 

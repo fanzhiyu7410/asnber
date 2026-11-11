@@ -15,12 +15,14 @@ project(
 # capability: decode+encode（builder 可裁切）
 set(ASNBER_PKIX_SOURCES
   src/asnber_pkix_certificate.cpp
+  src/asnber_pkix_crl.cpp
   src/asnber_pkix_version.cpp
 )
 if(ASNBER_PKIX_ENABLE_BUILDER)
   list(APPEND ASNBER_PKIX_SOURCES
     src/pkix_builder.cpp
     src/pkix_builder_extensions.cpp
+    src/pkix_crl_builder.cpp
   )
 endif()
 set(ASNBER_PKIX_TARGETS "")

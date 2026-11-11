@@ -8,7 +8,7 @@ PKCS#8（RFC 5208）结构模块，以 `.asn1` 描述表驱动，提供**只读�
 | 结构 | 读 | 写 |
 | --- | --- | --- |
 | `PrivateKeyInfo` | 版本、`AlgorithmIdentifier`、`privateKey` OCTET STRING、属性 | builder 组装后输出 DER |
-| `EncryptedPrivateKeyInfo` | 加密算法、密文字节 | 不提供 |
+| `EncryptedPrivateKeyInfo` | 加密算法、密文字节 | 组装算法标识与密文字节，不加密 |
 
 **不包含**：解密、口令处理、密钥派生。`EncryptedPrivateKeyInfo` 只暴露加密算法与密文，不尝试解密；`PrivateKeyInfo.privateKey` 的内容（通常是 PKCS#1 `RSAPrivateKey`）原样返回，由调用方交给 `asnber-pkcs1` 或自己的解析器。构造侧只负责把调用方给出的字段拼成规范 DER，不生成密钥、不做算法推断、不补默认版本。
 

@@ -55,6 +55,9 @@ bool sizeAny(const EncState &st, const SchemaType *type, const Node *node,
             return false;
         }
         if (!validateRetainedDer(st.ctx, raw, rawSize, outError)) {
+            if (*outError == ASNBER_E_NON_CANONICAL) {
+                noteEncodePath(st, type->name, nullptr);
+            }
             return false;
         }
         if (effectiveTagMode(st.schema, type) == ASNBER_TAG_MODE_EXPLICIT) {
@@ -70,6 +73,9 @@ bool sizeAny(const EncState &st, const SchemaType *type, const Node *node,
     const size_t inner = node->contentSize;
     if (effectiveTagMode(st.schema, type) == ASNBER_TAG_MODE_EXPLICIT) {
         if (!validateRetainedDer(st.ctx, node->content, inner, outError)) {
+            if (*outError == ASNBER_E_NON_CANONICAL) {
+                noteEncodePath(st, type->name, nullptr);
+            }
             return false;
         }
         const size_t header =
@@ -83,6 +89,9 @@ bool sizeAny(const EncState &st, const SchemaType *type, const Node *node,
             return false;
         }
         if (!validateRetainedDer(st.ctx, raw, rawSize, outError)) {
+            if (*outError == ASNBER_E_NON_CANONICAL) {
+                noteEncodePath(st, type->name, nullptr);
+            }
             return false;
         }
         *outSize = rawSize;

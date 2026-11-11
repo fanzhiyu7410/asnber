@@ -30,7 +30,16 @@ struct EncState {
     const Schema *schema;
     const uint8_t *defaultTlv;
     size_t defaultSize;
+    /* schema 编码失败时记下“类型名/字段名”。sizeOf/writeOf 以 const 引用
+     * 传递状态，所以槽位是 mutable。空串表示这次失败没有字段可定位。 */
+    static constexpr size_t kEncodePathBytes = 160;
+    mutable char errorPath[kEncodePathBytes];
 };
+
+/* 记下当前失败的类型与字段。field 为空时只写类型名。后写覆盖先写，
+ * 因此嵌套失败留下的是最内层。 */
+void noteEncodePath(const EncState &st, const char *typeName,
+                    const char *fieldName) noexcept;
 
 const SchemaType *typeAt(const Schema *schema, uint32_t typeId);
 uint32_t effectiveTagMode(const Schema *schema, const SchemaType *type);

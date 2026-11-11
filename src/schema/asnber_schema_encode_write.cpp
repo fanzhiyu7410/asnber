@@ -183,6 +183,7 @@ bool writeSequenceFields(const EncState &st, const SchemaType *type,
                 continue;
             }
             *outError = ASNBER_E_SCHEMA_FIELD;
+            noteEncodePath(st, type->name, field.name);
             ok = false;
             break;
         }
@@ -243,6 +244,7 @@ bool writeSet(const EncState &st, const SchemaType *type, const Node *node,
          child = child->nextSibling) {
         if (!isKnownFieldChild(child, slots, type->fieldCount)) {
             *outError = ASNBER_E_SCHEMA_FIELD;
+            noteEncodePath(st, type->name, nullptr);
             ok = false;
             break;
         }
@@ -259,6 +261,7 @@ bool writeSet(const EncState &st, const SchemaType *type, const Node *node,
                 continue;
             }
             *outError = ASNBER_E_SCHEMA_FIELD;
+            noteEncodePath(st, type->name, field.name);
             ok = false;
             break;
         }
@@ -396,6 +399,7 @@ bool writeOf(const EncState &st, uint32_t typeId, const Node *node,
         const int32_t index = branchIndex(st.schema, type, node);
         if (index < 0) {
             *outError = ASNBER_E_SCHEMA_TYPE;
+            noteEncodePath(st, type->name, nullptr);
             return false;
         }
         return writeOf(st, type->fields[index].typeId, node, false, dst,

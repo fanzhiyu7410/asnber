@@ -12,6 +12,16 @@ add_executable(asnber_example_c c/example_decode.c)
 target_link_libraries(asnber_example_c PRIVATE ${ASNBER_EXAMPLE_LIBRARY})
 set_target_properties(asnber_example_c PROPERTIES LINKER_LANGUAGE CXX)
 
+add_executable(asnber_example_pool_estimate c/example_pool_estimate.c)
+target_link_libraries(asnber_example_pool_estimate PRIVATE ${ASNBER_EXAMPLE_LIBRARY})
+set_target_properties(asnber_example_pool_estimate PROPERTIES
+                      C_STANDARD 99
+                      C_STANDARD_REQUIRED ON
+                      LINKER_LANGUAGE CXX)
+if(BUILD_TESTING)
+  add_test(NAME example_pool_estimate COMMAND asnber_example_pool_estimate)
+endif()
+
 add_executable(asnber_example_cpp cpp/example_usage.cpp)
 target_compile_features(asnber_example_cpp PRIVATE cxx_std_17)
 target_link_libraries(asnber_example_cpp PRIVATE ${ASNBER_EXAMPLE_LIBRARY})
@@ -19,6 +29,7 @@ target_link_libraries(asnber_example_cpp PRIVATE ${ASNBER_EXAMPLE_LIBRARY})
 if(MSVC)
   target_compile_options(asnber_example_c PRIVATE /utf-8)
   target_compile_options(asnber_example_cpp PRIVATE /utf-8)
+  target_compile_options(asnber_example_pool_estimate PRIVATE /utf-8)
 endif()
 
 # 裁切集成参考。静态库优先，和嵌入式只链静态库的用法一致。

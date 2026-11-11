@@ -829,7 +829,7 @@ typedef struct asnber_error_info {
 | `message` | 静态英文短消息；回调场景不拼接原始回调码，调用方读取 `callback_code` |
 | `offset` | 解码：出错字节偏移；编码：已成功交给 sink 的字节数；无意义 `SIZE_MAX` |
 | `depth` | 出错时的嵌套深度；无意义 0 |
-| `path` | schema 感知解码/校验得到的字段路径；未启用 schema 或无法定位时 `NULL`。路径字符串存放在上下文固定槽位，不经 arena 分配 |
+| `path` | schema 感知解码/校验得到的字段路径；schema 编码失败时为 `类型名` 或 `类型名/字段名`（最内层）。未启用 schema 或无法定位时 `NULL`。路径字符串存放在上下文固定槽位，不经 arena 分配 |
 
 - `asnber_ctx_get_error` 总是返回 `ASNBER_OK`（上下文为空除外），并通过 `code` 表示是否存在错误；无错误时 `message = NULL`、`callback_code = 0`、`offset = SIZE_MAX`、`depth = 0`、`path = NULL`。
 - 回调失败只通过包装码暴露：解码把 reader 回调的非零返回包装为 `ASNBER_E_IO_READ`，编码把 writer 回调的非零返回包装为 `ASNBER_E_IO_WRITE`，原始值放在 `callback_code`。回调返回 `ASNBER_OK` 视为成功。
@@ -955,7 +955,7 @@ struct asnber_buf {
 - `struct_size` 允许调用方使用旧版结构体；库只读取调用方声明的范围内存，并拒绝非零的未知预留字段。
 - 共享库 SONAME 由 `project(... VERSION ...)` 的**主版本**派生：Linux `libasnber.so.<MAJOR>`、macOS `libasnber.<MAJOR>.dylib`；Windows 无 SONAME，使用 `asnber.dll` + 导入库。次版本升级不改变 SONAME。详细规则见[构建与移植](06-构建与移植.md)第 8 节。
 - 模块包（`asnber-pkix`、`asnber-cms`、`asnber-pkcs`、`asnber-pkcs1`、`asnber-pkcs8`、`asnber-pkcs10`、`asnber-pkcs12`）各自声明版本，安装到独立 `lib/cmake/<pkg>`；模块配置使用 `find_dependency(asnber <最低版本> CONFIG)` 声明对核心的最低版本要求。`asnber-pkcs` 聚合包额外 `find_dependency` 四个实现包。
-- **符号增量的版本门槛**：0.1.0 的导出符号基线为 `asnber` 73、`asnber-pkix` 29、`asnber-pkcs1` 31、`asnber-pkcs8` 22、`asnber-pkcs10` 25、`asnber-pkcs12` 37、`asnber-cms` 148，共 **7 个包**（`asnber-pkcs` 不产库、不导符号，无基线文件；记录见 [`abi/README.md`](../abi/README.md)）。任何**新增导出符号**都必须进入 minor 或 major 版本，**不得在 patch 版本中新增符号**；删除、改名或改变既有符号语义只能进入 major。`scripts/check_exports.py` 只校验基线与实际导出一致，不替代版本决策。
+- **符号增量的版本门槛**：当前导出符号基线为 `asnber` 73、`asnber-pkix` 51、`asnber-pkcs1` 31、`asnber-pkcs8` 27、`asnber-pkcs10` 25、`asnber-pkcs12` 37、`asnber-cms` 148，共 **7 个包**（`asnber-pkcs` 不产库、不导符号，无基线文件；记录见 [`abi/README.md`](../abi/README.md)）。`asnber-pkix` 的增加来自 CertificateList 读写，`asnber-pkcs8` 的增加来自 EncryptedPrivateKeyInfo builder。这些符号属于下一个 minor，包版本字符串仍是 0.1.0，发版时再升。任何**新增导出符号**都必须进入 minor 或 major 版本，**不得在 patch 版本中新增符号**；删除、改名或改变既有符号语义只能进入 major。`scripts/check_exports.py` 只校验基线与实际导出一致，不替代版本决策。
 - 只导出 `ASNBER_API` 标记的符号；内部 C++ 符号默认隐藏（`CXX_VISIBILITY_PRESET hidden`）。
 - 不导出 C++ 符号、RTTI 信息或模板实例；公共头文件不要求消费者使用 C++。
 - 核心 ABI 稳定期内，模块可在自身次版本内独立升级；模块跨主版本升级同时要求兼容的核心 ABI 范围。

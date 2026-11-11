@@ -122,8 +122,10 @@ ASNBER_CMS_API asnber_err_t asnber_cms_builder_add_signer(
  * 组装并编码 ContentInfo（contentType = id-signedData）。
  *
  * 成功时 out_buf 由上下文分配，调用方用 asnber_buf_release 归还；失败时
- * out_buf 清零且不产出半成品。必填项缺失（version / digestAlgorithm /
- * eContentType / signer）返回 ASNBER_E_INVALID_STATE。
+ * out_buf 清零且不产出半成品。version 与 eContentType 必填。没有签名者时
+ * 必须至少有一张证书或一份 CRL（certificates-only / CRL-only，digestAlgorithms
+ * 允许为空）；有签名者时必须至少有一条 digestAlgorithm。不满足时返回
+ * ASNBER_E_INVALID_STATE。
  */
 ASNBER_CMS_API asnber_err_t asnber_cms_builder_encode(
     const asnber_cms_builder_t *builder, asnber_buf_t *out_buf);

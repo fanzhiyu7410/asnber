@@ -122,6 +122,7 @@ bool sumKnownFields(const EncState &st, const SchemaType *type,
                 continue;
             }
             *outError = ASNBER_E_SCHEMA_FIELD;
+            noteEncodePath(st, type->name, field.name);
             return false;
         }
         if (isDefaultEqual(st.doc, child, field)) {
@@ -180,6 +181,9 @@ bool sizeSequenceFields(const EncState &st, const SchemaType *type,
                 continue;
             }
             if (!addRetainedChild(st, child, &total, outError)) {
+                if (*outError == ASNBER_E_NON_CANONICAL) {
+                    noteEncodePath(st, type->name, nullptr);
+                }
                 ok = false;
                 break;
             }
@@ -209,6 +213,7 @@ bool sizeSetFields(const EncState &st, const SchemaType *type, const Node *node,
              child = child->nextSibling) {
             if (!isKnownFieldChild(child, slots, type->fieldCount)) {
                 *outError = ASNBER_E_SCHEMA_FIELD;
+                noteEncodePath(st, type->name, nullptr);
                 ok = false;
                 break;
             }
@@ -256,6 +261,7 @@ bool sizeOf(const EncState &st, uint32_t typeId, const Node *node,
         const int32_t index = branchIndex(st.schema, type, node);
         if (index < 0) {
             *outError = ASNBER_E_SCHEMA_TYPE;
+            noteEncodePath(st, type->name, nullptr);
             return false;
         }
         return sizeOf(st, type->fields[index].typeId, node, false, outSize,

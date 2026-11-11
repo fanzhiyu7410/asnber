@@ -264,3 +264,183 @@ extern "C" asnber_err_t asnber_pkcs_private_key_info_builder_encode(
     asnber_doc_destroy(doc);
     return rc;
 }
+
+/* ------------------------------------------------------------------------- */
+/* EncryptedPrivateKeyInfo：只组装算法标识与密文字节，不加密。              */
+/* ------------------------------------------------------------------------- */
+
+struct asnber_pkcs_encrypted_private_key_info_builder {
+    asnber_ctx_t *ctx;
+    bool algorithm_set;
+    char *algorithm_oid;
+    byte_span algorithm_params;
+    bool encrypted_set;
+    byte_span encrypted;
+};
+
+namespace {
+
+asnber_err_t buildEncryptedPrivateKeyInfo(
+    const asnber_pkcs_encrypted_private_key_info_builder &builder,
+    asnber_doc_t **out_doc)
+{
+    asnber_doc_t *doc = nullptr;
+    asnber_err_t rc = asnber_doc_create(builder.ctx, &doc);
+    if (rc != ASNBER_OK) {
+        return rc;
+    }
+    asnber_node_t *root = nullptr;
+    asnber_node_t *ignored = nullptr;
+    rc = createNode(doc, nullptr, ASNBER_TAG_UNIVERSAL, kTagSequence, 1, &root);
+    if (rc == ASNBER_OK) {
+        rc = addAlgorithmIdentifier(doc, root, builder.algorithm_oid,
+                                    builder.algorithm_params);
+    }
+    if (rc == ASNBER_OK) {
+        rc = createOctetStringNode(doc, root, builder.encrypted.data,
+                                   builder.encrypted.size, &ignored);
+    }
+    if (rc == ASNBER_OK) {
+        rc = asnber_doc_seal(doc);
+    }
+    if (rc != ASNBER_OK) {
+        asnber_doc_destroy(doc);
+        return rc;
+    }
+    *out_doc = doc;
+    return ASNBER_OK;
+}
+
+asnber_err_t encodeEncryptedPrivateKeyInfo(
+    const asnber_pkcs_encrypted_private_key_info_builder &builder,
+    const asnber_doc_t *doc, asnber_buf_t *out_buf)
+{
+    const pkcs8_table_view table = pkcs8SchemaTable();
+    asnber_schema_t *schema = nullptr;
+    asnber_err_t rc = loadTable(builder.ctx, table.data, table.size,
+                              kPkcs8RootEncryptedPrivateKeyInfo, &schema);
+    if (rc != ASNBER_OK) {
+        return rc;
+    }
+    asnber_encode_options_t options;
+    asnber_encode_options_init(&options);
+    options.schema = schema;
+    rc = asnber_encode_buffer(builder.ctx, doc, &options, out_buf);
+    asnber_schema_destroy(schema);
+    return rc;
+}
+
+} /* namespace */
+
+extern "C" asnber_err_t asnber_pkcs_encrypted_private_key_info_builder_create(
+    asnber_ctx_t *ctx,
+    asnber_pkcs_encrypted_private_key_info_builder_t **out_builder)
+{
+    if (ctx == nullptr || out_builder == nullptr) {
+        return ASNBER_E_INVALID_ARG;
+    }
+    *out_builder = nullptr;
+    auto *builder = static_cast<asnber_pkcs_encrypted_private_key_info_builder_t *>(
+        std::malloc(sizeof(asnber_pkcs_encrypted_private_key_info_builder_t)));
+    if (builder == nullptr) {
+        return ASNBER_E_NOMEM;
+    }
+    std::memset(builder, 0, sizeof(*builder));
+    builder->ctx = ctx;
+    *out_builder = builder;
+    return ASNBER_OK;
+}
+
+extern "C" void asnber_pkcs_encrypted_private_key_info_builder_destroy(
+    asnber_pkcs_encrypted_private_key_info_builder_t *builder)
+{
+    if (builder == nullptr) {
+        return;
+    }
+    std::free(builder->algorithm_oid);
+    std::free(builder->algorithm_params.data);
+    std::free(builder->encrypted.data);
+    std::memset(builder, 0, sizeof(*builder));
+    std::free(builder);
+}
+
+extern "C" asnber_err_t
+asnber_pkcs_encrypted_private_key_info_builder_set_algorithm(
+    asnber_pkcs_encrypted_private_key_info_builder_t *builder, const char *oid,
+    const uint8_t *parameters_tlv, size_t parameters_size)
+{
+    if (builder == nullptr || oid == nullptr ||
+        (parameters_tlv == nullptr && parameters_size != 0)) {
+        return ASNBER_E_INVALID_ARG;
+    }
+    if (builder->algorithm_set) {
+        return ASNBER_E_INVALID_STATE;
+    }
+    asnber_err_t rc = validateOid(builder->ctx, oid);
+    if (rc != ASNBER_OK) {
+        return rc;
+    }
+    if (parameters_size != 0) {
+        rc = validateSingleDer(builder->ctx, parameters_tlv, parameters_size,
+                               nullptr);
+        if (rc != ASNBER_OK) {
+            return rc;
+        }
+    }
+    char *oid_copy = copyText(oid);
+    if (oid_copy == nullptr) {
+        return ASNBER_E_NOMEM;
+    }
+    uint8_t *params_copy = copyBytes(parameters_tlv, parameters_size);
+    if (parameters_size != 0 && params_copy == nullptr) {
+        std::free(oid_copy);
+        return ASNBER_E_NOMEM;
+    }
+    builder->algorithm_oid = oid_copy;
+    builder->algorithm_params.data = params_copy;
+    builder->algorithm_params.size = parameters_size;
+    builder->algorithm_set = true;
+    return ASNBER_OK;
+}
+
+extern "C" asnber_err_t
+asnber_pkcs_encrypted_private_key_info_builder_set_encrypted_data(
+    asnber_pkcs_encrypted_private_key_info_builder_t *builder,
+    const uint8_t *data, size_t size)
+{
+    if (builder == nullptr || (data == nullptr && size != 0)) {
+        return ASNBER_E_INVALID_ARG;
+    }
+    if (builder->encrypted_set) {
+        return ASNBER_E_INVALID_STATE;
+    }
+    uint8_t *copy = copyBytes(data, size);
+    if (size != 0 && copy == nullptr) {
+        return ASNBER_E_NOMEM;
+    }
+    builder->encrypted.data = copy;
+    builder->encrypted.size = size;
+    builder->encrypted_set = true;
+    return ASNBER_OK;
+}
+
+extern "C" asnber_err_t asnber_pkcs_encrypted_private_key_info_builder_encode(
+    const asnber_pkcs_encrypted_private_key_info_builder_t *builder,
+    asnber_buf_t *out_buf)
+{
+    if (builder == nullptr || out_buf == nullptr) {
+        return ASNBER_E_INVALID_ARG;
+    }
+    resetBuffer(out_buf);
+    if (!builder->algorithm_set || !builder->encrypted_set) {
+        return ASNBER_E_INVALID_STATE;
+    }
+    asnber_doc_t *doc = nullptr;
+    asnber_err_t rc = buildEncryptedPrivateKeyInfo(*builder, &doc);
+    if (rc != ASNBER_OK) {
+        return rc;
+    }
+    rc = encodeEncryptedPrivateKeyInfo(*builder, doc, out_buf);
+    asnber_doc_destroy(doc);
+    return rc;
+}

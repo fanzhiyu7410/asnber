@@ -7,9 +7,9 @@
 | 包 | 符号文件 | 符号数 |
 | --- | --- | --- |
 | `asnber` | `asnber.symbols.txt` | 73 |
-| `asnber-pkix` | `asnber-pkix.symbols.txt` | 29 |
+| `asnber-pkix` | `asnber-pkix.symbols.txt` | 51 |
 | `asnber-pkcs1` | `asnber-pkcs1.symbols.txt` | 31 |
-| `asnber-pkcs8` | `asnber-pkcs8.symbols.txt` | 22 |
+| `asnber-pkcs8` | `asnber-pkcs8.symbols.txt` | 27 |
 | `asnber-pkcs10` | `asnber-pkcs10.symbols.txt` | 25 |
 | `asnber-pkcs12` | `asnber-pkcs12.symbols.txt` | 37 |
 | `asnber-cms` | `asnber-cms.symbols.txt` | 148 |

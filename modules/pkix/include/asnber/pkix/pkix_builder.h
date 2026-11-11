@@ -171,6 +171,57 @@ ASNBER_PKIX_API asnber_err_t asnber_pkix_certificate_builder_set_signature_value
  */
 ASNBER_PKIX_API asnber_err_t asnber_pkix_certificate_builder_encode(
     const asnber_pkix_certificate_builder_t *builder, asnber_buf_t *out_buf);
+
+/*
+ * CertificateList 结构组装。不签名、不决定吊销。issuer 复用证书侧的
+ * RDN 结构。version 只接受 0（省略，v1）与 1（写出 INTEGER 1，v2）。
+ * 吊销项只写 userCertificate 与 revocationDate，不写条目扩展。
+ */
+typedef struct asnber_pkix_crl_builder asnber_pkix_crl_builder_t;
+
+ASNBER_PKIX_API asnber_err_t asnber_pkix_crl_builder_create(
+    asnber_ctx_t *ctx, asnber_pkix_crl_builder_t **out_builder);
+ASNBER_PKIX_API void asnber_pkix_crl_builder_destroy(
+    asnber_pkix_crl_builder_t *builder);
+
+/* 只允许设置一次。0 省略 version，1 写出 v2；其他值返回 ASNBER_E_INVALID_VALUE。 */
+ASNBER_PKIX_API asnber_err_t asnber_pkix_crl_builder_set_version(
+    asnber_pkix_crl_builder_t *builder, int64_t version);
+
+/* 同一算法写入 TBSCertList.signature 与外层 algorithmIdentifier。 */
+ASNBER_PKIX_API asnber_err_t asnber_pkix_crl_builder_set_signature_algorithm(
+    asnber_pkix_crl_builder_t *builder, const char *oid,
+    const uint8_t *parameters_tlv, size_t parameters_size);
+
+/* issuer（必填，只允许设置一次）。空 Name 用 rdn_count == 0。 */
+ASNBER_PKIX_API asnber_err_t asnber_pkix_crl_builder_set_issuer(
+    asnber_pkix_crl_builder_t *builder, const asnber_pkix_name_rdn_t *rdns,
+    size_t rdn_count);
+
+ASNBER_PKIX_API asnber_err_t asnber_pkix_crl_builder_set_this_update(
+    asnber_pkix_crl_builder_t *builder, const asnber_time_t *time);
+ASNBER_PKIX_API asnber_err_t asnber_pkix_crl_builder_set_next_update(
+    asnber_pkix_crl_builder_t *builder, const asnber_time_t *time);
+
+/*
+ * 追加一条吊销记录。serial 为无符号大端幅值。可多次调用。
+ * 不写 crlEntryExtensions。
+ */
+ASNBER_PKIX_API asnber_err_t asnber_pkix_crl_builder_add_revoked(
+    asnber_pkix_crl_builder_t *builder, const uint8_t *serial, size_t serial_size,
+    const asnber_time_t *revocation_date);
+
+/* 外层 signature BIT STRING。模块不计算签名。 */
+ASNBER_PKIX_API asnber_err_t asnber_pkix_crl_builder_set_signature_value(
+    asnber_pkix_crl_builder_t *builder, const uint8_t *bits, size_t size,
+    uint8_t unused_bits);
+
+/*
+ * 签名算法、issuer、thisUpdate、signatureValue 必须已设置，否则返回
+ * ASNBER_E_INVALID_STATE。成功时 out_buf 由 ctx 分配。
+ */
+ASNBER_PKIX_API asnber_err_t asnber_pkix_crl_builder_encode(
+    const asnber_pkix_crl_builder_t *builder, asnber_buf_t *out_buf);
 #endif
 
 #ifdef __cplusplus

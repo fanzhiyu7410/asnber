@@ -94,6 +94,55 @@ ASNBER_PKCS8_API asnber_err_t asnber_pkcs_private_key_info_builder_set_attribute
 ASNBER_PKCS8_API asnber_err_t asnber_pkcs_private_key_info_builder_encode(
     const asnber_pkcs_private_key_info_builder_t *builder, asnber_buf_t *out_buf);
 
+/*
+ * EncryptedPrivateKeyInfo 结构组装（RFC 5208 附录 A）。
+ *
+ * EncryptedPrivateKeyInfo ::= SEQUENCE {
+ *     encryptionAlgorithm AlgorithmIdentifier,
+ *     encryptedData       OCTET STRING }
+ *
+ * 不加密、不派生密钥。调用方给出算法标识和密文字节，模块只按顺序写出。
+ */
+typedef struct asnber_pkcs_encrypted_private_key_info_builder
+    asnber_pkcs_encrypted_private_key_info_builder_t;
+
+/* 创建 builder。空参返回 ASNBER_E_INVALID_ARG；分配失败返回 ASNBER_E_NOMEM。 */
+ASNBER_PKCS8_API asnber_err_t
+asnber_pkcs_encrypted_private_key_info_builder_create(
+    asnber_ctx_t *ctx,
+    asnber_pkcs_encrypted_private_key_info_builder_t **out_builder);
+
+/* 销毁 builder；builder == NULL 为空操作。 */
+ASNBER_PKCS8_API void asnber_pkcs_encrypted_private_key_info_builder_destroy(
+    asnber_pkcs_encrypted_private_key_info_builder_t *builder);
+
+/*
+ * 设置 encryptionAlgorithm（必填，只允许设置一次）。
+ * parameters_tlv 为完整 DER TLV；NULL 且 size 为 0 表示 parameters 缺省。
+ */
+ASNBER_PKCS8_API asnber_err_t
+asnber_pkcs_encrypted_private_key_info_builder_set_algorithm(
+    asnber_pkcs_encrypted_private_key_info_builder_t *builder, const char *oid,
+    const uint8_t *parameters_tlv, size_t parameters_size);
+
+/*
+ * 设置 encryptedData 内容字节（必填，只允许设置一次）。
+ * size 可为 0；data == NULL 且 size != 0 返回 ASNBER_E_INVALID_ARG。
+ */
+ASNBER_PKCS8_API asnber_err_t
+asnber_pkcs_encrypted_private_key_info_builder_set_encrypted_data(
+    asnber_pkcs_encrypted_private_key_info_builder_t *builder,
+    const uint8_t *data, size_t size);
+
+/*
+ * 结束并编码。encryptionAlgorithm 与 encryptedData 必须已设置，否则返回
+ * ASNBER_E_INVALID_STATE。成功时 out_buf 由 ctx 分配。
+ */
+ASNBER_PKCS8_API asnber_err_t
+asnber_pkcs_encrypted_private_key_info_builder_encode(
+    const asnber_pkcs_encrypted_private_key_info_builder_t *builder,
+    asnber_buf_t *out_buf);
+
 #ifdef __cplusplus
 }
 #endif

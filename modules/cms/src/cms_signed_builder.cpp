@@ -633,8 +633,18 @@ extern "C" asnber_err_t asnber_cms_builder_encode(
     out_buf->size = 0;
     out_buf->capacity = 0;
 
-    if (!builder->version_set || builder->digest_count == 0 ||
-        !builder->econtent_type_set || builder->signer_count == 0) {
+    /* version 与 eContentType 必填。RFC 5652 允许 certificates-only：
+     * signerInfos 与 digestAlgorithms 都可以为空，但证书、CRL、签名者
+     * 三者至少要有一项，否则没有可输出的内容。有签名者时仍要求至少一条
+     * digestAlgorithm。 */
+    if (!builder->version_set || !builder->econtent_type_set) {
+        return ASNBER_E_INVALID_STATE;
+    }
+    if (builder->signer_count == 0) {
+        if (builder->cert_count == 0 && builder->crl_count == 0) {
+            return ASNBER_E_INVALID_STATE;
+        }
+    } else if (builder->digest_count == 0) {
         return ASNBER_E_INVALID_STATE;
     }
 

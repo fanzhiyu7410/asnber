@@ -11,8 +11,52 @@
 #include "schema/detail/schema_encode_internal.h"
 
 namespace asnber {
+namespace schema_encode_detail {
+
+void noteEncodePath(const EncState &st, const char *typeName,
+                    const char *fieldName) noexcept
+{
+    char *dst = st.errorPath;
+    const size_t cap = EncState::kEncodePathBytes;
+    size_t used = 0;
+    const auto append = [&](const char *text) {
+        if (text == nullptr) {
+            return;
+        }
+        while (*text != '\0' && used + 1 < cap) {
+            dst[used] = *text;
+            ++used;
+            ++text;
+        }
+    };
+    append(typeName);
+    if (fieldName != nullptr && fieldName[0] != '\0') {
+        if (used != 0 && used + 1 < cap) {
+            dst[used] = '/';
+            ++used;
+        }
+        append(fieldName);
+    }
+    if (used < cap) {
+        dst[used] = '\0';
+    } else if (cap != 0) {
+        dst[cap - 1] = '\0';
+    }
+}
+
+} /* namespace schema_encode_detail */
 
 using namespace schema_encode_detail;
+
+namespace {
+
+void reportEncodeError(Context *ctx, const EncState &st, asnber_err_t error) noexcept
+{
+    const char *path = st.errorPath[0] != '\0' ? st.errorPath : nullptr;
+    contextSetErrorWithPath(ctx, error, SIZE_MAX, 0, path);
+}
+
+} /* namespace */
 
 asnber_err_t schemaMeasureDocument(Context *ctx, const Document *doc,
                                  const Schema *schema, size_t *outSize) noexcept
@@ -31,7 +75,7 @@ asnber_err_t schemaMeasureDocument(Context *ctx, const Document *doc,
     size_t size = 0;
     asnber_err_t error = ASNBER_OK;
     if (!sizeOf(st, schema->rootTypeId, doc->root, false, &size, &error)) {
-        contextSetError(ctx, error, SIZE_MAX, 0);
+        reportEncodeError(ctx, st, error);
         return error;
     }
     *outSize = size;
@@ -56,7 +100,7 @@ asnber_err_t schemaEncodeDocument(Context *ctx, const Document *doc,
     asnber_err_t error = ASNBER_OK;
     size_t used = 0;
     if (!sizeOf(st, schema->rootTypeId, doc->root, false, &total, &error)) {
-        contextSetError(ctx, error, SIZE_MAX, 0);
+        reportEncodeError(ctx, st, error);
         return error;
     }
     if (total > capacity) {
@@ -65,7 +109,7 @@ asnber_err_t schemaEncodeDocument(Context *ctx, const Document *doc,
     }
     if (!writeOf(st, schema->rootTypeId, doc->root, false, dst, capacity, &used,
                  &error)) {
-        contextSetError(ctx, error, SIZE_MAX, 0);
+        reportEncodeError(ctx, st, error);
         return error;
     }
     if (used != total) {
