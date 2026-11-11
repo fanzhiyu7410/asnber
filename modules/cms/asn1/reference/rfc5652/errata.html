@@ -1,0 +1,706 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RFC Errata</title>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/search/">RFC Errata</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="https://www.rfc-editor.org/series/rfc-errata/" rel="noopener" target="_blank">About</a></li>
+                    
+                    <li class="nav-item"><a class="nav-link" href="/oidc/authenticate/">Login</a></li>
+                    
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container my-5">
+        
+<div>
+<h1>Errata</h1>
+
+
+<form id="errata-search-form" method="get">
+    <div class="mb-3"><label class="form-label" for="id_rfc_number">RFC Number</label><input type="number" name="rfc_number" value="5652" class="form-control is-valid" placeholder="RFC Number" id="id_rfc_number"></div><div class="mb-3"><label class="form-label" for="id_errata_id">Errata ID</label><input type="number" name="errata_id" class="form-control is-valid" placeholder="Errata ID" id="id_errata_id"></div><div class="mb-3"><label class="form-label" for="id_status">Status</label><select name="status" class="form-select is-valid" id="id_status">
+  <option value="any">All/Any</option>
+
+  <option value="verified_reported">Verified+Reported</option>
+
+  <option value="verified">Verified</option>
+
+  <option value="reported">Reported</option>
+
+  <option value="held_for_doc_update">Held for Document Update</option>
+
+  <option value="rejected">Rejected</option>
+
+</select></div><div class="mb-3"><label class="form-label" for="id_area">Area Acronym</label><select name="area" class="form-select is-valid" id="id_area">
+  <option value="any">All/Any</option>
+
+  <option value="app">app</option>
+
+  <option value="art">art</option>
+
+  <option value="gen">gen</option>
+
+  <option value="int">int</option>
+
+  <option value="ops">ops</option>
+
+  <option value="rai">rai</option>
+
+  <option value="rtg">rtg</option>
+
+  <option value="sec">sec</option>
+
+  <option value="tsv">tsv</option>
+
+  <option value="wit">wit</option>
+
+</select></div><div class="mb-3"><label class="form-label" for="id_errata_type">Type</label><select name="errata_type" class="form-select is-valid" id="id_errata_type">
+  <option value="any">All/Any</option>
+
+  <option value="editorial">Editorial</option>
+
+  <option value="technical">Technical</option>
+
+</select></div><div class="mb-3"><label class="form-label" for="id_wg_acronym">WG Acronym</label><input type="text" name="wg_acronym" maxlength="40" class="form-control is-valid" placeholder="WG Acronym" id="id_wg_acronym"></div><div class="mb-3"><label class="form-label" for="id_submitter_name">Submitter Name</label><input type="text" name="submitter_name" maxlength="80" class="form-control is-valid" placeholder="Submitter Name" id="id_submitter_name"></div><div class="mb-3"><label class="form-label" for="id_stream">Stream</label><select name="stream" class="form-select is-valid" id="id_stream">
+  <option value="any">All/Any</option>
+
+  <option value="IAB">IAB</option>
+
+  <option value="INDEPENDENT">INDEPENDENT</option>
+
+  <option value="IRTF">IRTF</option>
+
+  <option value="Legacy">Legacy</option>
+
+  <option value="Editorial">Editorial</option>
+
+</select></div><div class="mb-3"><label class="form-label" for="id_date">Date Submitted</label><input type="text" name="date" placeholder="YYYY-MM-DD, YYYY-MM, or YYYY" class="form-control is-valid" id="id_date"></div><div class="mb-3"><label class="form-label" for="id_presentation">Presentation</label><select name="presentation" class="form-select is-valid" id="id_presentation">
+  <option value="table">Table</option>
+
+  <option value="records" selected>Full Records</option>
+
+</select></div>
+    <button class="btn btn-primary" type="submit">Submit</button>
+</form>
+
+<div class="container mt-4">
+    
+    
+        <div class="card mb-4 border-primary">
+            <div class="card-header bg-primary text-white">
+                <h2 class="h5 mb-0">Verified (2)</h2>
+            </div>
+            <div class="card-body">
+                
+                <div class="row g-3">
+                    
+                        <div class="col-md-12">
+                            <div class="card h-100 shadow-sm">
+                                <div class="card-header bg-light text-dark">
+                                    <h3 class="mt-4"><a href="https://www.rfc-editor.org/info/rfc5652" rel="noopener" target="_blank">RFC 5652</a> <a href="https://www.rfc-editor.org/rfc/inline-errata/rfc5652.html" rel="noopener" target="_blank" class="small">inline-errata</a></h3>
+                                    <div class="card-body bg-warning text-light">
+                                        <p class="mb-0"><strong>Source of RFC:</strong> smime (sec)</p>
+                                        
+                                        
+                                            <p class="mb-0"><strong>Updated by:</strong> RFC8933, RFC9629</p>
+                                        
+                                        
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    
+                                        <div class="card mb-4">
+                                            <div class="card-header bg-light text-dark">
+                                                <h4 class="mt-4">Errata-ID: <a href="/eid6250/">6250</a></h4>
+                                            </div>
+                                            <div class="card-body">
+                                                <dl class="row">
+                                                    <dt class="col-sm-4">Status:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span class="badge bg-info">Verified</span>
+                                                    </dd>
+
+                                                    <dt class="col-sm-4">Type:</dt>
+                                                    <dd class="col-sm-8">
+                                                        
+                                                            <span class="badge bg-secondary">Technical</span>
+                                                        
+                                                    </dd>
+
+                                                    
+
+                                                    <dt class="col-sm-4">Reported By:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span>Russ Housley</span>
+                                                    </dd>
+
+                                                    <dt class="col-sm-4">Date Reported:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span>2020-08-06</span>
+                                                    </dd>
+
+                                                    
+                                                        <dt class="col-sm-4">Verified by:</dt>
+                                                        <dd class="col-sm-8">
+                                                            <span>Benjamin Kaduk</span>
+                                                        </dd>
+                                                    
+
+                                                    
+                                                        <dt class="col-sm-4">Date Verified:</dt>
+                                                        <dd class="col-sm-8">
+                                                            <span>2020-08-07</span>
+                                                        </dd>
+                                                    
+
+                                                </dl>
+                                                <p> 
+                                                    
+                                                        Section 9.2 says:
+                                                    
+                                                </p>
+                                                
+                                                    <pre class="bg-light p-3 rounded"><code>   If the authAttrs field is present, the content-type attribute (as
+   described in Section 11.1) and the message-digest attribute (as
+   described in Section 11.2) MUST be included, and the input to the MAC
+   calculation process is the DER encoding of authAttrs.  A separate
+   encoding of the authAttrs field is performed for message digest
+   calculation.  The IMPLICIT [2] tag in the authAttrs field is not used
+   for the DER encoding, rather an EXPLICIT SET OF tag is used.  That
+   is, the DER encoding of the SET OF tag, rather than of the IMPLICIT
+   [2] tag, is to be included in the message digest calculation along
+   with the length and content octets of the authAttrs value.</code></pre>
+                                                
+                                                
+                                                    <p>It should say:</p>
+                                                    <pre class="bg-light p-3 rounded"><code>   If the authAttrs field is present, the content-type attribute (as
+   described in Section 11.1) and the message-digest attribute (as
+   described in Section 11.2) MUST be included, and the input to the MAC
+   calculation process is the DER encoding of authAttrs.  A separate
+   encoding of the authAttrs field is performed for message digest
+   calculation.  The IMPLICIT [2] tag in the authAttrs field is not used
+   for the DER encoding, rather an EXPLICIT SET OF tag is used.  That
+   is, the DER encoding of the SET OF tag, rather than of the IMPLICIT
+   [2] tag, is to be included in the MAC calculation along
+   with the length and content octets of the authAttrs value.</code></pre>
+                                                
+                                                
+                                                    <p>Notes:</p>
+                                                    <pre class="bg-light p-3 rounded errata-notes"><code>The paragraph is talking about the input to a MAC calculation, not the input to message digest calculation.</code></pre>
+                                                
+                                            </div>
+                                        </div>
+                                    
+                                        <div class="card mb-4">
+                                            <div class="card-header bg-light text-dark">
+                                                <h4 class="mt-4">Errata-ID: <a href="/eid6546/">6546</a></h4>
+                                            </div>
+                                            <div class="card-body">
+                                                <dl class="row">
+                                                    <dt class="col-sm-4">Status:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span class="badge bg-info">Verified</span>
+                                                    </dd>
+
+                                                    <dt class="col-sm-4">Type:</dt>
+                                                    <dd class="col-sm-8">
+                                                        
+                                                            <span class="badge bg-secondary">Editorial</span>
+                                                        
+                                                    </dd>
+
+                                                    
+
+                                                    <dt class="col-sm-4">Reported By:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span>Daniel Kahn Gillmor</span>
+                                                    </dd>
+
+                                                    <dt class="col-sm-4">Date Reported:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span>2021-04-15</span>
+                                                    </dd>
+
+                                                    
+                                                        <dt class="col-sm-4">Verified by:</dt>
+                                                        <dd class="col-sm-8">
+                                                            <span>Benjamin Kaduk</span>
+                                                        </dd>
+                                                    
+
+                                                    
+                                                        <dt class="col-sm-4">Date Verified:</dt>
+                                                        <dd class="col-sm-8">
+                                                            <span>2021-04-15</span>
+                                                        </dd>
+                                                    
+
+                                                </dl>
+                                                <p> 
+                                                    
+                                                        Section 12.1 says:
+                                                    
+                                                </p>
+                                                
+                                                    <pre class="bg-light p-3 rounded"><code>  -- Imports from Appendix B of this document
+           AttributeCertificateV1
+              FROM AttributeCertificateVersion1</code></pre>
+                                                
+                                                
+                                                    <p>It should say:</p>
+                                                    <pre class="bg-light p-3 rounded"><code>  -- Imports from Section 12.2 of this document
+           AttributeCertificateV1
+              FROM AttributeCertificateVersion1</code></pre>
+                                                
+                                                
+                                                    <p>Notes:</p>
+                                                    <pre class="bg-light p-3 rounded errata-notes"><code>The AttributeCertificateVersion1 is defined in section 12.2; there is no Appendix B in this document.</code></pre>
+                                                
+                                            </div>
+                                        </div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    
+                </div>
+            </div>
+        </div>
+    
+        <div class="card mb-4 border-primary">
+            <div class="card-header bg-primary text-white">
+                <h2 class="h5 mb-0">Held for Document Update (3)</h2>
+            </div>
+            <div class="card-body">
+                
+                <div class="row g-3">
+                    
+                        <div class="col-md-12">
+                            <div class="card h-100 shadow-sm">
+                                <div class="card-header bg-light text-dark">
+                                    <h3 class="mt-4"><a href="https://www.rfc-editor.org/info/rfc5652" rel="noopener" target="_blank">RFC 5652</a> <a href="https://www.rfc-editor.org/rfc/inline-errata/rfc5652.html" rel="noopener" target="_blank" class="small">inline-errata</a></h3>
+                                    <div class="card-body bg-warning text-light">
+                                        <p class="mb-0"><strong>Source of RFC:</strong> smime (sec)</p>
+                                        
+                                        
+                                            <p class="mb-0"><strong>Updated by:</strong> RFC8933, RFC9629</p>
+                                        
+                                        
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    
+                                        <div class="card mb-4">
+                                            <div class="card-header bg-light text-dark">
+                                                <h4 class="mt-4">Errata-ID: <a href="/eid7863/">7863</a></h4>
+                                            </div>
+                                            <div class="card-body">
+                                                <dl class="row">
+                                                    <dt class="col-sm-4">Status:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span class="badge bg-info">Held for Document Update</span>
+                                                    </dd>
+
+                                                    <dt class="col-sm-4">Type:</dt>
+                                                    <dd class="col-sm-8">
+                                                        
+                                                            <span class="badge bg-secondary">Technical</span>
+                                                        
+                                                    </dd>
+
+                                                    
+
+                                                    <dt class="col-sm-4">Reported By:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span>heasley</span>
+                                                    </dd>
+
+                                                    <dt class="col-sm-4">Date Reported:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span>2024-03-21</span>
+                                                    </dd>
+
+                                                    
+                                                        <dt class="col-sm-4">Held for Document Update by:</dt>
+                                                        <dd class="col-sm-8">
+                                                            <span>Deb Cooley</span>
+                                                        </dd>
+                                                    
+
+                                                    
+                                                        <dt class="col-sm-4">Date Held for Document Update:</dt>
+                                                        <dd class="col-sm-8">
+                                                            <span>2024-03-22</span>
+                                                        </dd>
+                                                    
+
+                                                </dl>
+                                                <p> 
+                                                    
+                                                        Section 5.2 says:
+                                                    
+                                                </p>
+                                                
+                                                    <pre class="bg-light p-3 rounded"><code>&quot;... and the content
+   field of the EncapsulatedContentInfo value MUST be omitted.&quot;</code></pre>
+                                                
+                                                
+                                                    <p>It should say:</p>
+                                                    <pre class="bg-light p-3 rounded"><code>&quot;... and the eContent
+   field of the EncapsulatedContentInfo value MUST be omitted.&quot;</code></pre>
+                                                
+                                                
+                                                    <p>Notes:</p>
+                                                    <pre class="bg-light p-3 rounded errata-notes"><code>No &#x27;content&#x27; field exists and I do not think this is referring to another structure.</code></pre>
+                                                
+                                            </div>
+                                        </div>
+                                    
+                                        <div class="card mb-4">
+                                            <div class="card-header bg-light text-dark">
+                                                <h4 class="mt-4">Errata-ID: <a href="/eid2026/">2026</a></h4>
+                                            </div>
+                                            <div class="card-body">
+                                                <dl class="row">
+                                                    <dt class="col-sm-4">Status:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span class="badge bg-info">Held for Document Update</span>
+                                                    </dd>
+
+                                                    <dt class="col-sm-4">Type:</dt>
+                                                    <dd class="col-sm-8">
+                                                        
+                                                            <span class="badge bg-secondary">Editorial</span>
+                                                        
+                                                    </dd>
+
+                                                    
+
+                                                    <dt class="col-sm-4">Reported By:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span>Alfred Hoenes</span>
+                                                    </dd>
+
+                                                    <dt class="col-sm-4">Date Reported:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span>2010-01-28</span>
+                                                    </dd>
+
+                                                    
+                                                        <dt class="col-sm-4">Held for Document Update by:</dt>
+                                                        <dd class="col-sm-8">
+                                                            <span>Tim Polk</span>
+                                                        </dd>
+                                                    
+
+                                                    
+
+                                                </dl>
+                                                <p> 
+                                                    
+                                                        Section 5.3, pg. 15 says:
+                                                    
+                                                </p>
+                                                
+                                                    <pre class="bg-light p-3 rounded"><code>[[  around the page break from page 14 to page 15: ]]
+
+      digestAlgorithm identifies the message digest algorithm, and any
+      associated parameters, used by the signer.  The message digest is
+      computed on either the content being signed or the content
+&lt;&lt; page break &gt;&gt;
+      together with the signed attributes using the process described in
+      Section 5.4.  The message digest algorithm SHOULD be among those
+|     listed in the digestAlgorithms field of the associated SignerData.
+                                                             ^^^^^^^^^^
+      Implementations MAY fail to validate signatures that use a digest
+      algorithm that is not included in the SignedData digestAlgorithms
+      set.</code></pre>
+                                                
+                                                
+                                                    <p>It should say:</p>
+                                                    <pre class="bg-light p-3 rounded"><code>      digestAlgorithm identifies the message digest algorithm, and any
+      associated parameters, used by the signer.  The message digest is
+      computed on either the content being signed or the content
+      together with the signed attributes using the process described in
+      Section 5.4.  The message digest algorithm SHOULD be among those
+|     listed in the digestAlgorithms field of the associated SignedData.
+      Implementations MAY fail to validate signatures that use a digest
+      algorithm that is not included in the SignedData digestAlgorithms
+      set.</code></pre>
+                                                
+                                                
+                                                    <p>Notes:</p>
+                                                    <pre class="bg-light p-3 rounded errata-notes"><code>Rationale:
+  There&#x27;s no such ASN.1 type/object named &quot;SignerData&quot; in relevant
+  specifications.   Text should refer to &quot;SignedData&quot; instead.
+  This is an undetected legacy flaw inherited literally from RFC 2630,
+  RFC 3369, and RFC 3852.</code></pre>
+                                                
+                                            </div>
+                                        </div>
+                                    
+                                        <div class="card mb-4">
+                                            <div class="card-header bg-light text-dark">
+                                                <h4 class="mt-4">Errata-ID: <a href="/eid3867/">3867</a></h4>
+                                            </div>
+                                            <div class="card-body">
+                                                <dl class="row">
+                                                    <dt class="col-sm-4">Status:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span class="badge bg-info">Held for Document Update</span>
+                                                    </dd>
+
+                                                    <dt class="col-sm-4">Type:</dt>
+                                                    <dd class="col-sm-8">
+                                                        
+                                                            <span class="badge bg-secondary">Editorial</span>
+                                                        
+                                                    </dd>
+
+                                                    
+
+                                                    <dt class="col-sm-4">Reported By:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span>Jos Breek</span>
+                                                    </dd>
+
+                                                    <dt class="col-sm-4">Date Reported:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span>2014-01-16</span>
+                                                    </dd>
+
+                                                    
+                                                        <dt class="col-sm-4">Held for Document Update by:</dt>
+                                                        <dd class="col-sm-8">
+                                                            <span>Kathleen Moriarty</span>
+                                                        </dd>
+                                                    
+
+                                                    
+                                                        <dt class="col-sm-4">Date Held for Document Update:</dt>
+                                                        <dd class="col-sm-8">
+                                                            <span>2015-03-24</span>
+                                                        </dd>
+                                                    
+
+                                                </dl>
+                                                <p> 
+                                                    
+                                                        Section 5.3 says:
+                                                    
+                                                </p>
+                                                
+                                                    <pre class="bg-light p-3 rounded"><code>digestAlgorithm identifies the message digest algorithm, and any
+associated parameters, used by the signer.</code></pre>
+                                                
+                                                
+                                                    <p>It should say:</p>
+                                                    <pre class="bg-light p-3 rounded"><code>digestAlgorithm identifies the message digest algorithm, and any
+associated parameters, used by the signer in the signature Generation 
+Process. </code></pre>
+                                                
+                                                
+                                                    <p>Notes:</p>
+                                                    <pre class="bg-light p-3 rounded errata-notes"><code>The text stated that the message digest algorithm is &quot;used by the signer&quot;. It is unclear for what purpose the message digest algorithm is used.  This recommendation is editorial and was accepted.
+
+
+Additional text provided was not accepted as there is no requirement that digest used on the body is the same as the digest used in the signature operation.
+
+The following sentence was suggested (and rejected):
+&quot;The message digest algorithm shall be equal to the message 
+digest algorithm used in the signatureAlgorithm field.&quot;
+
+With the explanation in the original errata report for this additional sentence as:
+There are implementations that use the message digest algorithm specified in the messageDigest field instead of the message digest algorithm specified in the signatureAlgorithm.
+
+Is the purpose of the messageDigest field to nest the hashing algorithm used in the signing process? If so, please use the corrected text to clarify the goal of the field.</code></pre>
+                                                
+                                            </div>
+                                        </div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    
+                </div>
+            </div>
+        </div>
+    
+        <div class="card mb-4 border-primary">
+            <div class="card-header bg-primary text-white">
+                <h2 class="h5 mb-0">Rejected (1)</h2>
+            </div>
+            <div class="card-body">
+                
+                <div class="row g-3">
+                    
+                        <div class="col-md-12">
+                            <div class="card h-100 shadow-sm">
+                                <div class="card-header bg-light text-dark">
+                                    <h3 class="mt-4"><a href="https://www.rfc-editor.org/info/rfc5652" rel="noopener" target="_blank">RFC 5652</a> <a href="https://www.rfc-editor.org/rfc/inline-errata/rfc5652.html" rel="noopener" target="_blank" class="small">inline-errata</a></h3>
+                                    <div class="card-body bg-warning text-light">
+                                        <p class="mb-0"><strong>Source of RFC:</strong> smime (sec)</p>
+                                        
+                                        
+                                            <p class="mb-0"><strong>Updated by:</strong> RFC8933, RFC9629</p>
+                                        
+                                        
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    
+                                        <div class="card mb-4">
+                                            <div class="card-header bg-light text-dark">
+                                                <h4 class="mt-4">Errata-ID: <a href="/eid5331/">5331</a></h4>
+                                            </div>
+                                            <div class="card-body">
+                                                <dl class="row">
+                                                    <dt class="col-sm-4">Status:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span class="badge bg-info">Rejected</span>
+                                                    </dd>
+
+                                                    <dt class="col-sm-4">Type:</dt>
+                                                    <dd class="col-sm-8">
+                                                        
+                                                            <span class="badge bg-secondary">Technical</span>
+                                                        
+                                                    </dd>
+
+                                                    
+
+                                                    <dt class="col-sm-4">Reported By:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span>Thomas Stimm</span>
+                                                    </dd>
+
+                                                    <dt class="col-sm-4">Date Reported:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span>2018-04-23</span>
+                                                    </dd>
+
+                                                    
+                                                        <dt class="col-sm-4">Rejected by:</dt>
+                                                        <dd class="col-sm-8">
+                                                            <span>Eric Rescorla</span>
+                                                        </dd>
+                                                    
+
+                                                    
+                                                        <dt class="col-sm-4">Date Rejected:</dt>
+                                                        <dd class="col-sm-8">
+                                                            <span>2018-04-27</span>
+                                                        </dd>
+                                                    
+
+                                                </dl>
+                                                <p> 
+                                                    
+                                                        Section 6.1 and 8 says:
+                                                    
+                                                </p>
+                                                
+                                                    <pre class="bg-light p-3 rounded"><code>EncryptedData ::= SEQUENCE {
+   version CMSVersion,
+   encryptedContentInfo EncryptedContentInfo,
+   unprotectedAttrs [1] IMPLICIT UnprotectedAttributes OPTIONAL }
+
+EncryptedContentInfo ::= SEQUENCE {
+   contentType ContentType,
+   contentEncryptionAlgorithm ContentEncryptionAlgorithmIdentifier,
+   encryptedContent [0] IMPLICIT EncryptedContent OPTIONAL }
+</code></pre>
+                                                
+                                                
+                                                    <p>It should say:</p>
+                                                    <pre class="bg-light p-3 rounded"><code>EncryptedData ::= SEQUENCE {
+   version CMSVersion,
+   encryptedContentInfo EncryptedContentInfo,
+   encryptedContent [0] IMPLICIT EncryptedContent OPTIONAL,
+   unprotectedAttrs [1] IMPLICIT UnprotectedAttributes OPTIONAL }
+
+EncryptedContentInfo ::= SEQUENCE {
+   contentType ContentType,
+   contentEncryptionAlgorithm ContentEncryptionAlgorithmIdentifier }
+</code></pre>
+                                                
+                                                
+                                                    <p>Notes:</p>
+                                                    <pre class="bg-light p-3 rounded errata-notes"><code>- Wrong enumeration of UnprotectedAttributes OPTIONAL [1] instead of [0]. 
+- ‘UnprotectedAttributes OPTIONAL’ makes only sense, if ‘EncryptedContent OPTIONAL’ is available.
+- It seems that OpenSSL and wolfSSL are using the suggested wrapping and are not following the RFC, here.
+ --VERIFIER NOTES-- 
+   Misunderstanding of the specification</code></pre>
+                                                
+                                            </div>
+                                        </div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    
+                </div>
+            </div>
+        </div>
+    
+</div>
+<a href="/new/entry-instructions/" class="btn btn-primary">Report New Erratum</a>
+</div>
+
+    </main>
+
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container-xl">
+            <div class="row">
+                <div class="col">
+                    <div class="mb-4">rfc-editor.org is maintained by the <a href="https://www.ietf.org/" rel="noopener" target="_blank">Internet Engineering Task Force</a></div>
+                    <img src="https://static.ietf.org/logos/ietf-inverted.svg" alt="IETF"
+                        style="width: 105px; height: 60px" />
+                </div>
+                <div class="col">
+                    <div class="row">
+                        <div class="col">
+                            <h5>Useful links</h5>
+                            <ul class="list-unstyled mt-3">
+                                <li><a href="https://www.ietf.org" rel="noopener" target="_blank" class="text-white">IETF.org</a></li>
+                                <li><a href="https://www.irtf.org" rel="noopener" target="_blank" class="text-white">IRTF.org</a></li>
+                                <li><a href="https://www.iab.org" rel="noopener" target="_blank" class="text-white">IAB.org</a></li>
+                                <li><a href="https://datatracker.ietf.org" rel="noopener" target="_blank" class="text-white">Datatracker</a></li>
+                                <li><a href="https://authors.ietf.org" rel="noopener" target="_blank" class="text-white">Author Resources</a></li>
+                            </ul>
+                        </div>
+                        <div class="col">
+                            <h5>Contact Us</h5>
+                            <ul class="list-unstyled mt-3">
+                                <li><a href="https://www.rfc-editor.org/about/contact/" rel="noopener" target="_blank" class="text-white">RFC Editor</a></li>
+                                <li><a href="http://mailman.rfc-editor.org/mailman/listinfo/rfc-dist" rel="noopener" target="_blank" class="text-white">rfc-dist Info Page</a></li>
+                                <li><a href="http://mailman.rfc-editor.org/mailman/listinfo/rfc-interest" rel="noopener" target="_blank" class="text-white">rfc-interest Info Page</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

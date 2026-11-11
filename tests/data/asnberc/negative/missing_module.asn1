@@ -1,0 +1,10 @@
+MissingModuleSample DEFINITIONS IMPLICIT TAGS ::=
+BEGIN
+
+IMPORTS NegRecord FROM NegMissing-2026;
+
+Holder ::= SEQUENCE {
+    r NegRecord
+}
+
+END

@@ -1,0 +1,9 @@
+-- 约束边界引用已定义整数值的正例。
+
+ValueRef DEFINITIONS ::= BEGIN
+
+maxSize INTEGER ::= 256
+
+LimitedString ::= OCTET STRING (SIZE (1..maxSize))
+
+END

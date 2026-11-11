@@ -1,0 +1,2 @@
+/* 自包含编译测试：本翻译单元只包含一个公共头。 */
+#include <@ASNBER_HEADER_REL@>

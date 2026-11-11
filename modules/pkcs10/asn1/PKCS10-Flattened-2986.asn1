@@ -1,0 +1,55 @@
+-- 自包含展平模块：PKCS#10（RFC 2986，2000-11）
+-- 来源：RFC 2986 第 4 节与附录 A；Name 取 X.501 的 RDNSequence 结构；
+--      AlgorithmIdentifier 取 RFC 2986 4.2 的定义。
+-- 展平规则：去 IMPORT，开放类型字段改为 ANY（保留完整原始 TLV）。
+-- 本文件只描述 ASN.1 结构，不含密码学语义；不校验任何签名。
+PKCS10-Flattened-2986
+    DEFINITIONS IMPLICIT TAGS ::=
+BEGIN
+
+-- RFC 2986 4.2
+CertificationRequest ::= SEQUENCE {
+    certificationRequestInfo  CertificationRequestInfo,
+    signatureAlgorithm        AlgorithmIdentifier,
+    signature                 BIT STRING }
+
+-- RFC 2986 4.1
+CertificationRequestInfo ::= SEQUENCE {
+    version         Version,
+    subject         Name,
+    subjectPKInfo   SubjectPublicKeyInfo,
+    attributes      [0] IMPLICIT Attributes }
+
+-- 原版为 INTEGER { v1(0) } (v1,...)。值名与扩展标记不影响 DER 结构，
+-- 展平后使用无约束 INTEGER：非 0 版本是合法 DER，应按原值返回，不在
+-- 解码期被值名约束拒绝。
+Version ::= INTEGER
+
+-- X.501 Name 的单一选择项 rdnSequence；展平后直接使用 RDNSequence。
+Name ::= RDNSequence
+
+RDNSequence ::= SEQUENCE OF RelativeDistinguishedName
+
+RelativeDistinguishedName ::= SET SIZE (1..MAX) OF AttributeTypeAndValue
+
+AttributeTypeAndValue ::= SEQUENCE {
+    type   OBJECT IDENTIFIER,
+    value  ANY }
+
+-- RFC 2986 4.1；subjectPublicKey 的算法相关语义由调用方按 OID 解释。
+SubjectPublicKeyInfo ::= SEQUENCE {
+    algorithm         AlgorithmIdentifier,
+    subjectPublicKey  BIT STRING }
+
+Attributes ::= SET OF Attribute
+
+Attribute ::= SEQUENCE {
+    type    OBJECT IDENTIFIER,
+    values  SET SIZE (1..MAX) OF ANY }
+
+-- RFC 2986 4.2；parameters 为随算法 OID 变化的开放类型，展平为 ANY。
+AlgorithmIdentifier ::= SEQUENCE {
+    algorithm   OBJECT IDENTIFIER,
+    parameters  ANY OPTIONAL }
+
+END

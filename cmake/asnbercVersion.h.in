@@ -1,0 +1,22 @@
+/*
+ * Copyright (c) 2026 asnber project contributors
+ * SPDX-License-Identifier: MIT
+ */
+
+/*
+ * asnberc 独立版本头模板。由 tools/asnberc 自己的 project(... VERSION ...) 生成，
+ * 源码树中不手写版本字符串。该头只供工具内部使用，不随工具安装。
+ */
+#ifndef ASNBERC_VERSION_H_INCLUDED
+#define ASNBERC_VERSION_H_INCLUDED
+
+#define ASNBERC_VERSION_MAJOR @PROJECT_VERSION_MAJOR@
+#define ASNBERC_VERSION_MINOR @PROJECT_VERSION_MINOR@
+#define ASNBERC_VERSION_PATCH @PROJECT_VERSION_PATCH@
+#define ASNBERC_VERSION_STRING "@PROJECT_VERSION@"
+
+/* 编码规则：major << 16 | minor << 8 | patch */
+#define ASNBERC_VERSION_ENCODED \
+    ((ASNBERC_VERSION_MAJOR << 16) | (ASNBERC_VERSION_MINOR << 8) | ASNBERC_VERSION_PATCH)
+
+#endif /* ASNBERC_VERSION_H_INCLUDED */

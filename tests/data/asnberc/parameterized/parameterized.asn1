@@ -1,0 +1,17 @@
+-- 参数化定义与实例化正例：两个模板，实例化后与 flattened.asn1 逐字节一致。
+
+ParamTest DEFINITIONS ::= BEGIN
+
+AlgorithmIdentifier { Type } ::= SEQUENCE {
+    algorithm  OBJECT IDENTIFIER,
+    parameters Type OPTIONAL
+}
+
+SubjectPublicKeyInfo { Type } ::= SEQUENCE {
+    algorithm        AlgorithmIdentifier { Type },
+    subjectPublicKey BIT STRING
+}
+
+MyKey ::= SubjectPublicKeyInfo { INTEGER }
+
+END

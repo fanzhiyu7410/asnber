@@ -1,0 +1,8 @@
+-- 负例：参数化类型定义一期不支持，期望
+-- ASNBERC_E_UNSUPPORTED_CONSTRUCT (9006)。
+
+NegativeParameterized DEFINITIONS ::= BEGIN
+
+Thing { INTEGER } ::= INTEGER
+
+END

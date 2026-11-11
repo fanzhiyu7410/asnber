@@ -1,0 +1,12 @@
+-- 负例：DEFAULT 引用了未定义的整数值，期望
+-- ASNBERC_E_CONSTRAINT_INVALID (9009)。
+
+NegativeDefaultRef DEFINITIONS ::= BEGIN
+
+SmallInt ::= INTEGER (0..10)
+
+Thing ::= SEQUENCE {
+    value  SmallInt DEFAULT missingValue
+}
+
+END

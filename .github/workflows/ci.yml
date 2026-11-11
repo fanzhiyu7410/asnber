@@ -1,0 +1,300 @@
+# Copyright (c) 2026 asnber project contributors
+# SPDX-License-Identifier: MIT
+#
+# 统一 CI 矩阵：每个平台只跑同一套核心步骤
+#   cmake -S . -B build -> cmake --build build -> ctest
+# 覆盖 Debug/Release 与共享/静态四种组合，全部开启 ASNBER_WARNINGS_AS_ERRORS。
+# 模块默认随 ASNBER_BUILD_MODULES 构建；这里显式打开 asnber-pkcs 与 asnber-cms，
+# 确保其用例进入全部 24 个组合，不依赖选项默认值。
+
+name: ci
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # 结构守卫与平台无关：任何 .cpp 超过 800 行即失败，允许清单只能变短。
+  size-guard:
+    name: size-guard
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: 单文件行数守卫
+        run: python3 scripts/check_file_size.py
+
+  # 基线证据 fail-closed：ABI 符号集合逐符号比对、描述表自建再生目录后逐字节
+  # 比对、ctest 失败用例名与真实退出码、断言计数由脚本派生。
+  baseline:
+    name: baseline
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 安装工具链
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build
+
+      - name: 配置
+        run: |
+          cmake -S . -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DASNBER_BUILD_TESTS=ON \
+            -DASNBER_BUILD_TOOLS=ON \
+            -DASNBER_BUILD_MODULES=ON \
+            -DASNBER_BUILD_MODULE_PKCS=ON \
+            -DASNBER_BUILD_MODULE_CMS=ON \
+            -DASNBER_BUILD_DIFFERENTIAL=ON \
+            -DASNBER_BUILD_SHARED=ON \
+            -DASNBER_BUILD_STATIC=ON
+
+      - name: 构建
+        run: cmake --build build --parallel
+
+      - name: 基线证据（--strict）
+        run: python3 scripts/refactor_baseline.py --strict --build-dir build
+
+  # 证明基线脚本不是空转：临时克隆内做三次变异，全部必须以非零退出。
+  baseline-selfcheck:
+    name: baseline-selfcheck
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 安装工具链
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build
+
+      - name: 三次变异自检
+        run: python3 scripts/baseline_selfcheck.py
+
+  build:
+    name: ${{ matrix.platform }}-${{ matrix.build_type }}-${{ matrix.link_mode }}
+    runs-on: ${{ matrix.os }}
+    # 防止某个平台挂起把整次 run 拖成永不终结；超时按失败处理，不作为成功。
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [linux-gcc, linux-clang, macos-x86_64, macos-arm64, windows-msvc,
+          windows-mingw]
+        build_type: [Debug, Release]
+        link_mode: [shared, static]
+        # include 条目必须带上 platform，才能作为该平台的属性合并进对应组合；
+        # 不带 platform 的条目会被叠加到同一组原始组合上并互相覆盖（矩阵塌缩）。
+        include:
+          - platform: linux-gcc
+            os: ubuntu-24.04
+            cc: gcc-13
+            cxx: g++-13
+            generator: Ninja
+          - platform: linux-clang
+            os: ubuntu-24.04
+            cc: clang
+            cxx: clang++
+            generator: Ninja
+          - platform: macos-x86_64
+            os: macos-15-intel
+            cc: clang
+            cxx: clang++
+            generator: Ninja
+          - platform: macos-arm64
+            os: macos-15
+            cc: clang
+            cxx: clang++
+            generator: Ninja
+          - platform: windows-msvc
+            os: windows-2022
+            cc: ""
+            cxx: ""
+            generator: ""
+          - platform: windows-mingw
+            os: windows-2022
+            cc: gcc
+            cxx: g++
+            generator: Ninja
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 安装 Linux 工具链
+        if: matrix.platform == 'linux-gcc' || matrix.platform == 'linux-clang'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build
+          if [ "${{ matrix.cc }}" = "gcc-13" ]; then
+            sudo apt-get install -y gcc-13 g++-13
+          fi
+
+      - name: 安装 MinGW 工具链（MSYS2）
+        if: matrix.platform == 'windows-mingw'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: false
+          install: >-
+            mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-ucrt-x86_64-cmake
+            mingw-w64-ucrt-x86_64-ninja
+            mingw-w64-ucrt-x86_64-python
+          path-type: inherit
+
+      - name: 配置（Linux/macOS）
+        if: matrix.platform != 'windows-msvc' && matrix.platform != 'windows-mingw'
+        shell: bash
+        run: |
+          cmake -S . -B build -G "${{ matrix.generator }}" \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DCMAKE_C_COMPILER=${{ matrix.cc }} \
+            -DCMAKE_CXX_COMPILER=${{ matrix.cxx }} \
+            -DASNBER_BUILD_TESTS=ON \
+            -DASNBER_BUILD_EXAMPLES=ON \
+            -DASNBER_WARNINGS_AS_ERRORS=ON \
+            -DASNBER_BUILD_MODULE_PKCS=ON \
+            -DASNBER_BUILD_MODULE_CMS=ON \
+            -DASNBER_BUILD_SHARED=${{ matrix.link_mode == 'shared' && 'ON' || 'OFF' }} \
+            -DASNBER_BUILD_STATIC=${{ matrix.link_mode == 'static' && 'ON' || 'OFF' }}
+
+      - name: 配置（MinGW）
+        if: matrix.platform == 'windows-mingw'
+        shell: msys2 {0}
+        run: |
+          cmake -S . -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DCMAKE_C_COMPILER=gcc \
+            -DCMAKE_CXX_COMPILER=g++ \
+            -DASNBER_BUILD_TESTS=ON \
+            -DASNBER_BUILD_EXAMPLES=ON \
+            -DASNBER_WARNINGS_AS_ERRORS=ON \
+            -DASNBER_BUILD_MODULE_PKCS=ON \
+            -DASNBER_BUILD_MODULE_CMS=ON \
+            -DASNBER_BUILD_SHARED=${{ matrix.link_mode == 'shared' && 'ON' || 'OFF' }} \
+            -DASNBER_BUILD_STATIC=${{ matrix.link_mode == 'static' && 'ON' || 'OFF' }}
+
+      - name: 配置（MSVC）
+        if: matrix.platform == 'windows-msvc'
+        shell: bash
+        run: |
+          cmake -S . -B build -A x64 \
+            -DASNBER_BUILD_TESTS=ON \
+            -DASNBER_BUILD_EXAMPLES=ON \
+            -DASNBER_WARNINGS_AS_ERRORS=ON \
+            -DASNBER_BUILD_MODULE_PKCS=ON \
+            -DASNBER_BUILD_MODULE_CMS=ON \
+            -DASNBER_BUILD_SHARED=${{ matrix.link_mode == 'shared' && 'ON' || 'OFF' }} \
+            -DASNBER_BUILD_STATIC=${{ matrix.link_mode == 'static' && 'ON' || 'OFF' }} \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+
+      - name: 构建（Linux/macOS）
+        if: matrix.platform != 'windows-msvc' && matrix.platform != 'windows-mingw'
+        shell: bash
+        # tee 让编译诊断实时进入 step 日志，同时保留 build.log 供后续注解步骤使用；
+        # 只重定向不输出会让失败只剩一行 exit code。
+        run: cmake --build build --parallel 2>&1 | tee build.log
+
+      - name: 构建日志（Linux/macOS）
+        if: always() && matrix.platform != 'windows-msvc' && matrix.platform != 'windows-mingw'
+        shell: bash
+        run: |
+          if [ -f build.log ]; then
+            tail -n 120 build.log
+            # 匿名访问无法下载 Actions 日志（REST 返回 403），把编译诊断行提升为
+            # annotation，可通过 check-runs annotations 接口匿名取回；
+            # annotation 只影响展示，不改变任何步骤或 job 的结论。
+            # grep 无匹配时退出码为 1，而 GitHub 的 bash 默认 -e -o pipefail，
+            # 故先落盘再逐行读出，避免“没匹配到”被当成步骤失败。
+            grep -E 'error[: ]' build.log | head -n 20 | sed 's/%/%25/g' > diag.err.txt || true
+            while IFS= read -r line; do echo "::error::$line"; done < diag.err.txt
+            grep -E 'warning[: ]' build.log | head -n 20 | sed 's/%/%25/g' > diag.warn.txt || true
+            while IFS= read -r line; do echo "::warning::$line"; done < diag.warn.txt
+          fi
+
+      - name: 构建（MinGW）
+        if: matrix.platform == 'windows-mingw'
+        shell: msys2 {0}
+        # 同 Linux/macOS：tee 同时写日志与标准输出。
+        run: cmake --build build --parallel 2>&1 | tee build.log
+
+      - name: 构建日志（MinGW）
+        if: always() && matrix.platform == 'windows-mingw'
+        shell: msys2 {0}
+        run: |
+          if [ -f build.log ]; then
+            tail -n 120 build.log
+            # 匿名访问无法下载 Actions 日志（REST 返回 403），把编译诊断行提升为
+            # annotation，可通过 check-runs annotations 接口匿名取回；
+            # annotation 只影响展示，不改变任何步骤或 job 的结论。
+            # grep 无匹配时退出码为 1，而 GitHub 的 bash 默认 -e -o pipefail，
+            # 故先落盘再逐行读出，避免“没匹配到”被当成步骤失败。
+            grep -E 'error[: ]' build.log | head -n 20 | sed 's/%/%25/g' > diag.err.txt || true
+            while IFS= read -r line; do echo "::error::$line"; done < diag.err.txt
+            grep -E 'warning[: ]' build.log | head -n 20 | sed 's/%/%25/g' > diag.warn.txt || true
+            while IFS= read -r line; do echo "::warning::$line"; done < diag.warn.txt
+          fi
+
+      - name: 构建（MSVC）
+        if: matrix.platform == 'windows-msvc'
+        shell: bash
+        # 同 Linux/macOS：tee 同时写日志与标准输出；MSVC 的诊断行含反斜杠路径，
+        # 之前整体重定向导致失败时只能看到一行 exit code。
+        run: cmake --build build --config ${{ matrix.build_type }} --parallel 2>&1 | tee build.log
+
+      - name: 构建日志（MSVC）
+        if: always() && matrix.platform == 'windows-msvc'
+        shell: bash
+        run: |
+          if [ -f build.log ]; then
+            tail -n 120 build.log
+            # 匿名访问无法下载 Actions 日志（REST 返回 403），把编译诊断行提升为
+            # annotation，可通过 check-runs annotations 接口匿名取回；
+            # annotation 只影响展示，不改变任何步骤或 job 的结论。
+            # grep 无匹配时退出码为 1，而 GitHub 的 bash 默认 -e -o pipefail，
+            # 故先落盘再逐行读出，避免“没匹配到”被当成步骤失败。
+            grep -E 'error[: ]' build.log | head -n 20 | sed 's/%/%25/g' > diag.err.txt || true
+            while IFS= read -r line; do echo "::error::$line"; done < diag.err.txt
+            grep -E 'warning[: ]' build.log | head -n 20 | sed 's/%/%25/g' > diag.warn.txt || true
+            while IFS= read -r line; do echo "::warning::$line"; done < diag.warn.txt
+          fi
+
+      # ABI 守卫只在共享库产物上运行：静态库的符号集合由链接器按需裁剪，
+      # 不能作为导出契约。共享库的符号集合必须与 abi/*.symbols.txt 完全一致。
+      - name: ABI 导出符号（Linux/macOS）
+        if: matrix.link_mode == 'shared' && matrix.platform != 'windows-msvc' && matrix.platform != 'windows-mingw'
+        shell: bash
+        run: python3 scripts/check_exports.py --build-dir build
+
+      - name: ABI 导出符号（MinGW）
+        if: matrix.link_mode == 'shared' && matrix.platform == 'windows-mingw'
+        shell: msys2 {0}
+        run: python scripts/check_exports.py --build-dir build
+
+      - name: ABI 导出符号（MSVC）
+        if: matrix.link_mode == 'shared' && matrix.platform == 'windows-msvc'
+        shell: bash
+        run: python scripts/check_exports.py --build-dir build
+
+      - name: 测试（Linux/macOS）
+        if: matrix.platform != 'windows-msvc' && matrix.platform != 'windows-mingw'
+        shell: bash
+        run: ctest --test-dir build --output-on-failure
+
+      - name: 测试（MinGW）
+        if: matrix.platform == 'windows-mingw'
+        shell: msys2 {0}
+        run: ctest --test-dir build --output-on-failure
+
+      - name: 测试（MSVC）
+        if: matrix.platform == 'windows-msvc'
+        shell: bash
+        run: ctest --test-dir build -C ${{ matrix.build_type }} --output-on-failure

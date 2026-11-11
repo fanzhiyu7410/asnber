@@ -1,0 +1,1063 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RFC Errata</title>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/search/">RFC Errata</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="https://www.rfc-editor.org/series/rfc-errata/" rel="noopener" target="_blank">About</a></li>
+                    
+                    <li class="nav-item"><a class="nav-link" href="/oidc/authenticate/">Login</a></li>
+                    
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container my-5">
+        
+<div>
+<h1>Errata</h1>
+
+
+<form id="errata-search-form" method="get">
+    <div class="mb-3"><label class="form-label" for="id_rfc_number">RFC Number</label><input type="number" name="rfc_number" value="5912" class="form-control is-valid" placeholder="RFC Number" id="id_rfc_number"></div><div class="mb-3"><label class="form-label" for="id_errata_id">Errata ID</label><input type="number" name="errata_id" class="form-control is-valid" placeholder="Errata ID" id="id_errata_id"></div><div class="mb-3"><label class="form-label" for="id_status">Status</label><select name="status" class="form-select is-valid" id="id_status">
+  <option value="any">All/Any</option>
+
+  <option value="verified_reported">Verified+Reported</option>
+
+  <option value="verified">Verified</option>
+
+  <option value="reported">Reported</option>
+
+  <option value="held_for_doc_update">Held for Document Update</option>
+
+  <option value="rejected">Rejected</option>
+
+</select></div><div class="mb-3"><label class="form-label" for="id_area">Area Acronym</label><select name="area" class="form-select is-valid" id="id_area">
+  <option value="any">All/Any</option>
+
+  <option value="app">app</option>
+
+  <option value="art">art</option>
+
+  <option value="gen">gen</option>
+
+  <option value="int">int</option>
+
+  <option value="ops">ops</option>
+
+  <option value="rai">rai</option>
+
+  <option value="rtg">rtg</option>
+
+  <option value="sec">sec</option>
+
+  <option value="tsv">tsv</option>
+
+  <option value="wit">wit</option>
+
+</select></div><div class="mb-3"><label class="form-label" for="id_errata_type">Type</label><select name="errata_type" class="form-select is-valid" id="id_errata_type">
+  <option value="any">All/Any</option>
+
+  <option value="editorial">Editorial</option>
+
+  <option value="technical">Technical</option>
+
+</select></div><div class="mb-3"><label class="form-label" for="id_wg_acronym">WG Acronym</label><input type="text" name="wg_acronym" maxlength="40" class="form-control is-valid" placeholder="WG Acronym" id="id_wg_acronym"></div><div class="mb-3"><label class="form-label" for="id_submitter_name">Submitter Name</label><input type="text" name="submitter_name" maxlength="80" class="form-control is-valid" placeholder="Submitter Name" id="id_submitter_name"></div><div class="mb-3"><label class="form-label" for="id_stream">Stream</label><select name="stream" class="form-select is-valid" id="id_stream">
+  <option value="any">All/Any</option>
+
+  <option value="IAB">IAB</option>
+
+  <option value="INDEPENDENT">INDEPENDENT</option>
+
+  <option value="IRTF">IRTF</option>
+
+  <option value="Legacy">Legacy</option>
+
+  <option value="Editorial">Editorial</option>
+
+</select></div><div class="mb-3"><label class="form-label" for="id_date">Date Submitted</label><input type="text" name="date" placeholder="YYYY-MM-DD, YYYY-MM, or YYYY" class="form-control is-valid" id="id_date"></div><div class="mb-3"><label class="form-label" for="id_presentation">Presentation</label><select name="presentation" class="form-select is-valid" id="id_presentation">
+  <option value="table">Table</option>
+
+  <option value="records" selected>Full Records</option>
+
+</select></div>
+    <button class="btn btn-primary" type="submit">Submit</button>
+</form>
+
+<div class="container mt-4">
+    
+    
+        <div class="card mb-4 border-primary">
+            <div class="card-header bg-primary text-white">
+                <h2 class="h5 mb-0">Verified (8)</h2>
+            </div>
+            <div class="card-body">
+                
+                <div class="row g-3">
+                    
+                        <div class="col-md-12">
+                            <div class="card h-100 shadow-sm">
+                                <div class="card-header bg-light text-dark">
+                                    <h3 class="mt-4"><a href="https://www.rfc-editor.org/info/rfc5912" rel="noopener" target="_blank">RFC 5912</a> <a href="https://www.rfc-editor.org/rfc/inline-errata/rfc5912.html" rel="noopener" target="_blank" class="small">inline-errata</a></h3>
+                                    <div class="card-body bg-warning text-light">
+                                        <p class="mb-0"><strong>Source of RFC:</strong> pkix (sec)</p>
+                                        
+                                        
+                                            <p class="mb-0"><strong>Updated by:</strong> RFC6960, RFC9480, RFC9810</p>
+                                        
+                                        
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    
+                                        <div class="card mb-4">
+                                            <div class="card-header bg-light text-dark">
+                                                <h4 class="mt-4">Errata-ID: <a href="/eid2649/">2649</a></h4>
+                                            </div>
+                                            <div class="card-body">
+                                                <dl class="row">
+                                                    <dt class="col-sm-4">Status:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span class="badge bg-info">Verified</span>
+                                                    </dd>
+
+                                                    <dt class="col-sm-4">Type:</dt>
+                                                    <dd class="col-sm-8">
+                                                        
+                                                            <span class="badge bg-secondary">Technical</span>
+                                                        
+                                                    </dd>
+
+                                                    
+
+                                                    <dt class="col-sm-4">Reported By:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span>Jim Schaad</span>
+                                                    </dd>
+
+                                                    <dt class="col-sm-4">Date Reported:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span>2010-11-29</span>
+                                                    </dd>
+
+                                                    
+                                                        <dt class="col-sm-4">Verified by:</dt>
+                                                        <dd class="col-sm-8">
+                                                            <span>Tim Polk</span>
+                                                        </dd>
+                                                    
+
+                                                    
+                                                        <dt class="col-sm-4">Date Verified:</dt>
+                                                        <dd class="col-sm-8">
+                                                            <span>2010-11-30</span>
+                                                        </dd>
+                                                    
+
+                                                </dl>
+                                                <p> 
+                                                    
+                                                        Section 7, says:
+                                                    
+                                                </p>
+                                                
+                                                    <pre class="bg-light p-3 rounded"><code>  AttributeCertificateVersion1-2009
+      { iso(1) member-body(2) us(840) rsadsi(113549) pkcs(1) pkcs-9(9)
+      smime(16) modules(0) id-mod-v1AttrCert-02(49) } ;</code></pre>
+                                                
+                                                
+                                                    <p>It should say:</p>
+                                                    <pre class="bg-light p-3 rounded"><code>AttributeCertificateVersion1-2009
+      { iso(1) member-body(2) dod(6) internet(1) security(5)
+        mechanisms(5) pkix(7) id-mod(0) id-mod-v1AttrCert-02(49) } ;</code></pre>
+                                                
+                                                
+                                                    <p>Notes:</p>
+                                                    <pre class="bg-light p-3 rounded errata-notes"><code>Oid was used from the wrong arc.  THis change corrects the arc used for the OID number.</code></pre>
+                                                
+                                            </div>
+                                        </div>
+                                    
+                                        <div class="card mb-4">
+                                            <div class="card-header bg-light text-dark">
+                                                <h4 class="mt-4">Errata-ID: <a href="/eid2839/">2839</a></h4>
+                                            </div>
+                                            <div class="card-body">
+                                                <dl class="row">
+                                                    <dt class="col-sm-4">Status:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span class="badge bg-info">Verified</span>
+                                                    </dd>
+
+                                                    <dt class="col-sm-4">Type:</dt>
+                                                    <dd class="col-sm-8">
+                                                        
+                                                            <span class="badge bg-secondary">Technical</span>
+                                                        
+                                                    </dd>
+
+                                                    
+
+                                                    <dt class="col-sm-4">Reported By:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span>Carl Wallace</span>
+                                                    </dd>
+
+                                                    <dt class="col-sm-4">Date Reported:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span>2011-06-16</span>
+                                                    </dd>
+
+                                                    
+                                                        <dt class="col-sm-4">Verified by:</dt>
+                                                        <dd class="col-sm-8">
+                                                            <span>Sean Turner</span>
+                                                        </dd>
+                                                    
+
+                                                    
+                                                        <dt class="col-sm-4">Date Verified:</dt>
+                                                        <dd class="col-sm-8">
+                                                            <span>2011-07-26</span>
+                                                        </dd>
+                                                    
+
+                                                </dl>
+                                                <p> 
+                                                    
+                                                        Section 14 says:
+                                                    
+                                                </p>
+                                                
+                                                    <p class="text-muted">No original text provided.</p>
+                                                
+                                                
+                                                
+                                                    <p>Notes:</p>
+                                                    <pre class="bg-light p-3 rounded errata-notes"><code>anyPolicy OBJECT IDENTIFIER ::= { id-ce-certificatePolicies 0 } does not appear in the PKIX1Implicit-2009 module.  It appears in the body of RFC 5280 and in the corresponding ASN.1 module in RFC 5280.</code></pre>
+                                                
+                                            </div>
+                                        </div>
+                                    
+                                        <div class="card mb-4">
+                                            <div class="card-header bg-light text-dark">
+                                                <h4 class="mt-4">Errata-ID: <a href="/eid3130/">3130</a></h4>
+                                            </div>
+                                            <div class="card-body">
+                                                <dl class="row">
+                                                    <dt class="col-sm-4">Status:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span class="badge bg-info">Verified</span>
+                                                    </dd>
+
+                                                    <dt class="col-sm-4">Type:</dt>
+                                                    <dd class="col-sm-8">
+                                                        
+                                                            <span class="badge bg-secondary">Technical</span>
+                                                        
+                                                    </dd>
+
+                                                    
+
+                                                    <dt class="col-sm-4">Reported By:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span>Russ Housley</span>
+                                                    </dd>
+
+                                                    <dt class="col-sm-4">Date Reported:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span>2012-02-19</span>
+                                                    </dd>
+
+                                                    
+                                                        <dt class="col-sm-4">Verified by:</dt>
+                                                        <dd class="col-sm-8">
+                                                            <span>Sean Turner</span>
+                                                        </dd>
+                                                    
+
+                                                    
+                                                        <dt class="col-sm-4">Date Verified:</dt>
+                                                        <dd class="col-sm-8">
+                                                            <span>2012-03-05</span>
+                                                        </dd>
+                                                    
+
+                                                </dl>
+                                                <p> 
+                                                    
+                                                        Throughout the document, when it says:
+                                                    
+                                                </p>
+                                                
+                                                    <pre class="bg-light p-3 rounded"><code>  ct-foo CONTENT-TYPE ::=
+      { FooType IDENTIFIED BY id-ct-foo }</code></pre>
+                                                
+                                                
+                                                    <p>It should say:</p>
+                                                    <pre class="bg-light p-3 rounded"><code>  ct-foo CONTENT-TYPE ::=
+      { TYPE FooType IDENTIFIED BY id-ct-foo }</code></pre>
+                                                
+                                                
+                                                    <p>Notes:</p>
+                                                    <pre class="bg-light p-3 rounded errata-notes"><code>Of course, &#x27;ct-foo&#x27;, &#x27;FooType&#x27;, and &#x27;id-ct-foo&#x27; need to be replaced as appropriate for the use of CONTENT-TYPE in RFC 5912.  CONTENT-TYPE is imported from a module defined in RFC 5911, and errata 2612 makes a change to that definition.  Therefore, &#x27;TYPE&#x27; needs to be added each time a content type is defined to align with errata 2612.
+
+The definitions that need to be updated are:
+   ct-encKeyWithID,
+   ct-scvp-certValRequest,
+   ct-scvp-certValResponse,
+   ct-scvp-valPolRequest,
+   ct-scvp-valPolResponse,
+   ct-PKIData, and
+   ct-PKIResponse.</code></pre>
+                                                
+                                            </div>
+                                        </div>
+                                    
+                                        <div class="card mb-4">
+                                            <div class="card-header bg-light text-dark">
+                                                <h4 class="mt-4">Errata-ID: <a href="/eid3259/">3259</a></h4>
+                                            </div>
+                                            <div class="card-body">
+                                                <dl class="row">
+                                                    <dt class="col-sm-4">Status:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span class="badge bg-info">Verified</span>
+                                                    </dd>
+
+                                                    <dt class="col-sm-4">Type:</dt>
+                                                    <dd class="col-sm-8">
+                                                        
+                                                            <span class="badge bg-secondary">Technical</span>
+                                                        
+                                                    </dd>
+
+                                                    
+
+                                                    <dt class="col-sm-4">Reported By:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span>James Manger</span>
+                                                    </dd>
+
+                                                    <dt class="col-sm-4">Date Reported:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span>2012-06-14</span>
+                                                    </dd>
+
+                                                    
+                                                        <dt class="col-sm-4">Verified by:</dt>
+                                                        <dd class="col-sm-8">
+                                                            <span>Sean Turner</span>
+                                                        </dd>
+                                                    
+
+                                                    
+                                                        <dt class="col-sm-4">Date Verified:</dt>
+                                                        <dd class="col-sm-8">
+                                                            <span>2012-07-16</span>
+                                                        </dd>
+                                                    
+
+                                                </dl>
+                                                <p> 
+                                                    
+                                                        Section 4 says:
+                                                    
+                                                </p>
+                                                
+                                                    <pre class="bg-light p-3 rounded"><code>CRLReason ::= INTEGER</code></pre>
+                                                
+                                                
+                                                    <p>It should say:</p>
+                                                    <pre class="bg-light p-3 rounded"><code>IMPORTS
+CRLReason
+FROM PKIX1Implicit-2009</code></pre>
+                                                
+                                                
+                                                    <p>Notes:</p>
+                                                    <pre class="bg-light p-3 rounded errata-notes"><code>CRLReason is correctly defined in section 14 &quot;ASN.1 Module for RFC 5280, Explicit and Implicit&quot; as:
+  CRLReason ::= ENUMERATED { … }
+
+It is incorrectly re-defined in section 4 &quot;ASN.1 Module for RFC 2560&quot; (OCSP) as an INTEGER. It should import the correct definition instead.
+ENUMERATED and INTEGER are similar, but not the same. They are BER-encoded differently (with a tags of 0x0A and 0x02 respectively).</code></pre>
+                                                
+                                            </div>
+                                        </div>
+                                    
+                                        <div class="card mb-4">
+                                            <div class="card-header bg-light text-dark">
+                                                <h4 class="mt-4">Errata-ID: <a href="/eid3626/">3626</a></h4>
+                                            </div>
+                                            <div class="card-body">
+                                                <dl class="row">
+                                                    <dt class="col-sm-4">Status:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span class="badge bg-info">Verified</span>
+                                                    </dd>
+
+                                                    <dt class="col-sm-4">Type:</dt>
+                                                    <dd class="col-sm-8">
+                                                        
+                                                            <span class="badge bg-secondary">Technical</span>
+                                                        
+                                                    </dd>
+
+                                                    
+
+                                                    <dt class="col-sm-4">Reported By:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span>Carl Wallace</span>
+                                                    </dd>
+
+                                                    <dt class="col-sm-4">Date Reported:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span>2013-05-17</span>
+                                                    </dd>
+
+                                                    
+                                                        <dt class="col-sm-4">Verified by:</dt>
+                                                        <dd class="col-sm-8">
+                                                            <span>Sean Turner</span>
+                                                        </dd>
+                                                    
+
+                                                    
+                                                        <dt class="col-sm-4">Date Verified:</dt>
+                                                        <dd class="col-sm-8">
+                                                            <span>2013-05-20</span>
+                                                        </dd>
+                                                    
+
+                                                </dl>
+                                                <p> 
+                                                    
+                                                        Section 14 says:
+                                                    
+                                                </p>
+                                                
+                                                    <pre class="bg-light p-3 rounded"><code>   -- CRL number extension OID and syntax
+   ext-CRLNumber EXTENSION ::= {SYNTAX
+       INTEGER (0..MAX) IDENTIFIED BY id-ce-cRLNumber }
+   id-ce-cRLNumber OBJECT IDENTIFIER ::= { id-ce 20 }
+
+   CRLNumber ::= INTEGER (0..MAX)</code></pre>
+                                                
+                                                
+                                                    <p>It should say:</p>
+                                                    <pre class="bg-light p-3 rounded"><code>   -- CRL number extension OID and syntax
+   CRLNumber ::= INTEGER  (0..MAX)
+
+   ext-CRLNumber EXTENSION ::= {SYNTAX
+       CRLNumber IDENTIFIED BY id-ce-cRLNumber }
+   id-ce-cRLNumber OBJECT IDENTIFIER ::= { id-ce 20 }</code></pre>
+                                                
+                                                
+                                                    <p>Notes:</p>
+                                                    <pre class="bg-light p-3 rounded errata-notes"><code>The CRLNumber extension was not defined to use the CRLNumber type.  It should use the CRLNumber type.  This is a corrected resubmission of an earlier errata submission that included an error.</code></pre>
+                                                
+                                            </div>
+                                        </div>
+                                    
+                                        <div class="card mb-4">
+                                            <div class="card-header bg-light text-dark">
+                                                <h4 class="mt-4">Errata-ID: <a href="/eid3692/">3692</a></h4>
+                                            </div>
+                                            <div class="card-body">
+                                                <dl class="row">
+                                                    <dt class="col-sm-4">Status:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span class="badge bg-info">Verified</span>
+                                                    </dd>
+
+                                                    <dt class="col-sm-4">Type:</dt>
+                                                    <dd class="col-sm-8">
+                                                        
+                                                            <span class="badge bg-secondary">Technical</span>
+                                                        
+                                                    </dd>
+
+                                                    
+
+                                                    <dt class="col-sm-4">Reported By:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span>Carl Wallace</span>
+                                                    </dd>
+
+                                                    <dt class="col-sm-4">Date Reported:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span>2013-08-02</span>
+                                                    </dd>
+
+                                                    
+                                                        <dt class="col-sm-4">Verified by:</dt>
+                                                        <dd class="col-sm-8">
+                                                            <span>Sean Turner</span>
+                                                        </dd>
+                                                    
+
+                                                    
+                                                        <dt class="col-sm-4">Date Verified:</dt>
+                                                        <dd class="col-sm-8">
+                                                            <span>2013-08-12</span>
+                                                        </dd>
+                                                    
+
+                                                </dl>
+                                                <p> 
+                                                    
+                                                        Section 14 says:
+                                                    
+                                                </p>
+                                                
+                                                    <pre class="bg-light p-3 rounded"><code>crlExtensions EXTENSION ::= {
+           ext-AuthorityKeyIdentifier | ext-IssuerAltName |
+           ext-CRLNumber | ext-DeltaCRLIndicator |
+           ext-IssuingDistributionPoint |  ext-FreshestCRL, ... }</code></pre>
+                                                
+                                                
+                                                    <p>It should say:</p>
+                                                    <pre class="bg-light p-3 rounded"><code>crlExtensions EXTENSION ::= {
+           ext-AuthorityKeyIdentifier | ext-IssuerAltName |
+           ext-CRLNumber | ext-DeltaCRLIndicator |
+           ext-IssuingDistributionPoint |  ext-FreshestCRL | 
+           ext-AuthorityInfoAccess, ... }</code></pre>
+                                                
+                                                
+                                                    <p>Notes:</p>
+                                                    <pre class="bg-light p-3 rounded errata-notes"><code>Section 5.2.7 of RFC 5280 allows AIA to be a CRL extension.</code></pre>
+                                                
+                                            </div>
+                                        </div>
+                                    
+                                        <div class="card mb-4">
+                                            <div class="card-header bg-light text-dark">
+                                                <h4 class="mt-4">Errata-ID: <a href="/eid4244/">4244</a></h4>
+                                            </div>
+                                            <div class="card-body">
+                                                <dl class="row">
+                                                    <dt class="col-sm-4">Status:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span class="badge bg-info">Verified</span>
+                                                    </dd>
+
+                                                    <dt class="col-sm-4">Type:</dt>
+                                                    <dd class="col-sm-8">
+                                                        
+                                                            <span class="badge bg-secondary">Technical</span>
+                                                        
+                                                    </dd>
+
+                                                    
+
+                                                    <dt class="col-sm-4">Reported By:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span>Richard Nicholas</span>
+                                                    </dd>
+
+                                                    <dt class="col-sm-4">Date Reported:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span>2015-01-27</span>
+                                                    </dd>
+
+                                                    
+                                                        <dt class="col-sm-4">Verified by:</dt>
+                                                        <dd class="col-sm-8">
+                                                            <span>Deb Cooley</span>
+                                                        </dd>
+                                                    
+
+                                                    
+                                                        <dt class="col-sm-4">Date Verified:</dt>
+                                                        <dd class="col-sm-8">
+                                                            <span>2025-01-24</span>
+                                                        </dd>
+                                                    
+
+                                                </dl>
+                                                <p> 
+                                                    
+                                                        Section 14 says:
+                                                    
+                                                </p>
+                                                
+                                                    <pre class="bg-light p-3 rounded"><code>  at-x520StateOrProvinceName ATTRIBUTE ::=
+      { TYPE DirectoryString {ub-state-name}
+          IDENTIFIED BY id-at-stateOrProvinceName }
+  X520StateOrProvinceName ::= DirectoryString {ub-state-name}
+
+  at-x520OrganizationName ATTRIBUTE ::=
+      { TYPE DirectoryString {ub-organization-name}
+          IDENTIFIED BY id-at-organizationName }
+  X520OrganizationName ::= DirectoryString {ub-organization-name}
+
+  at-x520OrganizationalUnitName ATTRIBUTE ::=
+      { TYPE DirectoryString  {ub-organizational-unit-name}
+          IDENTIFIED BY id-at-organizationalUnitName }
+  X520OrganizationalUnitName ::= DirectoryString
+                                     {ub-organizational-unit-name}</code></pre>
+                                                
+                                                
+                                                    <p>It should say:</p>
+                                                    <pre class="bg-light p-3 rounded"><code>  at-x520StateOrProvinceName ATTRIBUTE ::=
+      { TYPE X520StateOrProvinceName
+          IDENTIFIED BY id-at-stateOrProvinceName }
+  X520StateOrProvinceName ::= DirectoryString {ub-state-name}
+
+  at-x520OrganizationName ATTRIBUTE ::=
+      { TYPE X520OrganizationName IDENTIFIED BY id-at-organizationName }
+  X520OrganizationName ::= DirectoryString {ub-organization-name}
+
+  at-x520OrganizationalUnitName ATTRIBUTE ::=
+      { TYPE X520OrganizationalUnitName
+          IDENTIFIED BY id-at-organizationalUnitName }
+  X520OrganizationalUnitName ::= DirectoryString
+                                     {ub-organizational-unit-name}</code></pre>
+                                                
+                                                
+                                                    <p>Notes:</p>
+                                                    <pre class="bg-light p-3 rounded errata-notes"><code>The definitions of the three ATTRIBUTE objects (at-x520StateOrProvinceName, at-x520OrganizationName, at-x520OrganizationalUnitName) should be changed to reference the existing type definitions.  This change will eliminate the extra type definition in each of those objects as well as make those object definitions consistent with the definitions for the at-x520LocalityName and at-x520CommonName ATTRIBUTE objects.</code></pre>
+                                                
+                                            </div>
+                                        </div>
+                                    
+                                        <div class="card mb-4">
+                                            <div class="card-header bg-light text-dark">
+                                                <h4 class="mt-4">Errata-ID: <a href="/eid6806/">6806</a></h4>
+                                            </div>
+                                            <div class="card-body">
+                                                <dl class="row">
+                                                    <dt class="col-sm-4">Status:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span class="badge bg-info">Verified</span>
+                                                    </dd>
+
+                                                    <dt class="col-sm-4">Type:</dt>
+                                                    <dd class="col-sm-8">
+                                                        
+                                                            <span class="badge bg-secondary">Technical</span>
+                                                        
+                                                    </dd>
+
+                                                    
+
+                                                    <dt class="col-sm-4">Reported By:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span>Carl Wallace</span>
+                                                    </dd>
+
+                                                    <dt class="col-sm-4">Date Reported:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span>2022-01-03</span>
+                                                    </dd>
+
+                                                    
+                                                        <dt class="col-sm-4">Verified by:</dt>
+                                                        <dd class="col-sm-8">
+                                                            <span>Benjamin Kaduk</span>
+                                                        </dd>
+                                                    
+
+                                                    
+                                                        <dt class="col-sm-4">Date Verified:</dt>
+                                                        <dd class="col-sm-8">
+                                                            <span>2022-01-04</span>
+                                                        </dd>
+                                                    
+
+                                                </dl>
+                                                <p> 
+                                                    
+                                                        Section 6 says:
+                                                    
+                                                </p>
+                                                
+                                                    <pre class="bg-light p-3 rounded"><code>   pk-rsa PUBLIC-KEY ::= {
+    IDENTIFIER rsaEncryption
+    KEY RSAPublicKey
+    PARAMS TYPE NULL ARE absent
+    -- Private key format not in this module --
+    CERT-KEY-USAGE {digitalSignature, nonRepudiation,
+    keyEncipherment, dataEncipherment, keyCertSign, cRLSign}
+   }</code></pre>
+                                                
+                                                
+                                                    <p>It should say:</p>
+                                                    <pre class="bg-light p-3 rounded"><code>   pk-rsa PUBLIC-KEY ::= {
+    IDENTIFIER rsaEncryption
+    KEY RSAPublicKey
+    PARAMS TYPE NULL ARE required
+    -- Private key format not in this module --
+    CERT-KEY-USAGE {digitalSignature, nonRepudiation,
+    keyEncipherment, dataEncipherment, keyCertSign, cRLSign}
+   }</code></pre>
+                                                
+                                                
+                                                    <p>Notes:</p>
+                                                    <pre class="bg-light p-3 rounded errata-notes"><code>Section 2.3.1 of RFC 3279 states &quot;(t)he parameters field MUST have ASN.1 type NULL for this algorithm identifier.&quot;</code></pre>
+                                                
+                                            </div>
+                                        </div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    
+                </div>
+            </div>
+        </div>
+    
+        <div class="card mb-4 border-primary">
+            <div class="card-header bg-primary text-white">
+                <h2 class="h5 mb-0">Reported (1)</h2>
+            </div>
+            <div class="card-body">
+                
+                <div class="row g-3">
+                    
+                        <div class="col-md-12">
+                            <div class="card h-100 shadow-sm">
+                                <div class="card-header bg-light text-dark">
+                                    <h3 class="mt-4"><a href="https://www.rfc-editor.org/info/rfc5912" rel="noopener" target="_blank">RFC 5912</a> <a href="https://www.rfc-editor.org/rfc/inline-errata/rfc5912.html" rel="noopener" target="_blank" class="small">inline-errata</a></h3>
+                                    <div class="card-body bg-warning text-light">
+                                        <p class="mb-0"><strong>Source of RFC:</strong> pkix (sec)</p>
+                                        
+                                        
+                                            <p class="mb-0"><strong>Updated by:</strong> RFC6960, RFC9480, RFC9810</p>
+                                        
+                                        
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    
+                                        <div class="card mb-4">
+                                            <div class="card-header bg-light text-dark">
+                                                <h4 class="mt-4">Errata-ID: <a href="/eid9255/">9255</a></h4>
+                                            </div>
+                                            <div class="card-body">
+                                                <dl class="row">
+                                                    <dt class="col-sm-4">Status:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span class="badge bg-info">Reported</span>
+                                                    </dd>
+
+                                                    <dt class="col-sm-4">Type:</dt>
+                                                    <dd class="col-sm-8">
+                                                        
+                                                            <span class="badge bg-secondary">Technical</span>
+                                                        
+                                                    </dd>
+
+                                                    
+
+                                                    <dt class="col-sm-4">Reported By:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span>Daniel Van Geest</span>
+                                                    </dd>
+
+                                                    <dt class="col-sm-4">Date Reported:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span>2026-11-02</span>
+                                                    </dd>
+
+                                                    
+
+                                                    
+
+                                                </dl>
+                                                <p> 
+                                                    
+                                                        Section 7 says:
+                                                    
+                                                </p>
+                                                
+                                                    <pre class="bg-light p-3 rounded"><code>AttributeCertificateVersion1-2009
+      { iso(1) member-body(2) us(840) rsadsi(113549) pkcs(1) pkcs-9(9)
+      smime(16) modules(0) id-mod-v1AttrCert-02(49) } ;</code></pre>
+                                                
+                                                
+                                                    <p>It should say:</p>
+                                                    <pre class="bg-light p-3 rounded"><code>AttributeCertificateVersion1-2009
+      { iso(1) identified-organization(3) dod(6) internet(1) security(5)
+        mechanisms(5) pkix(7) id-mod(0) id-mod-v1AttrCert-02(49) } ;</code></pre>
+                                                
+                                                
+                                                    <p>Notes:</p>
+                                                    <pre class="bg-light p-3 rounded errata-notes"><code>Errata 2649 (Verified) is incorrect, it fixed the latter part of the OID, however dod(6) is under identified-organization(3), not member-body(2).
+
+Note that RFC 5911 had errata 2648 which made the same mistake that 2649 did for RFC 5912, however RFC 5911 had a follow-up errata 2665 which made the correct fix, but there was no such follow-up for RFC 5912. This errata fixes that.</code></pre>
+                                                
+                                            </div>
+                                        </div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    
+                </div>
+            </div>
+        </div>
+    
+        <div class="card mb-4 border-primary">
+            <div class="card-header bg-primary text-white">
+                <h2 class="h5 mb-0">Rejected (2)</h2>
+            </div>
+            <div class="card-body">
+                
+                <div class="row g-3">
+                    
+                        <div class="col-md-12">
+                            <div class="card h-100 shadow-sm">
+                                <div class="card-header bg-light text-dark">
+                                    <h3 class="mt-4"><a href="https://www.rfc-editor.org/info/rfc5912" rel="noopener" target="_blank">RFC 5912</a> <a href="https://www.rfc-editor.org/rfc/inline-errata/rfc5912.html" rel="noopener" target="_blank" class="small">inline-errata</a></h3>
+                                    <div class="card-body bg-warning text-light">
+                                        <p class="mb-0"><strong>Source of RFC:</strong> pkix (sec)</p>
+                                        
+                                        
+                                            <p class="mb-0"><strong>Updated by:</strong> RFC6960, RFC9480, RFC9810</p>
+                                        
+                                        
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    
+                                        <div class="card mb-4">
+                                            <div class="card-header bg-light text-dark">
+                                                <h4 class="mt-4">Errata-ID: <a href="/eid3623/">3623</a></h4>
+                                            </div>
+                                            <div class="card-body">
+                                                <dl class="row">
+                                                    <dt class="col-sm-4">Status:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span class="badge bg-info">Rejected</span>
+                                                    </dd>
+
+                                                    <dt class="col-sm-4">Type:</dt>
+                                                    <dd class="col-sm-8">
+                                                        
+                                                            <span class="badge bg-secondary">Technical</span>
+                                                        
+                                                    </dd>
+
+                                                    
+
+                                                    <dt class="col-sm-4">Reported By:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span>Carl Wallace</span>
+                                                    </dd>
+
+                                                    <dt class="col-sm-4">Date Reported:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span>2013-05-16</span>
+                                                    </dd>
+
+                                                    
+                                                        <dt class="col-sm-4">Rejected by:</dt>
+                                                        <dd class="col-sm-8">
+                                                            <span>Sean Turner</span>
+                                                        </dd>
+                                                    
+
+                                                    
+                                                        <dt class="col-sm-4">Date Rejected:</dt>
+                                                        <dd class="col-sm-8">
+                                                            <span>2013-05-20</span>
+                                                        </dd>
+                                                    
+
+                                                </dl>
+                                                <p> 
+                                                    
+                                                        Section 14 says:
+                                                    
+                                                </p>
+                                                
+                                                    <pre class="bg-light p-3 rounded"><code>   -- CRL number extension OID and syntax
+   ext-CRLNumber EXTENSION ::= {SYNTAX
+       INTEGER (0..MAX) IDENTIFIED BY id-ce-cRLNumber }
+   id-ce-cRLNumber OBJECT IDENTIFIER ::= { id-ce 20 }
+
+   CRLNumber ::= INTEGER (0..MAX)</code></pre>
+                                                
+                                                
+                                                    <p>It should say:</p>
+                                                    <pre class="bg-light p-3 rounded"><code>   -- CRL number extension OID and syntax
+   CRLNumber ::= INTEGER 
+
+   ext-CRLNumber EXTENSION ::= {SYNTAX
+       CRLNumber IDENTIFIED BY id-ce-cRLNumber }
+   id-ce-cRLNumber OBJECT IDENTIFIER ::= { id-ce 20 }
+</code></pre>
+                                                
+                                                
+                                                    <p>Notes:</p>
+                                                    <pre class="bg-light p-3 rounded errata-notes"><code>The CRLNumber extension was not defined to use the CRLNumber type.  The CRLNumber type uses MAX to limit the maximum value.  This limitation is inconsistent with section 5.2.3 and Appendix B, which allow CRLNumber values up to 20 octets in length.
+ --VERIFIER NOTES-- 
+This errata is rejected at the request of the person who reported it (i.e., Carl).  Another errata was submitted to correct a mistake.   </code></pre>
+                                                
+                                            </div>
+                                        </div>
+                                    
+                                        <div class="card mb-4">
+                                            <div class="card-header bg-light text-dark">
+                                                <h4 class="mt-4">Errata-ID: <a href="/eid4145/">4145</a></h4>
+                                            </div>
+                                            <div class="card-body">
+                                                <dl class="row">
+                                                    <dt class="col-sm-4">Status:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span class="badge bg-info">Rejected</span>
+                                                    </dd>
+
+                                                    <dt class="col-sm-4">Type:</dt>
+                                                    <dd class="col-sm-8">
+                                                        
+                                                            <span class="badge bg-secondary">Technical</span>
+                                                        
+                                                    </dd>
+
+                                                    
+
+                                                    <dt class="col-sm-4">Reported By:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span>Pierce Leonberger</span>
+                                                    </dd>
+
+                                                    <dt class="col-sm-4">Date Reported:</dt>
+                                                    <dd class="col-sm-8">
+                                                        <span>2014-10-23</span>
+                                                    </dd>
+
+                                                    
+                                                        <dt class="col-sm-4">Rejected by:</dt>
+                                                        <dd class="col-sm-8">
+                                                            <span>Deb Cooley</span>
+                                                        </dd>
+                                                    
+
+                                                    
+                                                        <dt class="col-sm-4">Date Rejected:</dt>
+                                                        <dd class="col-sm-8">
+                                                            <span>2025-01-24</span>
+                                                        </dd>
+                                                    
+
+                                                </dl>
+                                                <p> 
+                                                    
+                                                        Section 14 says:
+                                                    
+                                                </p>
+                                                
+                                                    <pre class="bg-light p-3 rounded"><code>  --  3.  A more complex version, but one that automatically ties
+  --      together both the signature algorithm and the
+  --      signature value for automatic decoding.
+  --
+  SIGNED{ToBeSigned} ::= SEQUENCE {
+     toBeSigned           ToBeSigned,
+     algorithmIdentifier  SEQUENCE {
+         algorithm        SIGNATURE-ALGORITHM.
+                            &amp;id({SignatureAlgorithms}),
+         parameters       SIGNATURE-ALGORITHM.
+                            &amp;Params({SignatureAlgorithms}
+                              {@algorithmIdentifier.algorithm}) OPTIONAL
+     },
+     signature BIT STRING (CONTAINING SIGNATURE-ALGORITHM.&amp;Value(
+                              {SignatureAlgorithms}
+                              {@algorithmIdentifier.algorithm}))
+  }</code></pre>
+                                                
+                                                
+                                                    <p>It should say:</p>
+                                                    <pre class="bg-light p-3 rounded"><code>  SIGNED{ToBeSigned} ::= SEQUENCE {
+     toBeSigned           ToBeSigned,
+     algorithmIdentifier  SEQUENCE {
+         algorithm        SIGNATURE-ALGORITHM.
+                            &amp;id({SignatureAlgorithms}),
+         parameters       SIGNATURE-ALGORITHM.
+                            &amp;Params({SignatureAlgorithms}
+                              {@algorithmIdentifier.algorithm}) OPTIONAL
+     },
+     signature BIT STRING 
+  }</code></pre>
+                                                
+                                                
+                                                    <p>Notes:</p>
+                                                    <pre class="bg-light p-3 rounded errata-notes"><code>I *believe* the 3rd option for SIGNED{} is invalid.  The &quot;signature&quot; BIT STRING contains an OpenType which references an optional class field.  It&#x27;s possible to define objects with no type and OpenTypes must refer to a type.  There&#x27;s no mechanism to allow an OpenType to reference random bytes (not ASN.1 encoded).
+
+I understand the intent is to allow for automatic decoding, but unless the &quot;&amp;Value&quot; is required in SIGNATURE-ALGORITHM this will not work.  Requiring it will not work because not all signature algorithms require the signature value to be encoded (e.g. RSA).  The syntax would be valid is if &quot;signature&quot; was OPTIONAL (obviously not desirable).
+
+So I propose we revert &quot;signature&quot; to &quot;BIT STRING&quot; without constraints.
+ --VERIFIER NOTES-- 
+The proposed change is one way to handle it, but it does not support the many signature values that are ASN.1 encoded.</code></pre>
+                                                
+                                            </div>
+                                        </div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    
+                </div>
+            </div>
+        </div>
+    
+</div>
+<a href="/new/entry-instructions/" class="btn btn-primary">Report New Erratum</a>
+</div>
+
+    </main>
+
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container-xl">
+            <div class="row">
+                <div class="col">
+                    <div class="mb-4">rfc-editor.org is maintained by the <a href="https://www.ietf.org/" rel="noopener" target="_blank">Internet Engineering Task Force</a></div>
+                    <img src="https://static.ietf.org/logos/ietf-inverted.svg" alt="IETF"
+                        style="width: 105px; height: 60px" />
+                </div>
+                <div class="col">
+                    <div class="row">
+                        <div class="col">
+                            <h5>Useful links</h5>
+                            <ul class="list-unstyled mt-3">
+                                <li><a href="https://www.ietf.org" rel="noopener" target="_blank" class="text-white">IETF.org</a></li>
+                                <li><a href="https://www.irtf.org" rel="noopener" target="_blank" class="text-white">IRTF.org</a></li>
+                                <li><a href="https://www.iab.org" rel="noopener" target="_blank" class="text-white">IAB.org</a></li>
+                                <li><a href="https://datatracker.ietf.org" rel="noopener" target="_blank" class="text-white">Datatracker</a></li>
+                                <li><a href="https://authors.ietf.org" rel="noopener" target="_blank" class="text-white">Author Resources</a></li>
+                            </ul>
+                        </div>
+                        <div class="col">
+                            <h5>Contact Us</h5>
+                            <ul class="list-unstyled mt-3">
+                                <li><a href="https://www.rfc-editor.org/about/contact/" rel="noopener" target="_blank" class="text-white">RFC Editor</a></li>
+                                <li><a href="http://mailman.rfc-editor.org/mailman/listinfo/rfc-dist" rel="noopener" target="_blank" class="text-white">rfc-dist Info Page</a></li>
+                                <li><a href="http://mailman.rfc-editor.org/mailman/listinfo/rfc-interest" rel="noopener" target="_blank" class="text-white">rfc-interest Info Page</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

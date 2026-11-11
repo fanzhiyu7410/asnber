@@ -1,0 +1,39 @@
+---
+# clang-tidy configuration for MISRA-relevant static analysis
+# Focus: C++ Core Guidelines checks that map to MISRA C:2012 concerns
+Checks: >
+  -*,
+  bugprone-*,
+  -bugprone-easily-swappable-parameters,
+  cppcoreguidelines-*,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -cppcoreguidelines-avoid-non-const-global-variables,
+  -cppcoreguidelines-owning-memory,
+  -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  -cppcoreguidelines-pro-bounds-constant-array-index,
+  clang-analyzer-*,
+  -clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,
+  misc-*,
+  -misc-no-recursion,
+  -misc-include-cleaner,
+  performance-*,
+  readability-*,
+  -readability-identifier-length,
+  -readability-magic-numbers,
+  -readability-function-cognitive-complexity,
+  -readability-implicit-bool-conversion
+
+WarningsAsErrors: ''
+HeaderFilterRegex: 'include/asnber/.*'
+FormatStyle: none
+CheckOptions:
+  - key: cppcoreguidelines-pro-type-reinterpret-cast.AllowedTypes
+    value: 'void*;const void*'
+  - key: cppcoreguidelines-narrowing-conversions.IgnoreConversionFromTypes
+    value: 'char;unsigned char;signed char'
+  - key: bugprone-argument-comment.StrictMode
+    value: '0'
+  - key: readability-function-size.LineThreshold
+    value: '200'
+  - key: readability-function-size.StatementThreshold
+    value: '150'

@@ -1,0 +1,9 @@
+-- 负例：类型重名，期望 ASNBERC_E_DUPLICATE_TYPE (9003)。
+
+NegativeDuplicateType DEFINITIONS ::= BEGIN
+
+Thing ::= INTEGER
+
+Thing ::= BOOLEAN
+
+END

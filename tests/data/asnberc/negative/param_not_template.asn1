@@ -1,0 +1,9 @@
+-- 负例：实例化非参数化类型，期望 ASNBERC_E_PARAM_INSTANTIATION (9008)。
+
+NegNotParam DEFINITIONS ::= BEGIN
+
+Plain ::= SEQUENCE { a INTEGER }
+
+Bar ::= Plain { INTEGER }
+
+END

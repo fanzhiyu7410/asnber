@@ -1,0 +1,5 @@
+-- 负例：模块缺少 END，期望 ASNBERC_E_SYNTAX (9001)。
+
+NegativeMissingEnd DEFINITIONS ::= BEGIN
+
+Thing ::= INTEGER

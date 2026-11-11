@@ -1,0 +1,65 @@
+/*
+ * Copyright (c) 2026 asnber project contributors
+ * SPDX-License-Identifier: MIT
+ */
+
+/*
+ * 核心版本头模板。由 CMake configure_file 从 project(asnber VERSION ...) 生成，
+ * 源码树中不手写版本宏。生成结果安装为 include/asnber/asnber_version.h。
+ */
+#ifndef ASNBER_VERSION_H_INCLUDED
+#define ASNBER_VERSION_H_INCLUDED
+
+#include <stddef.h>
+#include <stdint.h>
+
+#include <asnber/asnber_error.h>
+#include <asnber/asnber_export.h>
+
+#define ASNBER_VERSION_MAJOR @PROJECT_VERSION_MAJOR@
+#define ASNBER_VERSION_MINOR @PROJECT_VERSION_MINOR@
+#define ASNBER_VERSION_PATCH @PROJECT_VERSION_PATCH@
+#define ASNBER_VERSION_STRING "@PROJECT_VERSION@"
+
+/* 编码规则：major << 16 | minor << 8 | patch */
+#define ASNBER_VERSION_ENCODED \
+    ((ASNBER_VERSION_MAJOR << 16) | (ASNBER_VERSION_MINOR << 8) | ASNBER_VERSION_PATCH)
+
+/* 能力位，取值与语义见 docs/02-C-API规范.md 6.5。 */
+#define ASNBER_CAP_SCHEMA_TABLE_LOAD (UINT64_C(1) << 0)
+#define ASNBER_CAP_SCHEMA_RUNTIME_REGISTER (UINT64_C(1) << 1)
+#define ASNBER_CAP_STRICT_SCHEMA (UINT64_C(1) << 2)
+#define ASNBER_CAP_WARNING (UINT64_C(1) << 3)
+#define ASNBER_CAP_BER_CONSTRUCTED_STRING (UINT64_C(1) << 4)
+#define ASNBER_CAP_TIME_NANOSECOND (UINT64_C(1) << 5)
+#define ASNBER_CAP_BIGINT_DECIMAL (UINT64_C(1) << 6)
+#define ASNBER_CAP_ENCODE_SCHEMA_AWARE (UINT64_C(1) << 7)
+#define ASNBER_CAP_CER (UINT64_C(1) << 8)
+#define ASNBER_CAP_PER (UINT64_C(1) << 9)
+#define ASNBER_CAP_ANY_OPEN_TYPE (UINT64_C(1) << 10)
+#define ASNBER_CAP_SCHEMA_NAMES (UINT64_C(1) << 11)
+
+typedef struct asnber_version_info {
+    size_t struct_size;                 /* 输入：必须为 sizeof(asnber_version_info_t) */
+    uint32_t major;                     /* 实际链接库的主版本 */
+    uint32_t minor;
+    uint32_t patch;
+    uint32_t reserved;                  /* 必须置零 */
+    const char *string;                 /* 静态存储，随库生命周期有效，永不释放 */
+    uint64_t capabilities;              /* ASNBER_CAP_* 位集合，见 6.5 */
+} asnber_version_info_t;
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+ASNBER_API asnber_err_t asnber_version(asnber_version_info_t *out_info);
+ASNBER_API asnber_err_t asnber_version_check(uint32_t expected_major,
+                                       uint32_t expected_minor);
+ASNBER_API int        asnber_has_capability(uint64_t capability);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* ASNBER_VERSION_H_INCLUDED */

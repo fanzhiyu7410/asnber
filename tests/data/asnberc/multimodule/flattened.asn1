@@ -1,0 +1,25 @@
+Merged-2026 DEFINITIONS IMPLICIT TAGS ::=
+BEGIN
+
+BaseRecord ::= SEQUENCE {
+    id    INTEGER (0..65535),
+    label UTF8String
+}
+
+BaseFlag ::= ENUMERATED { off(0), on(1) }
+
+MidWrapper ::= SEQUENCE {
+    record BaseRecord,
+    flag   BaseFlag
+}
+
+BaseRecord-Leaf-2026 ::= SEQUENCE {
+    note UTF8String
+}
+
+LeafDocument ::= SEQUENCE {
+    wrapper MidWrapper,
+    local   BaseRecord-Leaf-2026
+}
+
+END

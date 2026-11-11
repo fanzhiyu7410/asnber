@@ -1,0 +1,9 @@
+ImportDuplicateSample DEFINITIONS IMPLICIT TAGS ::=
+BEGIN
+
+IMPORTS NegRecord FROM NegBase-2026,
+        NegRecord FROM NegOther-2026;
+
+Holder ::= NegRecord
+
+END

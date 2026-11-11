@@ -1,0 +1,16 @@
+# 变更记录
+
+本文件记录对外可见的版本变更；格式参考 Keep a Changelog，版本号遵循语义化版本。
+
+## [0.1.0] - 2026-11-11
+
+首个版本。核心库、描述表工具和标准模块一起发布。
+
+### 新增
+
+- 核心 `asnber`：BER/DER 解码与 DER 编码、DOM、schema 感知编解码、增量 feed 解码、静态池。
+- 工具 `asnberc`：解析 `.asn1` 文本并生成描述表，支持多模块 `IMPORTS` 与单类型参数化。
+- 模块 `asnber-pkix`、`asnber-cms`、`asnber-pkcs1`、`asnber-pkcs8`、`asnber-pkcs10`、`asnber-pkcs12`，以及不产库的聚合包 `asnber-pkcs`。
+- 库不签名、不加密、不解密，也不校验证书链。
+
+[0.1.0]: https://github.com/fanzhiyu7410/asnber/releases/tag/v0.1.0

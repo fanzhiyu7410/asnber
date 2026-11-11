@@ -1,0 +1,93 @@
+# Copyright (c) 2026 asnber project contributors
+# SPDX-License-Identifier: MIT
+#
+# 裸机交叉构建单独成流。它与宿主编译器矩阵没有耦合，留在 ci 里只会把
+# 主流程的墙钟时间拉到工具链下载的时长（实测安装 toolchain 约 19 分钟，
+# 其余步骤合计约 12 秒）。
+#
+# 两条省时手段：
+#   1. 用 actions/cache 缓存 apt 下载目录，命中时跳过下载与索引刷新；
+#      key 绑定 runner 镜像版本（ImageVersion），镜像升级即换 key，
+#      旧缓存自动失效，不会拿到与新镜像不匹配的包。
+#   2. 按路径过滤触发：只有源码、模块、CMake 与嵌入式用例变化时才跑。
+#
+# 验证强度不降：构建、链接与产物尺寸检查与原先一致。
+
+name: freestanding
+
+on:
+  push:
+    paths:
+      - "src/**"
+      - "modules/**"
+      - "cmake/**"
+      - "tests/embedded/**"
+      - "CMakeLists.txt"
+      - ".github/workflows/freestanding.yml"
+  pull_request:
+    paths:
+      - "src/**"
+      - "modules/**"
+      - "cmake/**"
+      - "tests/embedded/**"
+      - "CMakeLists.txt"
+      - ".github/workflows/freestanding.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: freestanding-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # 交叉编译只验证“能构建、能链接、产物尺寸”，不在 CI 内运行目标代码。
+  arm:
+    name: linux-freestanding-arm
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 缓存 ARM 工具链包
+        id: apt-cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/apt-archives
+          key: apt-arm-none-eabi-${{ env.ImageVersion }}-${{ hashFiles('.github/workflows/freestanding.yml') }}
+
+      - name: 安装 ARM 裸机工具链
+        run: |
+          mkdir -p "${{ runner.temp }}/apt-archives"
+          if [ "${{ steps.apt-cache.outputs.cache-hit }}" != "true" ]; then
+            # 只有未命中才刷新索引：命中说明该镜像对应的包已落盘，
+            # 再刷新反而会让 apt 去取更新的版本、把缓存变成无用功。
+            sudo apt-get update
+          fi
+          # 只装构造裸机目标与 newlib 需要的包，不装推荐包。
+          sudo apt-get install -y --no-install-recommends \
+            -o Dir::Cache::archives="${{ runner.temp }}/apt-archives" \
+            ninja-build gcc-arm-none-eabi libstdc++-arm-none-eabi-newlib
+
+      - name: 配置（Cortex-M4F，静态 + freestanding）
+        run: |
+          cmake -S . -B build-arm -G Ninja \
+            -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/arm-none-eabi-cortex-m4.cmake \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DASNBER_BUILD_SHARED=OFF \
+            -DASNBER_BUILD_STATIC=ON \
+            -DASNBER_FREESTANDING=ON \
+            -DASNBER_BUILD_MODULES=ON \
+            -DASNBER_BUILD_MODULE_PKIX=ON \
+            -DASNBER_BUILD_MODULE_PKCS=ON \
+            -DASNBER_BUILD_MODULE_CMS=ON \
+            -DASNBER_BUILD_TOOLS=OFF \
+            -DASNBER_BUILD_EMBEDDED_TEST=ON \
+            -DASNBER_WARNINGS_AS_ERRORS=ON
+
+      - name: 构建（只链接，不运行）
+        run: cmake --build build-arm --parallel
+
+      - name: 输出产物尺寸
+        run: |
+          arm-none-eabi-size build-arm/tests/embedded/test_embedded_pool
+          ls -l build-arm/src/libasnber_static.a
+          ls -l build-arm/modules/*/libasnber-*_static.a

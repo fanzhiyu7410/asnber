@@ -1,0 +1,8 @@
+-- 负例：BIT STRING 命名位号等于 SIZE 上界，期望
+-- ASNBERC_E_CONSTRAINT_INVALID (9009)。
+
+NegativeBitOutOfRange DEFINITIONS ::= BEGIN
+
+Thing ::= BIT STRING { alpha(8) } (SIZE (0..8))
+
+END

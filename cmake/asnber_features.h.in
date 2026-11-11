@@ -1,0 +1,18 @@
+/*
+ * Copyright (c) 2026 asnber project contributors
+ * SPDX-License-Identifier: MIT
+ */
+
+/*
+ * 核心特性头。由 CMake 按裁剪选项生成，源码树中不手写这些宏。
+ * 生成结果安装为 include/asnber/asnber_features.h。
+ */
+#ifndef ASNBER_ASNBER_FEATURES_H_INCLUDED
+#define ASNBER_ASNBER_FEATURES_H_INCLUDED
+
+#define ASNBER_FEATURE_ENCODE @ASNBER_FEATURE_ENCODE@
+#define ASNBER_FEATURE_BUILD_API @ASNBER_FEATURE_BUILD_API@
+#define ASNBER_FEATURE_SCHEMA_BUILD_API @ASNBER_FEATURE_SCHEMA_BUILD_API@
+#define ASNBER_FEATURE_PKIX_BUILDER @ASNBER_FEATURE_PKIX_BUILDER@
+
+#endif /* ASNBER_ASNBER_FEATURES_H_INCLUDED */

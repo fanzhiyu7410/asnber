@@ -1,0 +1,8 @@
+NegBase-2026 DEFINITIONS IMPLICIT TAGS ::=
+BEGIN
+
+NegRecord ::= SEQUENCE {
+    x INTEGER
+}
+
+END

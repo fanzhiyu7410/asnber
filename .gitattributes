@@ -1,0 +1,7 @@
+# 生成表与 ASN.1 文本按 LF 检出，保证 asnberc 产物逐字节比对跨平台一致。
+modules/*/generated/*.bin binary
+modules/*/generated/*.h text eol=lf
+modules/*/asnber/*.asn1 text eol=lf
+modules/*/asnber/**/*.md text eol=lf
+tests/differential/*.md text eol=lf
+tests/differential/*.json text eol=lf

@@ -1,0 +1,40 @@
+-- 自包含展平模块：PKCS#8（RFC 5208，2008-05）
+-- 来源：RFC 5208 第 5 节与附录 A；AlgorithmIdentifier 取 RFC 5280 定义；
+--      Attribute 取 PKCS#9（RFC 2985）Attribute 的结构定义。
+-- 展平规则：去 IMPORT，开放类型字段改为 ANY（保留完整原始 TLV）。
+-- 本文件只描述 ASN.1 结构，不含密码学语义；不解密、不校验任何签名。
+PKCS8-Flattened-5208
+    DEFINITIONS IMPLICIT TAGS ::=
+BEGIN
+
+-- RFC 5208 第 5 节
+PrivateKeyInfo ::= SEQUENCE {
+    version              Version,
+    privateKeyAlgorithm  AlgorithmIdentifier,
+    privateKey           PrivateKey,
+    attributes           [0] IMPLICIT Attributes OPTIONAL }
+
+Version ::= INTEGER
+
+PrivateKey ::= OCTET STRING
+
+Attributes ::= SET OF Attribute
+
+-- RFC 5208 附录 A
+EncryptedPrivateKeyInfo ::= SEQUENCE {
+    encryptionAlgorithm  AlgorithmIdentifier,
+    encryptedData        EncryptedData }
+
+EncryptedData ::= OCTET STRING
+
+-- RFC 5280 4.1.1.2；parameters 为随算法 OID 变化的开放类型，展平为 ANY。
+AlgorithmIdentifier ::= SEQUENCE {
+    algorithm   OBJECT IDENTIFIER,
+    parameters  ANY OPTIONAL }
+
+-- RFC 2985 / X.501 Attribute 的结构定义；values 为开放类型集合，展平为 ANY。
+Attribute ::= SEQUENCE {
+    type    OBJECT IDENTIFIER,
+    values  SET SIZE (1..MAX) OF ANY }
+
+END

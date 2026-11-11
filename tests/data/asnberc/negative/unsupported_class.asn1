@@ -1,0 +1,7 @@
+-- 负例：CLASS 定义一期不支持，期望 ASNBERC_E_UNSUPPORTED_CONSTRUCT (9006)。
+
+NegativeClass DEFINITIONS ::= BEGIN
+
+Thing ::= CLASS { id OBJECT IDENTIFIER }
+
+END

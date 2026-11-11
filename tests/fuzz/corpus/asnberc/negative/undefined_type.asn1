@@ -1,0 +1,9 @@
+-- 负例：引用未定义类型，期望 ASNBERC_E_UNDEFINED_TYPE (9002)。
+
+NegativeUndefinedType DEFINITIONS ::= BEGIN
+
+Thing ::= SEQUENCE {
+    missing  MissingType
+}
+
+END

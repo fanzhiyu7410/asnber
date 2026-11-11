@@ -1,0 +1,41 @@
+-- asnberc 等价性样例：只覆盖描述表生成需要的最小语法子集。
+-- 设计约束：字段类型与 SET OF 元素只用具名引用（裸 ANY 字段除外），
+-- 因此整个模块只会产生一个合成类型（共享裸 ANY），便于与手工运行时树
+-- 逐项比较。
+
+EquivSample DEFINITIONS IMPLICIT TAGS ::= BEGIN
+
+Flag ::= BOOLEAN
+
+Count ::= INTEGER (0..MAX)
+
+Kind ::= ENUMERATED { alpha(0), beta(1) }
+
+Text ::= UTF8String
+
+Item ::= SEQUENCE {
+    flag    Flag DEFAULT FALSE,
+    count   Count,
+    kind    Kind,
+    label   Text OPTIONAL,
+    extra   ANY
+}
+
+Pick ::= CHOICE {
+    item   Item,
+    text   Text
+}
+
+AnySet ::= SET (SIZE (1..4)) OF Item
+
+ItemSet ::= SET (SIZE (1..10)) OF Item
+
+Alias ::= Item
+
+Container ::= SEQUENCE {
+    pick    Pick,
+    anySet  AnySet,
+    itemSet ItemSet
+}
+
+END

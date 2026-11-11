@@ -1,0 +1,56 @@
+# Copyright (c) 2026 asnber project contributors
+# SPDX-License-Identifier: MIT
+#
+# ASan + UBSan 全量测试（Linux Clang）。
+#
+# 关于 -fno-exceptions/-fno-rtti：ASan/UBSan 与这两个选项可以共存，
+# 库目标仍保持 -fno-exceptions -fno-rtti；sanitizer 标志通过全局
+# CMAKE_C_FLAGS / CMAKE_CXX_FLAGS 注入，以便测试可执行文件与库使用
+# 同一套运行时，避免静态库链接时缺少 __asan_* 符号。
+#
+# 说明：全量 ctest 包含 asnber-pkcs 与 asnber-cms 的真实样本用例；这里显式打开
+# 对应模块选项，避免依赖默认值。本地等价命令见 docs/07-测试与验证.md 第 7 节。
+
+name: sanitizers
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  asan-ubsan:
+    name: linux-clang-asan-ubsan
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 安装工具链
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build clang
+
+      - name: 配置
+        run: |
+          cmake -S . -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DCMAKE_C_COMPILER=clang \
+            -DCMAKE_CXX_COMPILER=clang++ \
+            -DCMAKE_C_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer" \
+            -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer" \
+            -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address,undefined" \
+            -DCMAKE_SHARED_LINKER_FLAGS="-fsanitize=address,undefined" \
+            -DASNBER_BUILD_TESTS=ON \
+            -DASNBER_BUILD_MODULE_PKCS=ON \
+            -DASNBER_BUILD_MODULE_CMS=ON \
+            -DASNBER_WARNINGS_AS_ERRORS=ON
+
+      - name: 构建
+        run: cmake --build build --parallel
+
+      - name: 测试
+        env:
+          ASAN_OPTIONS: detect_leaks=1:abort_on_error=1:strict_string_checks=1
+          UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
+        run: ctest --test-dir build --output-on-failure

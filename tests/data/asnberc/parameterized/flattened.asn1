@@ -1,0 +1,18 @@
+-- 与 parameterized.asn1 语义等价的人工展平版本。
+-- asnberc 对 parameterized.asn1 的输出应与本文件逐字节一致。
+
+ParamTest DEFINITIONS ::= BEGIN
+
+AlgorithmIdentifier-INTEGER ::= SEQUENCE {
+    algorithm  OBJECT IDENTIFIER,
+    parameters INTEGER OPTIONAL
+}
+
+SubjectPublicKeyInfo-INTEGER ::= SEQUENCE {
+    algorithm        AlgorithmIdentifier-INTEGER,
+    subjectPublicKey BIT STRING
+}
+
+MyKey ::= SubjectPublicKeyInfo-INTEGER
+
+END

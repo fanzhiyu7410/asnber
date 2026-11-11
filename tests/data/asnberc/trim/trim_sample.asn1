@@ -1,0 +1,16 @@
+TrimSample DEFINITIONS ::= BEGIN
+
+RootDocument ::= SEQUENCE {
+    value  INTEGER,
+    child  Child
+}
+
+Child ::= SEQUENCE {
+    text  UTF8String
+}
+
+UnusedRecord ::= SEQUENCE {
+    flag  BOOLEAN
+}
+
+END

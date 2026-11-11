@@ -1,0 +1,7 @@
+-- 负例：同类型重复数值名，期望 ASNBERC_E_DUPLICATE_FIELD (9004)。
+
+NegativeDuplicateNamedValue DEFINITIONS ::= BEGIN
+
+Thing ::= INTEGER { first(0), second(0) }
+
+END

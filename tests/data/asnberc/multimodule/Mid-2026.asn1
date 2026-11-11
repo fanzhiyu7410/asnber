@@ -1,0 +1,11 @@
+Mid-2026 DEFINITIONS IMPLICIT TAGS ::=
+BEGIN
+
+IMPORTS BaseRecord, BaseFlag FROM Base-2026;
+
+MidWrapper ::= SEQUENCE {
+    record BaseRecord,
+    flag   BaseFlag
+}
+
+END

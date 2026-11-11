@@ -1,0 +1,79 @@
+-- 自包含展平模块：PKCS#12（RFC 7292，2014-07）
+-- 来源：RFC 7292 附录 D 的 PKCS-12 模块；ContentInfo 与 DigestInfo 取
+--      RFC 5652（CMS）4.1/5.2 的定义；PrivateKeyInfo 与
+--      EncryptedPrivateKeyInfo 见本目录的 PKCS8-Flattened-5208.asn1。
+-- 展平规则：去 IMPORT 与信息对象类（BAG-TYPE、ATTRIBUTE）；参数化类型
+--      全部展开；开放类型字段改为 ANY（保留完整原始 TLV）。bagId 只校验
+--      为 OBJECT IDENTIFIER，不按 bag 类型约束内层值——未知 bagId 与未来
+--      扩展 bag 仍可原样访问。
+-- 本文件只描述 ASN.1 结构，不含密码学语义；不解密、不验 MAC、不做口令
+-- 密钥派生，也不校验任何签名。
+PKCS12-Flattened-7292
+    DEFINITIONS IMPLICIT TAGS ::=
+BEGIN
+
+-- RFC 7292 附录 D：PFX PDU。
+-- 原版 version 为 INTEGER { v3(3) }(v3,...)；值名不影响 DER 结构，展平后
+-- 使用无约束 INTEGER，非 3 的输入按原值返回，不在解码期被值名拒绝。
+PFX ::= SEQUENCE {
+    version    INTEGER,
+    authSafe   ContentInfo,
+    macData    MacData OPTIONAL }
+
+MacData ::= SEQUENCE {
+    mac         DigestInfo,
+    macSalt     OCTET STRING,
+    iterations  INTEGER DEFAULT 1 }
+
+-- RFC 5652 5.2。
+DigestInfo ::= SEQUENCE {
+    digestAlgorithm  AlgorithmIdentifier,
+    digest           OCTET STRING }
+
+-- RFC 5652 4.1；parameters 为随算法 OID 变化的开放类型，展平为 ANY。
+AlgorithmIdentifier ::= SEQUENCE {
+    algorithm   OBJECT IDENTIFIER,
+    parameters  ANY OPTIONAL }
+
+-- RFC 5652 4.1。
+ContentInfo ::= SEQUENCE {
+    contentType  ContentType,
+    content      [0] EXPLICIT ANY OPTIONAL }
+
+ContentType ::= OBJECT IDENTIFIER
+
+-- RFC 7292 附录 D：明文时为 data，口令加密时为 encryptedData，
+-- 公钥加密时为 envelopedData。模块不解析 content 的内层语义。
+AuthenticatedSafe ::= SEQUENCE OF ContentInfo
+
+SafeContents ::= SEQUENCE OF SafeBag
+
+-- [0] EXPLICIT 内的完整 TLV 为 bag 值：keyBag 为 PrivateKeyInfo，
+-- pkcs8ShroudedKeyBag 为 EncryptedPrivateKeyInfo，certBag 为 CertBag，
+-- crlBag 为 CRLBag，secretBag 为 SecretBag，safeContentsBag 为 SafeContents。
+SafeBag ::= SEQUENCE {
+    bagId          OBJECT IDENTIFIER,
+    bagValue       [0] EXPLICIT ANY,
+    bagAttributes  SET OF PKCS12Attribute OPTIONAL }
+
+-- attrValues 的元素类型随 attrId 变化，展平为 SET OF ANY。
+PKCS12Attribute ::= SEQUENCE {
+    attrId      OBJECT IDENTIFIER,
+    attrValues  SET OF ANY }
+
+-- certId 通常为 x509Certificate（1.2.840.113549.1.9.22.1）；
+-- certValue 的完整 TLV 通常是包含证书 DER 的 OCTET STRING。
+CertBag ::= SEQUENCE {
+    certId     OBJECT IDENTIFIER,
+    certValue  [0] EXPLICIT ANY }
+
+-- crlId 通常为 x509CRL（1.2.840.113549.1.9.23.1）。
+CRLBag ::= SEQUENCE {
+    crlId      OBJECT IDENTIFIER,
+    crltValue  [0] EXPLICIT ANY }
+
+SecretBag ::= SEQUENCE {
+    secretTypeId  OBJECT IDENTIFIER,
+    secretValue   [0] EXPLICIT ANY }
+
+END

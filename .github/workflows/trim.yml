@@ -1,0 +1,183 @@
+# Copyright (c) 2026 asnber project contributors
+# SPDX-License-Identifier: MIT
+#
+# 嵌入式裁切验证：宿主行为/符号/配置规则 + ARM 交叉构建与尺寸记录。
+# 与 freestanding.yml 分离：后者保持全模块构建，本流验证 cert-decode 与 cert-and-csr。
+
+name: trim
+
+on:
+  push:
+    paths:
+      - "src/**"
+      - "modules/**"
+      - "cmake/**"
+      - "tools/**"
+      - "tests/**"
+      - "scripts/**"
+      - "include/**"
+      - "CMakeLists.txt"
+      - ".github/workflows/trim.yml"
+  pull_request:
+    paths:
+      - "src/**"
+      - "modules/**"
+      - "cmake/**"
+      - "tools/**"
+      - "tests/**"
+      - "scripts/**"
+      - "include/**"
+      - "CMakeLists.txt"
+      - ".github/workflows/trim.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: trim-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  host-cert-decode:
+    name: host-cert-decode
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 安装工具链
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build python3
+
+      - name: 配置（宿主 cert-decode）
+        run: |
+          cmake -S . -B build-cert -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DASNBER_TRIM_PROFILE=cert-decode \
+            -DASNBER_BUILD_SHARED=OFF \
+            -DASNBER_BUILD_STATIC=ON \
+            -DASNBER_BUILD_MODULES=ON \
+            -DASNBER_BUILD_MODULE_PKIX=ON \
+            -DASNBER_BUILD_MODULE_PKCS=OFF \
+            -DASNBER_BUILD_MODULE_PKCS1=OFF \
+            -DASNBER_BUILD_MODULE_PKCS8=OFF \
+            -DASNBER_BUILD_MODULE_PKCS10=OFF \
+            -DASNBER_BUILD_MODULE_PKCS12=OFF \
+            -DASNBER_BUILD_MODULE_CMS=OFF \
+            -DASNBER_BUILD_TOOLS=OFF \
+            -DASNBER_BUILD_TESTS=OFF \
+            -DASNBER_BUILD_EMBEDDED_TEST=ON \
+            -DASNBER_WARNINGS_AS_ERRORS=ON
+
+      - name: 构建
+        run: cmake --build build-cert --parallel
+
+      - name: 裁剪用例与符号检查
+        run: ctest --test-dir build-cert --output-on-failure
+
+      - name: 配置规则（负向 + 正例）
+        run: python3 scripts/check_trim_config.py
+
+  host-cert-and-csr:
+    name: host-cert-and-csr
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 安装工具链
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build python3
+
+      - name: 配置（宿主 cert-and-csr）
+        run: |
+          cmake -S . -B build-cert-csr -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DASNBER_TRIM_PROFILE=cert-and-csr \
+            -DASNBER_BUILD_SHARED=OFF \
+            -DASNBER_BUILD_STATIC=ON \
+            -DASNBER_BUILD_MODULES=ON \
+            -DASNBER_BUILD_MODULE_PKIX=ON \
+            -DASNBER_BUILD_MODULE_PKCS=OFF \
+            -DASNBER_BUILD_MODULE_PKCS1=OFF \
+            -DASNBER_BUILD_MODULE_PKCS8=OFF \
+            -DASNBER_BUILD_MODULE_PKCS10=ON \
+            -DASNBER_BUILD_MODULE_PKCS12=OFF \
+            -DASNBER_BUILD_MODULE_CMS=OFF \
+            -DASNBER_BUILD_TOOLS=OFF \
+            -DASNBER_BUILD_TESTS=OFF \
+            -DASNBER_BUILD_EMBEDDED_TEST=ON \
+            -DASNBER_WARNINGS_AS_ERRORS=ON
+
+      - name: 构建
+        run: cmake --build build-cert-csr --parallel
+
+      - name: 裁剪用例与符号检查
+        run: ctest --test-dir build-cert-csr --output-on-failure
+
+      - name: 配置规则（负向 + 正例）
+        run: python3 scripts/check_trim_config.py
+
+  arm-cert-decode:
+    name: linux-freestanding-arm-cert
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 缓存 ARM 工具链包
+        id: apt-cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/apt-archives
+          key: apt-arm-none-eabi-${{ env.ImageVersion }}-${{ hashFiles('.github/workflows/trim.yml') }}
+
+      - name: 安装 ARM 裸机工具链
+        run: |
+          mkdir -p "${{ runner.temp }}/apt-archives"
+          if [ "${{ steps.apt-cache.outputs.cache-hit }}" != "true" ]; then
+            sudo apt-get update
+          fi
+          sudo apt-get install -y --no-install-recommends \
+            -o Dir::Cache::archives="${{ runner.temp }}/apt-archives" \
+            ninja-build gcc-arm-none-eabi libstdc++-arm-none-eabi-newlib
+
+      - name: 配置（Cortex-M4F，cert-decode，MinSizeRel）
+        run: |
+          cmake -S . -B build-cert-arm -G Ninja \
+            -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/arm-none-eabi-cortex-m4.cmake \
+            -DCMAKE_BUILD_TYPE=MinSizeRel \
+            -DASNBER_TRIM_PROFILE=cert-decode \
+            -DASNBER_BUILD_SHARED=OFF \
+            -DASNBER_BUILD_STATIC=ON \
+            -DASNBER_FREESTANDING=ON \
+            -DASNBER_BUILD_MODULES=ON \
+            -DASNBER_BUILD_MODULE_PKIX=ON \
+            -DASNBER_BUILD_MODULE_PKCS=OFF \
+            -DASNBER_BUILD_MODULE_PKCS1=OFF \
+            -DASNBER_BUILD_MODULE_PKCS8=OFF \
+            -DASNBER_BUILD_MODULE_PKCS10=OFF \
+            -DASNBER_BUILD_MODULE_PKCS12=OFF \
+            -DASNBER_BUILD_MODULE_CMS=OFF \
+            -DASNBER_BUILD_TOOLS=OFF \
+            -DASNBER_BUILD_TESTS=OFF \
+            -DASNBER_BUILD_EMBEDDED_TEST=ON \
+            -DASNBER_WARNINGS_AS_ERRORS=ON
+
+      - name: 构建与链接
+        run: cmake --build build-cert-arm --parallel
+
+      - name: 尺寸记录
+        run: |
+          arm-none-eabi-size build-cert-arm/tests/embedded/test_pkix_cert_trim
+          arm-none-eabi-size build-cert-arm/tests/embedded/test_pkix_cert_trim \
+            | tail -n 1 | tee -a "$GITHUB_STEP_SUMMARY"
+          ls -l build-cert-arm/src/libasnber_static.a
+          ls -l build-cert-arm/modules/pkix/libasnber-pkix_static.a
+
+      - name: 确认证书打开符号被链接
+        run: |
+          arm-none-eabi-nm build-cert-arm/tests/embedded/test_pkix_cert_trim \
+            | grep " T asnber_pkix_certificate_open$"
+          arm-none-eabi-nm build-cert-arm/tests/embedded/test_pkix_cert_trim \
+            | grep " T asnber_pkix_certificate_builder_create$" && exit 1 || true

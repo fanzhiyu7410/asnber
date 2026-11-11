@@ -1,0 +1,9 @@
+-- 负例：参数化实例化实参数量不匹配，期望 ASNBERC_E_PARAM_INSTANTIATION (9008)。
+
+NegArgCount DEFINITIONS ::= BEGIN
+
+Foo { Type } ::= SEQUENCE { a Type }
+
+Bar ::= Foo { INTEGER, OCTET STRING }
+
+END

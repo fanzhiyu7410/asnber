@@ -1,0 +1,27 @@
+-- 自包含展平模块：PKCS#1（RFC 8017，2016-11）
+-- 来源：RFC 8017 附录 A.1（RSAPublicKey / RSAPrivateKey）。
+-- 本文件只描述 ASN.1 结构，不含密码学语义；不做 RSA 运算、填充、签名或加密。
+PKCS1-Flattened-8017
+    DEFINITIONS IMPLICIT TAGS ::=
+BEGIN
+
+-- RFC 8017 A.1.1
+RSAPublicKey ::= SEQUENCE {
+    modulus         INTEGER,  -- n
+    publicExponent  INTEGER } -- e
+
+-- RFC 8017 A.1.2
+RSAPrivateKey ::= SEQUENCE {
+    version          Version,
+    modulus          INTEGER,  -- n
+    publicExponent   INTEGER,  -- e
+    privateExponent  INTEGER,  -- d
+    prime1           INTEGER,  -- p
+    prime2           INTEGER,  -- q
+    exponent1        INTEGER,  -- d mod (p-1)
+    exponent2        INTEGER,  -- d mod (q-1)
+    coefficient      INTEGER } -- (inverse of q) mod p
+
+Version ::= INTEGER { two-prime(0), multi(1) }
+
+END

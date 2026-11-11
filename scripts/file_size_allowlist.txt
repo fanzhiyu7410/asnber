@@ -1,0 +1,6 @@
+# Copyright (c) 2026 asnber project contributors
+# SPDX-License-Identifier: MIT
+#
+# 单文件行数允许清单：<相对路径> <冻结行数>
+# 只允许删除条目；文件降到 800 行以内后必须删除对应行。
+# 当前无超限 .cpp，清单为空。

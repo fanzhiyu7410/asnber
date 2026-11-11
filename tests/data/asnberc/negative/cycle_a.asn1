@@ -1,0 +1,10 @@
+CycleA-2026 DEFINITIONS IMPLICIT TAGS ::=
+BEGIN
+
+IMPORTS CycleBType FROM CycleB-2026;
+
+CycleAType ::= SEQUENCE {
+    b CycleBType
+}
+
+END

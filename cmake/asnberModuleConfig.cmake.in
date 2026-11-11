@@ -1,0 +1,12 @@
+# Copyright (c) 2026 asnber project contributors
+# SPDX-License-Identifier: MIT
+
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+find_dependency(asnber @ASNBER_CORE_VERSION@ CONFIG)
+@ASNBER_MODULE_FIND_DEPENDENCIES@
+
+include("${CMAKE_CURRENT_LIST_DIR}/@ASNBER_MODULE_PACKAGE@Targets.cmake")
+
+check_required_components(@ASNBER_MODULE_PACKAGE@)

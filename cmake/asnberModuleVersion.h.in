@@ -1,0 +1,25 @@
+/*
+ * Copyright (c) 2026 asnber project contributors
+ * SPDX-License-Identifier: MIT
+ */
+
+/*
+ * 模块版本头模板。由 CMake configure_file 从模块自己的 project(... VERSION ...)
+ * 生成，源码树中不手写版本宏。
+ * 生成结果安装为 include/asnber/<module>/<module>_version.h。
+ */
+#ifndef @ASNBER_MODULE_MACRO@_VERSION_H_INCLUDED
+#define @ASNBER_MODULE_MACRO@_VERSION_H_INCLUDED
+
+#define @ASNBER_MODULE_MACRO@_VERSION_MAJOR @PROJECT_VERSION_MAJOR@
+#define @ASNBER_MODULE_MACRO@_VERSION_MINOR @PROJECT_VERSION_MINOR@
+#define @ASNBER_MODULE_MACRO@_VERSION_PATCH @PROJECT_VERSION_PATCH@
+#define @ASNBER_MODULE_MACRO@_VERSION_STRING "@PROJECT_VERSION@"
+
+/* 编码规则：major << 16 | minor << 8 | patch */
+#define @ASNBER_MODULE_MACRO@_VERSION_ENCODED \
+    ((@ASNBER_MODULE_MACRO@_VERSION_MAJOR << 16) | \
+     (@ASNBER_MODULE_MACRO@_VERSION_MINOR << 8) | \
+     @ASNBER_MODULE_MACRO@_VERSION_PATCH)
+
+#endif /* @ASNBER_MODULE_MACRO@_VERSION_H_INCLUDED */

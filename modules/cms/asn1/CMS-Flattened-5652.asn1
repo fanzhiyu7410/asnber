@@ -1,0 +1,398 @@
+-- CMS-Flattened-5652
+--
+-- Flattened, self-contained ASN.1 module for the read-only CMS slice.
+--
+-- Sources:
+--   CryptographicMessageSyntax2004 (RFC 5652 section 12.1)
+--   CompressedData (RFC 3274 section 2)
+--   PKIX1Explicit-2009 / PKIX1Implicit-2009 types reachable from
+--   SignedData, copied verbatim where possible from
+--   modules/pkix/asn1/PKIX-Flattened-2009.asn1 (itself derived from
+--   RFC 5912, sections 2, 3 and 14).
+--
+-- Conversion:
+--   RFC 5652 imports AlgorithmIdentifier, Certificate, CertificateList,
+--   CertificateSerialNumber and Name from PKIX1Explicit88, and
+--   AttributeCertificate from RFC 3281.  This module has no IMPORTS.
+--   Instead it carries the reachable PKIX types itself, so asnber-cms does
+--   not depend on asnber-pkix (ADR-0012).
+--
+--   Open type fields use ANY, which retains the complete original TLV
+--   and writes it back unchanged.  Parameterized types are already
+--   expanded in the copied PKIX definitions.
+--
+--   Obsolete or out-of-scope certificate choices are kept as opaque
+--   extensible SEQUENCE placeholders (raw TLV is still available to the
+--   caller); see reconciliation.md.
+--
+-- Copyright (c) 2009 IETF Trust and the persons identified as the
+-- document authors.  All rights reserved.
+--
+-- Original text kept for comparison:
+--   modules/cms/asn1/reference/rfc5652/rfc5652.txt
+-- Errata review:
+--   modules/cms/asn1/reference/rfc5652/errata.html
+
+CMS-Flattened-5652 DEFINITIONS IMPLICIT TAGS ::= BEGIN
+
+-- ================================================================
+-- Part 1: CryptographicMessageSyntax2004 (RFC 5652 section 12.1)
+-- ================================================================
+
+ContentInfo ::= SEQUENCE {
+    contentType  ContentType,
+    content      [0] EXPLICIT ANY }
+
+ContentType ::= OBJECT IDENTIFIER
+
+SignedData ::= SEQUENCE {
+    version           CMSVersion,
+    digestAlgorithms  DigestAlgorithmIdentifiers,
+    encapContentInfo  EncapsulatedContentInfo,
+    certificates      [0] IMPLICIT CertificateSet OPTIONAL,
+    crls              [1] IMPLICIT RevocationInfoChoices OPTIONAL,
+    signerInfos       SignerInfos }
+
+DigestAlgorithmIdentifiers ::= SET OF DigestAlgorithmIdentifier
+
+DigestAlgorithmIdentifier ::= AlgorithmIdentifier
+
+EncapsulatedContentInfo ::= SEQUENCE {
+    eContentType  ContentType,
+    eContent      [0] EXPLICIT OCTET STRING OPTIONAL }
+
+SignerInfos ::= SET OF SignerInfo
+
+SignerInfo ::= SEQUENCE {
+    version            CMSVersion,
+    sid                SignerIdentifier,
+    digestAlgorithm    DigestAlgorithmIdentifier,
+    signedAttrs        [0] IMPLICIT SignedAttributes OPTIONAL,
+    signatureAlgorithm SignatureAlgorithmIdentifier,
+    signature          SignatureValue,
+    unsignedAttrs      [1] IMPLICIT UnsignedAttributes OPTIONAL }
+
+SignerIdentifier ::= CHOICE {
+    issuerAndSerialNumber  IssuerAndSerialNumber,
+    subjectKeyIdentifier   [0] SubjectKeyIdentifier }
+
+SignedAttributes ::= SET SIZE (1..MAX) OF Attribute
+
+UnsignedAttributes ::= SET SIZE (1..MAX) OF Attribute
+
+Attribute ::= SEQUENCE {
+    attrType    OBJECT IDENTIFIER,
+    attrValues  SET OF AttributeValue }
+
+AttributeValue ::= ANY
+
+SignatureValue ::= OCTET STRING
+
+SignatureAlgorithmIdentifier ::= AlgorithmIdentifier
+
+SubjectKeyIdentifier ::= OCTET STRING
+
+RevocationInfoChoices ::= SET OF RevocationInfoChoice
+
+RevocationInfoChoice ::= CHOICE {
+    crl    CertificateList,
+    other  [1] IMPLICIT OtherRevocationInfoFormat }
+
+OtherRevocationInfoFormat ::= SEQUENCE {
+    otherRevInfoFormat  OBJECT IDENTIFIER,
+    otherRevInfo        ANY }
+
+CertificateChoices ::= CHOICE {
+    certificate          Certificate,
+    extendedCertificate  [0] IMPLICIT ExtendedCertificate,   -- Obsolete
+    v1AttrCert           [1] IMPLICIT AttributeCertificateV1, -- Obsolete
+    v2AttrCert           [2] IMPLICIT AttributeCertificateV2,
+    other                [3] IMPLICIT OtherCertificateFormat }
+
+-- RFC 5652 imports AttributeCertificateV1 (RFC 3281) and
+-- AttributeCertificate (RFC 3281) for the two attribute certificate
+-- choices.  Their full structure is out of scope for this read-only
+-- slice, so they are represented as opaque extensible SEQUENCE
+-- placeholders.  The original bytes remain available as raw TLV; the
+-- caller decides how to parse them.  The outer tag is a normal
+-- [n] IMPLICIT tag of a constructed type, so DER tag checking is not
+-- weakened.
+AttributeCertificateV1 ::= SEQUENCE { ... }
+
+AttributeCertificateV2 ::= SEQUENCE { ... }
+
+OtherCertificateFormat ::= SEQUENCE {
+    otherCertFormat  OBJECT IDENTIFIER,
+    otherCert        ANY }
+
+CertificateSet ::= SET OF CertificateChoices
+
+IssuerAndSerialNumber ::= SEQUENCE {
+    issuer        Name,
+    serialNumber  CertificateSerialNumber }
+
+-- RFC 5652 defines CMSVersion as
+--   INTEGER { v0(0), v1(1), v2(2), v3(3), v4(4), v5(5) }.
+-- The value names are not needed for structural access, and a named
+-- INTEGER would constrain decoding to the listed values.  The flattened
+-- module uses a plain INTEGER so the raw value is returned unchanged.
+CMSVersion ::= INTEGER
+
+-- Obsolete PKCS #6 extended certificate (RFC 5652 section 12.1).
+
+ExtendedCertificate ::= SEQUENCE {
+    extendedCertificateInfo  ExtendedCertificateInfo,
+    signatureAlgorithm       SignatureAlgorithmIdentifier,
+    signature                BIT STRING }
+
+ExtendedCertificateInfo ::= SEQUENCE {
+    version      CMSVersion,
+    certificate  Certificate,
+    attributes   UnsignedAttributes }
+
+-- ================================================================
+-- Part 2: PKIX types reachable from SignedData (copied)
+-- ================================================================
+--
+-- Copied from modules/pkix/asn1/PKIX-Flattened-2009.asn1, which is
+-- derived from RFC 5912.  Differences are limited to the comment below
+-- and to dropping `AttributeType`, `DistinguishedName` and other types
+-- that SignedData cannot reach.
+
+AlgorithmIdentifier ::= SEQUENCE {
+    algorithm   OBJECT IDENTIFIER,
+    parameters  ANY OPTIONAL }
+
+Name ::= CHOICE {
+    rdnSequence  RDNSequence }
+
+RDNSequence ::= SEQUENCE OF RelativeDistinguishedName
+
+RelativeDistinguishedName ::= SET SIZE (1..MAX) OF SingleAttribute
+
+SingleAttribute ::= SEQUENCE {
+    type   OBJECT IDENTIFIER,
+    value  ANY }
+
+Certificate ::= SIGNED-TBSCertificate
+
+SIGNED-TBSCertificate ::= SEQUENCE {
+    toBeSigned           TBSCertificate,
+    algorithmIdentifier  AlgorithmIdentifier,
+    signature            BIT STRING }
+
+TBSCertificate ::= SEQUENCE {
+    version              [0] EXPLICIT Version DEFAULT v1,
+    serialNumber         CertificateSerialNumber,
+    signature            AlgorithmIdentifier,
+    issuer               Name,
+    validity             Validity,
+    subject              Name,
+    subjectPublicKeyInfo SubjectPublicKeyInfo,
+    ...,
+    issuerUniqueID       [1] IMPLICIT UniqueIdentifier OPTIONAL,
+    subjectUniqueID      [2] IMPLICIT UniqueIdentifier OPTIONAL,
+    extensions           [3] EXPLICIT Extensions OPTIONAL }
+
+Version ::= INTEGER { v1(0), v2(1), v3(2) }
+
+CertificateSerialNumber ::= INTEGER
+
+Validity ::= SEQUENCE {
+    notBefore  Time,
+    notAfter   Time }
+
+Time ::= CHOICE {
+    utcTime      UTCTime,
+    generalTime  GeneralizedTime }
+
+UniqueIdentifier ::= BIT STRING
+
+SubjectPublicKeyInfo ::= SEQUENCE {
+    algorithm         AlgorithmIdentifier,
+    subjectPublicKey  BIT STRING }
+
+Extensions ::= SEQUENCE SIZE (1..MAX) OF Extension
+
+Extension ::= SEQUENCE {
+    extnID     OBJECT IDENTIFIER,
+    critical   BOOLEAN DEFAULT FALSE,
+    extnValue  OCTET STRING }
+
+CertificateList ::= SIGNED-TBSCertList
+
+SIGNED-TBSCertList ::= SEQUENCE {
+    toBeSigned           TBSCertList,
+    algorithmIdentifier  AlgorithmIdentifier,
+    signature            BIT STRING }
+
+TBSCertList ::= SEQUENCE {
+    version              Version OPTIONAL,
+    signature            AlgorithmIdentifier,
+    issuer               Name,
+    thisUpdate           Time,
+    nextUpdate           Time OPTIONAL,
+    revokedCertificates  SEQUENCE SIZE (1..MAX) OF SEQUENCE {
+        userCertificate    CertificateSerialNumber,
+        revocationDate     Time,
+        ...,
+        crlEntryExtensions Extensions OPTIONAL } OPTIONAL,
+    ...,
+    crlExtensions        [0] EXPLICIT Extensions OPTIONAL }
+
+-- ================================================================
+-- Part 2: EnvelopedData (RFC 5652 section 6)
+-- ================================================================
+--
+-- Appended after the SignedData closure in a single module.  Appending
+-- named types shifts every synthetic (anonymous) type id; this is
+-- expected and documented in reconciliation.md sections 7 and 8.  Type
+-- ids are internal table references, not a stable public contract.
+
+EnvelopedData ::= SEQUENCE {
+    version               CMSVersion,
+    originatorInfo        [0] IMPLICIT OriginatorInfo OPTIONAL,
+    recipientInfos        RecipientInfos,
+    encryptedContentInfo  EncryptedContentInfo,
+    unprotectedAttrs      [1] IMPLICIT UnprotectedAttributes OPTIONAL }
+
+OriginatorInfo ::= SEQUENCE {
+    certs  [0] IMPLICIT CertificateSet OPTIONAL,
+    crls   [1] IMPLICIT RevocationInfoChoices OPTIONAL }
+
+RecipientInfos ::= SET SIZE (1..MAX) OF RecipientInfo
+
+-- RFC 5652 section 6.2: ktri is untagged (RFC 3852 had [0]); others keep
+-- their context tags.
+RecipientInfo ::= CHOICE {
+    ktri   KeyTransRecipientInfo,
+    kari   [1] IMPLICIT KeyAgreeRecipientInfo,
+    kekri  [2] IMPLICIT KEKRecipientInfo,
+    pwri   [3] IMPLICIT PasswordRecipientInfo,
+    ori    [4] IMPLICIT OtherRecipientInfo }
+
+KeyTransRecipientInfo ::= SEQUENCE {
+    version                 CMSVersion,
+    rid                     RecipientIdentifier,
+    keyEncryptionAlgorithm  AlgorithmIdentifier,
+    encryptedKey            EncryptedKey }
+
+RecipientIdentifier ::= CHOICE {
+    issuerAndSerialNumber  IssuerAndSerialNumber,
+    subjectKeyIdentifier   [0] IMPLICIT SubjectKeyIdentifier }
+
+KeyAgreeRecipientInfo ::= SEQUENCE {
+    version                 CMSVersion,
+    originator              [0] EXPLICIT OriginatorIdentifierOrKey,
+    ukm                     [1] EXPLICIT UserKeyingMaterial OPTIONAL,
+    keyEncryptionAlgorithm  AlgorithmIdentifier,
+    recipientEncryptedKeys  RecipientEncryptedKeys }
+
+OriginatorIdentifierOrKey ::= CHOICE {
+    issuerAndSerialNumber  IssuerAndSerialNumber,
+    subjectKeyIdentifier   [0] IMPLICIT SubjectKeyIdentifier,
+    originatorKey          [1] IMPLICIT OriginatorPublicKey }
+
+OriginatorPublicKey ::= SEQUENCE {
+    algorithm  AlgorithmIdentifier,
+    publicKey  BIT STRING }
+
+RecipientEncryptedKeys ::= SEQUENCE OF RecipientEncryptedKey
+
+RecipientEncryptedKey ::= SEQUENCE {
+    rid           KeyAgreeRecipientIdentifier,
+    encryptedKey  EncryptedKey }
+
+KeyAgreeRecipientIdentifier ::= CHOICE {
+    issuerAndSerialNumber  IssuerAndSerialNumber,
+    rKeyId                 [0] IMPLICIT RecipientKeyIdentifier }
+
+RecipientKeyIdentifier ::= SEQUENCE {
+    subjectKeyIdentifier  SubjectKeyIdentifier,
+    date                  GeneralizedTime OPTIONAL,
+    other                 OtherKeyAttribute OPTIONAL }
+
+KEKRecipientInfo ::= SEQUENCE {
+    version                 CMSVersion,
+    kekid                   KEKIdentifier,
+    keyEncryptionAlgorithm  AlgorithmIdentifier,
+    encryptedKey            EncryptedKey }
+
+KEKIdentifier ::= SEQUENCE {
+    keyIdentifier  OCTET STRING,
+    date           GeneralizedTime OPTIONAL,
+    other          OtherKeyAttribute OPTIONAL }
+
+PasswordRecipientInfo ::= SEQUENCE {
+    version                 CMSVersion,
+    keyDerivationAlgorithm  [0] IMPLICIT AlgorithmIdentifier OPTIONAL,
+    keyEncryptionAlgorithm  AlgorithmIdentifier,
+    encryptedKey            EncryptedKey }
+
+OtherRecipientInfo ::= SEQUENCE {
+    oriType   OBJECT IDENTIFIER,
+    oriValue  ANY }
+
+OtherKeyAttribute ::= SEQUENCE {
+    keyAttrId  OBJECT IDENTIFIER,
+    keyAttr    ANY OPTIONAL }
+
+EncryptedContentInfo ::= SEQUENCE {
+    contentType                 ContentType,
+    contentEncryptionAlgorithm  ContentEncryptionAlgorithmIdentifier,
+    encryptedContent            [0] IMPLICIT EncryptedContent OPTIONAL }
+
+ContentEncryptionAlgorithmIdentifier ::= AlgorithmIdentifier
+
+EncryptedContent ::= OCTET STRING
+
+EncryptedKey ::= OCTET STRING
+
+UserKeyingMaterial ::= OCTET STRING
+
+UnprotectedAttributes ::= SET SIZE (1..MAX) OF Attribute
+
+EncryptedData ::= SEQUENCE {
+    version               CMSVersion,
+    encryptedContentInfo  EncryptedContentInfo,
+    unprotectedAttrs      [1] IMPLICIT UnprotectedAttributes OPTIONAL }
+
+-- ================================================================
+-- Part 2: CompressedData (RFC 3274 section 2)
+-- ================================================================
+--
+-- RFC 3274 defines the compressed-data content type.  The outer
+-- ContentInfo carries id-ct-compressedData (...16.1.9); this module
+-- carries only the inner structure, like the other slices.
+
+CompressedData ::= SEQUENCE {
+    version               CMSVersion,
+    compressionAlgorithm  CompressionAlgorithmIdentifier,
+    encapContentInfo      EncapsulatedContentInfo }
+
+CompressionAlgorithmIdentifier ::= AlgorithmIdentifier
+
+-- ================================================================
+-- Part 2: AuthenticatedData (RFC 5652 section 9)
+-- ================================================================
+
+AuthenticatedData ::= SEQUENCE {
+    version          CMSVersion,
+    originatorInfo   [0] IMPLICIT OriginatorInfo OPTIONAL,
+    recipientInfos   RecipientInfos,
+    macAlgorithm     MessageAuthenticationCodeAlgorithm,
+    digestAlgorithm  [1] IMPLICIT DigestAlgorithmIdentifier OPTIONAL,
+    encapContentInfo EncapsulatedContentInfo,
+    authAttrs        [2] IMPLICIT AuthAttributes OPTIONAL,
+    mac              MessageAuthenticationCode,
+    unauthAttrs      [3] IMPLICIT UnauthAttributes OPTIONAL }
+
+MessageAuthenticationCodeAlgorithm ::= AlgorithmIdentifier
+
+AuthAttributes ::= SET SIZE (1..MAX) OF Attribute
+
+UnauthAttributes ::= SET SIZE (1..MAX) OF Attribute
+
+MessageAuthenticationCode ::= OCTET STRING
+
+END

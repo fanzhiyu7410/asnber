@@ -1,0 +1,7 @@
+-- 负例：BIT STRING 重复位名，期望 ASNBERC_E_DUPLICATE_FIELD (9004)。
+
+NegativeDuplicateNamedBit DEFINITIONS ::= BEGIN
+
+Thing ::= BIT STRING { alpha(0), alpha(3) }
+
+END

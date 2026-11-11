@@ -1,0 +1,10 @@
+NegExports-2026 DEFINITIONS IMPLICIT TAGS ::=
+BEGIN
+
+EXPORTS NegOpen;
+
+NegOpen ::= INTEGER
+
+NegHidden ::= BOOLEAN
+
+END

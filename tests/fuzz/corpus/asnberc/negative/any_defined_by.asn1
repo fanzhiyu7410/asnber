@@ -1,0 +1,10 @@
+-- 负例：ANY DEFINED BY 一期不支持，期望 ASNBERC_E_UNSUPPORTED_CONSTRUCT (9006)。
+
+NegativeAnyDefinedBy DEFINITIONS ::= BEGIN
+
+Thing ::= SEQUENCE {
+    value  ANY DEFINED BY id,
+    id     OBJECT IDENTIFIER
+}
+
+END

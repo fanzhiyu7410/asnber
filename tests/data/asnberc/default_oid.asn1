@@ -1,0 +1,10 @@
+-- 正例：OBJECT IDENTIFIER 的 DEFAULT 按 base-128 编码后以 TLV 存入表，
+-- 期望内容字节 06 09 2A 86 48 86 F7 0D 01 01 01。
+
+DefaultOid DEFINITIONS ::= BEGIN
+
+Algorithm ::= SEQUENCE {
+    algorithm  OBJECT IDENTIFIER DEFAULT { 1 2 840 113549 1 1 1 }
+}
+
+END

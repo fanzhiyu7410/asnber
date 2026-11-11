@@ -1,0 +1,10 @@
+-- 负例：BOOLEAN 的 DEFAULT 不是 BOOLEAN，期望
+-- ASNBERC_E_CONSTRAINT_INVALID (9009)。
+
+NegativeInvalidDefault DEFINITIONS ::= BEGIN
+
+Thing ::= SEQUENCE {
+    flag  BOOLEAN DEFAULT 5
+}
+
+END
