@@ -2,11 +2,11 @@
 
 本文件记录对外可见的版本变更；格式参考 Keep a Changelog，版本号遵循语义化版本。
 
-## [Unreleased]
+## [0.1.1] - 2026-11-11
 
 ### 新增
 
-- `asnber-pkix`：CertificateList 的结构读取与 builder，含 CRL 扩展和条目扩展。不判断吊销，不解释扩展。出现扩展时 version 必须为 1。这些符号属于下一个 minor。
+- `asnber-pkix`：CertificateList 的结构读取与 builder，含 CRL 扩展和条目扩展。不判断吊销，不解释扩展。出现扩展时 version 必须为 1。cert-decode 裁剪表不含此类型。
 - `asnber-pkcs8`：EncryptedPrivateKeyInfo builder。只组装算法标识和密文字节，不加密。
 - `asnber_example_pool_estimate`：对一份描述表和一份 DER 二分求最小静态池。
 
@@ -14,6 +14,10 @@
 
 - CMS SignedData builder 可以输出 certificates-only / CRL-only。没有签名者时 `digestAlgorithms` 可以为空；证书、CRL、签名者三者全空仍然拒绝。
 - schema 编码失败时，`asnber_error_info_t.path` 带上最内层的类型名或 `类型名/字段名`。
+
+### 修复
+
+- MSVC 编译全部目标时使用 `/utf-8`，源文件里的非 ASCII 注释不再触发 C4819。
 
 ## [0.1.0] - 2026-11-11
 
@@ -26,4 +30,5 @@
 - 模块 `asnber-pkix`、`asnber-cms`、`asnber-pkcs1`、`asnber-pkcs8`、`asnber-pkcs10`、`asnber-pkcs12`，以及不产库的聚合包 `asnber-pkcs`。
 - 库不签名、不加密、不解密，也不校验证书链。
 
+[0.1.1]: https://github.com/fanzhiyu7410/asnber/releases/tag/v0.1.1
 [0.1.0]: https://github.com/fanzhiyu7410/asnber/releases/tag/v0.1.0

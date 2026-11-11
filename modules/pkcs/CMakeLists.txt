@@ -8,7 +8,7 @@ cmake_minimum_required(VERSION 3.20)
 
 project(
   asnber-pkcs
-  VERSION 0.1.0
+  VERSION 0.1.1
   DESCRIPTION "PKCS 系列聚合包（结构 API 由 asnber-pkcs1/8/10/12 提供）"
   LANGUAGES C CXX
 )

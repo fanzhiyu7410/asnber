@@ -7,7 +7,7 @@ cmake_minimum_required(VERSION 3.20)
 
 project(
   asnber-pkcs1
-  VERSION 0.1.0
+  VERSION 0.1.1
   DESCRIPTION "PKCS#1 结构模块（RFC 8017 附录 A，读写）"
   LANGUAGES C CXX
 )

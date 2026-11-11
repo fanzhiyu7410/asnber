@@ -265,7 +265,9 @@ cmake --build build-cms-regen --target asnber_cms_table_verify
 
 ## 状态
 
-0.1.0：ContentInfo / SignedData 只读字段访问与结构构造（builder + DER 编码）；只读与构造 C 用例在 MinGW（GCC 13.2，`-Werror`）、MSVC 与 ASan/UBSan 构建下 ctest 通过，5 份样本构造往返逐字节一致。证书集合覆盖 `certificate`/`extendedCertificate`/`v1AttrCert`/`v2AttrCert`/`other` 全部分支：`certificate_at` 一律返回判别与完整原始 TLV，结构化访问器只对 `certificate` 生效，其余分支返回 `ASNBER_E_UNSUPPORTED`。构造侧不生成签名/摘要、不做加解密、不校验证书链。没有签名者时可以输出 certificates-only 或 CRL-only，`digestAlgorithms` 允许为空；三者全空仍然拒绝。有签名者时仍要求至少一条 digestAlgorithm。
+0.1.1：SignedData 没有签名者时可以输出 certificates-only 或 CRL-only，此时 `digestAlgorithms` 可以为空。证书、CRL、签名者三者全空仍然拒绝。有签名者时仍要求至少一条 digestAlgorithm。
+
+0.1.0：ContentInfo / SignedData 只读字段访问与结构构造（builder + DER 编码）；只读与构造 C 用例在 MinGW（GCC 13.2，`-Werror`）、MSVC 与 ASan/UBSan 构建下 ctest 通过，5 份样本构造往返逐字节一致。证书集合覆盖 `certificate`/`extendedCertificate`/`v1AttrCert`/`v2AttrCert`/`other` 全部分支：`certificate_at` 一律返回判别与完整原始 TLV，结构化访问器只对 `certificate` 生效，其余分支返回 `ASNBER_E_UNSUPPORTED`。构造侧不生成签名/摘要、不做加解密、不校验证书链。
 
 0.2.0 第一块（未发版，`Unreleased`）：新增 `EnvelopedData` 只读句柄与 27 个导出符号；五份真实样本 + `ori` 构造级用例 + 空 `recipientInfos` 负例 + 整段往返。MinGW GCC 13 Release（共享/静态）全量 ctest 36/36 通过，`-DASNBER_CMS_REGENERATE_TABLE=ON` 下三表逐字节自校验通过。
 

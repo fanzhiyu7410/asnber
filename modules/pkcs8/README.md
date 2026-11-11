@@ -18,7 +18,7 @@ PKCS#8（RFC 5208）结构模块，以 `.asn1` 描述表驱动，提供**只读�
 - 链接目标：`asnber::pkcs8::shared` 或 `asnber::pkcs8::static`（`find_package(asnber-pkcs8 CONFIG REQUIRED)`）
 - 构建开关：`-DASNBER_BUILD_MODULE_PKCS8=ON`
 - 导出宏：`ASNBER_PKCS8_API`；静态消费定义 `ASNBER_PKCS8_STATIC`
-- 符号：22 个，前缀 `asnber_pkcs_*`（只读 15 个 + `PrivateKeyInfo` builder 7 个）
+- 符号：27 个，前缀 `asnber_pkcs_*`（只读 15 个、`PrivateKeyInfo` builder 7 个、`EncryptedPrivateKeyInfo` builder 5 个）
 - 能力位：`decode+encode`
 
 ## `PrivateKeyInfo` builder
@@ -69,6 +69,8 @@ cmake --build build-regen --target asnber_pkcs8_table_verify
 只依赖核心公共 C ABI 与标准 C 库；不依赖其他 PKCS 包、`asnber-pkix` 或 `asnber-cms`。源码不使用 `<asnber/asnber.h>` 伞头，便于静态链接裁表。构造侧通过 `modules/common/src/detail/module_builder_support.h`（INTERFACE 目标 `asnber::module_support`）复用领域无关的编码原语；该支撑层不安装、不导出，不构成包之间的链接依赖。
 
 ## 状态
+
+0.1.1：新增 EncryptedPrivateKeyInfo builder。只组装算法标识和密文字节，不加密。符号数为 27。
 
 0.4.0：从 `asnber-pkcs` 拆出，15 个符号、2 张表；`tests/pkcs8` 覆盖明文、RSA-PSS 参数缺省、加密结构与负例。
 

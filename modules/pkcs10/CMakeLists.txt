@@ -7,7 +7,7 @@ cmake_minimum_required(VERSION 3.20)
 
 project(
   asnber-pkcs10
-  VERSION 0.1.0
+  VERSION 0.1.1
   DESCRIPTION "PKCS#10 结构模块（RFC 2986，读写）"
   LANGUAGES C CXX
 )

@@ -44,6 +44,8 @@ asnber_pkix_certificate_builder_destroy(builder);
 
 ## 状态
 
+0.1.1：CertificateList 结构读取与 builder，含 CRL 扩展和条目扩展。不判断吊销，不解释扩展。出现扩展时 version 必须为 1。cert-decode 裁剪表不含此类型。
+
 0.1.0：证书打开与字段访问（RSA / RSA-PSS / EC）、ANY 三形态、独立安装消费；已在本机 MSVC、MinGW、WSL GCC/Clang、ASan/UBSan 与 ARM 交叉构建中验证，详见 `docs/06` 第 10 节。
 
 P5（2026-11-10，未发版）：新增 `Certificate`/`TBSCertificate` builder，18 个公开函数；RSA 自签证书 865 字节逐字节重建，含三条 DER 约束与便捷扩展函数。

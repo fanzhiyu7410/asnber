@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.20)
 
 project(
   asnber
-  VERSION 0.1.0
+  VERSION 0.1.1
   DESCRIPTION "跨平台 ASN.1 解析与编解码库（C ABI 对外，C++ 内部实现）"
   LANGUAGES C CXX
 )
