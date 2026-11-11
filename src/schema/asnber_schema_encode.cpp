@@ -37,11 +37,8 @@ void noteEncodePath(const EncState &st, const char *typeName,
         }
         append(fieldName);
     }
-    if (used < cap) {
-        dst[used] = '\0';
-    } else if (cap != 0) {
-        dst[cap - 1] = '\0';
-    }
+    /* 循环保证 used < cap（cap 为编译期常量，MSVC 会把对它的比较当成 C4127）。 */
+    dst[used] = '\0';
 }
 
 } /* namespace schema_encode_detail */
