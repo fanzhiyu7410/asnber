@@ -5,33 +5,16 @@
 # 主流程的墙钟时间拉到工具链下载的时长（实测安装 toolchain 约 19 分钟，
 # 其余步骤合计约 12 秒）。
 #
-# 两条省时手段：
-#   1. 用 actions/cache 缓存 apt 下载目录，命中时跳过下载与索引刷新；
-#      key 绑定 runner 镜像版本（ImageVersion），镜像升级即换 key，
-#      旧缓存自动失效，不会拿到与新镜像不匹配的包。
-#   2. 按路径过滤触发：只有源码、模块、CMake 与嵌入式用例变化时才跑。
+# 省时手段：用 actions/cache 缓存 apt 下载目录，命中时跳过下载与索引刷新；
+# key 绑定 runner 镜像版本（ImageVersion），镜像升级即换 key，
+# 旧缓存自动失效，不会拿到与新镜像不匹配的包。
+# 本工作流只由 workflow_dispatch 手动触发。
 #
 # 验证强度不降：构建、链接与产物尺寸检查与原先一致。
 
 name: freestanding
 
 on:
-  push:
-    paths:
-      - "src/**"
-      - "modules/**"
-      - "cmake/**"
-      - "tests/embedded/**"
-      - "CMakeLists.txt"
-      - ".github/workflows/freestanding.yml"
-  pull_request:
-    paths:
-      - "src/**"
-      - "modules/**"
-      - "cmake/**"
-      - "tests/embedded/**"
-      - "CMakeLists.txt"
-      - ".github/workflows/freestanding.yml"
   workflow_dispatch:
 
 concurrency:

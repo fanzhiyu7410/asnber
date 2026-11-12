@@ -7,28 +7,6 @@
 name: trim
 
 on:
-  push:
-    paths:
-      - "src/**"
-      - "modules/**"
-      - "cmake/**"
-      - "tools/**"
-      - "tests/**"
-      - "scripts/**"
-      - "include/**"
-      - "CMakeLists.txt"
-      - ".github/workflows/trim.yml"
-  pull_request:
-    paths:
-      - "src/**"
-      - "modules/**"
-      - "cmake/**"
-      - "tools/**"
-      - "tests/**"
-      - "scripts/**"
-      - "include/**"
-      - "CMakeLists.txt"
-      - ".github/workflows/trim.yml"
   workflow_dispatch:
 
 concurrency:

@@ -9,12 +9,7 @@
 name: fuzz
 
 on:
-  push:
-    branches: ["**"]
-  pull_request:
   workflow_dispatch:
-  schedule:
-    - cron: "0 3 * * 0"   # 每周日 03:00 UTC 触发长跑
 
 jobs:
   libfuzzer:
@@ -69,11 +64,10 @@ jobs:
             -max_total_time=60 -max_len=4096 -rss_limit_mb=2048 \
             -print_final_stats=1
 
-  # 长跑（10–15 分钟）：仅定时或手动触发，输出执行次数。
+  # 长跑（10–15 分钟）：随同一次手动运行，在短预算矩阵之后执行。
   longrun:
     name: fuzz-longrun-der
     needs: libfuzzer
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
