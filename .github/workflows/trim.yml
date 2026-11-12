@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT
 #
 # 嵌入式裁切验证：宿主行为/符号/配置规则 + ARM 交叉构建与尺寸记录。
-# 与 freestanding.yml 分离：后者保持全模块构建，本流验证 cert-decode 与 cert-and-csr。
+# 验证 cert-decode 与 cert-and-csr，含宿主构建和 ARM 裁剪交叉构建。
 
 name: trim
 

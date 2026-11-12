@@ -1,7 +1,7 @@
 # Copyright (c) 2026 asnber project contributors
 # SPDX-License-Identifier: MIT
 #
-# libFuzzer 短预算矩阵 + 可选长跑。
+# libFuzzer 短预算矩阵。长跑不在此工作流。
 # schema_load 语料包含核心与 PKIX/PKCS 描述表；decode/roundtrip 语料包含
 # PKCS#8/PKCS#1/PKCS#10 真实样本。本地等价命令见 tests/fuzz/README.md 与
 # docs/07-测试与验证.md。
@@ -62,37 +62,4 @@ jobs:
           ./build/tests/fuzz/fuzz_${{ matrix.harness }} \
             tests/fuzz/corpus/${{ matrix.harness }} \
             -max_total_time=60 -max_len=4096 -rss_limit_mb=2048 \
-            -print_final_stats=1
-
-  # 长跑（10–15 分钟）：随同一次手动运行，在短预算矩阵之后执行。
-  longrun:
-    name: fuzz-longrun-der
-    needs: libfuzzer
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v4
-      - name: 安装工具链
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ninja-build clang
-      - name: 配置与构建
-        run: |
-          cmake -S . -B build -G Ninja \
-            -DCMAKE_BUILD_TYPE=Debug \
-            -DCMAKE_C_COMPILER=clang \
-            -DCMAKE_CXX_COMPILER=clang++ \
-            -DCMAKE_C_FLAGS="-fsanitize=fuzzer-no-link,address,undefined -fno-omit-frame-pointer" \
-            -DCMAKE_CXX_FLAGS="-fsanitize=fuzzer-no-link,address,undefined -fno-omit-frame-pointer" \
-            -DASNBER_BUILD_STATIC=ON -DASNBER_BUILD_SHARED=OFF \
-            -DASNBER_BUILD_TESTS=OFF -DASNBER_BUILD_TOOLS=ON \
-            -DASNBER_BUILD_FUZZ=ON
-          cmake --build build --parallel
-      - name: 长跑 fuzz（900s）
-        env:
-          ASAN_OPTIONS: detect_leaks=1:abort_on_error=1
-          UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
-        run: |
-          ./build/tests/fuzz/fuzz_decode_der \
-            tests/fuzz/corpus/decode_der \
-            -max_total_time=900 -max_len=4096 -rss_limit_mb=2048 \
             -print_final_stats=1
