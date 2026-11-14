@@ -94,6 +94,13 @@ asnber_err_t ocspOpenResponse(asnber_ctx_t *ctx, const uint8_t *der,
     return openWithRoot(ctx, der, der_size, kOcspRootResponse, out_response);
 }
 
+asnber_err_t ocspOpenBasic(asnber_ctx_t *ctx, const uint8_t *der,
+                           size_t der_size,
+                           asnber_ocsp_basic_t **out_basic) noexcept
+{
+    return openWithRoot(ctx, der, der_size, kOcspRootBasic, out_basic);
+}
+
 void ocspCloseRequest(asnber_ocsp_request_t *request) noexcept
 {
     closeObject(request);
@@ -102,6 +109,11 @@ void ocspCloseRequest(asnber_ocsp_request_t *request) noexcept
 void ocspCloseResponse(asnber_ocsp_response_t *response) noexcept
 {
     closeObject(response);
+}
+
+void ocspCloseBasic(asnber_ocsp_basic_t *basic) noexcept
+{
+    closeObject(basic);
 }
 
 const asnber_node_t *ocspUnwrapExplicit(const asnber_node_t *node) noexcept

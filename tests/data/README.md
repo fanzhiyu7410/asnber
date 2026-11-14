@@ -25,7 +25,7 @@ C 数组表示，测试运行期不读文件。
   `python scripts/gen_test_data.py --cms-authenticated`。
 - 只用已提交的证书/私钥生成 PKCS#12 PFX 样本：
   `python scripts/gen_test_data.py --pkcs12`。
-- 只用已提交的证书/私钥生成 OCSP 请求：
+- 只用已提交的证书/私钥生成 OCSP 请求和成功响应：
   `python scripts/gen_test_data.py --ocsp`。
 
 | 文件 | 内容 |
@@ -62,6 +62,8 @@ C 数组表示，测试运行期不读文件。
 | `pfx_certs_only.der` | PKCS#12 PFX，仅证书，certBag 使用 AES-256-CBC，SHA-256 MAC |
 | `ocsp_request.der` | OCSPRequest，自签证书的 CertID，无 nonce、无签名（`openssl ocsp -no_nonce -reqout`） |
 | `ocsp_request_signed.der` | OCSPRequest，同一 CertID，带 requestorName、nonce 扩展和 optionalSignature（`openssl ocsp -signer -signkey -reqout`） |
+| `ocsp_response.der` | OCSPResponse，successful，responseType 为 id-pkix-ocsp-basic；内容为 good / revoked / unknown 三条 SingleResponse，responderID 为 byName（`openssl ocsp -index -nmin 60 -respout`） |
+| `ocsp_response_bykey.der` | 同一请求的成功响应，responderID 为 byKey（`-resp_key_id`） |
 
 ## 重现性说明
 
@@ -91,7 +93,10 @@ C 数组表示，测试运行期不读文件。
   不同；测试只读取结构字段，不对 MAC 值或密文做断言。
 - OCSP 无签名请求由证书哈希决定，重跑得到的字节与已提交快照一致。带签名
   请求的 nonce 和签名含随机成分，重跑得到的字节不同；测试只读取结构字段，
-  不对 nonce 或签名值做断言。
+  不对 nonce 或签名值做断言。成功响应由同一张自签证书签发，含 good、
+  revoked 与 unknown；producedAt、thisUpdate、nextUpdate、nonce 和签名随
+  生成时刻变化。测试只读取结构字段。撤销时间取自索引里的固定值
+  2024-11-14 00:00:00Z。
 
 ## 变异样本
 

@@ -16,7 +16,7 @@
     python scripts/gen_test_data.py --cms-encrypted  # 生成 CMS EncryptedData 样本
     python scripts/gen_test_data.py --cms-compressed # 生成 CMS CompressedData 样本
     python scripts/gen_test_data.py --pkcs12   # 只用已有证书/私钥生成 PKCS#12 样本
-    python scripts/gen_test_data.py --ocsp    # 只用已有证书/私钥生成 OCSP 请求
+    python scripts/gen_test_data.py --ocsp    # 只用已有证书/私钥生成 OCSP 请求和响应
 
 产物：
     tests/data/*.pem  PEM 文本材料（自签名证书、私钥、CSR）
@@ -30,6 +30,7 @@
 """
 
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -625,12 +626,70 @@ def generate_pkcs12():
                      "-out", str(der_path)])
 
 
+def generate_ocsp_responses():
+    """用已提交的自签证书签发两条成功的 OCSP 响应。
+
+    索引里自签证书为 good，序列号 2 为 revoked（keyCompromise，撤销时间
+    2024-11-14 00:00:00Z），序列号 3 不在索引中，响应记为 unknown。
+    临时叶子证书只用于让 openssl 算出 CertID，不提交。producedAt、
+    thisUpdate、nextUpdate、nonce 和签名随生成时刻变化。
+    """
+    issuer = DATA_DIR / "cert_rsa_selfsigned.pem"
+    key = DATA_DIR / "key_rsa_pkcs8.pem"
+    for path in (issuer, key):
+        if not path.exists():
+            sys.stderr.write("缺少 OCSP 材料源文件：%s\n" % path)
+            raise SystemExit(1)
+
+    work = tempfile.mkdtemp(prefix="asnber-ocsp-")
+    try:
+        revoked_pem = os.path.join(work, "revoked.pem")
+        unknown_pem = os.path.join(work, "unknown.pem")
+        run_openssl(["req", "-new", "-newkey", "rsa:2048", "-nodes",
+                     "-keyout", os.path.join(work, "revoked.key"),
+                     "-out", os.path.join(work, "revoked.csr"),
+                     "-subj", "/CN=ocsp-revoked"])
+        run_openssl(["x509", "-req", "-in", os.path.join(work, "revoked.csr"),
+                     "-CA", str(issuer), "-CAkey", str(key),
+                     "-set_serial", "2", "-days", "3650", "-out", revoked_pem])
+        run_openssl(["req", "-new", "-newkey", "rsa:2048", "-nodes",
+                     "-keyout", os.path.join(work, "unknown.key"),
+                     "-out", os.path.join(work, "unknown.csr"),
+                     "-subj", "/CN=ocsp-unknown"])
+        run_openssl(["x509", "-req", "-in", os.path.join(work, "unknown.csr"),
+                     "-CA", str(issuer), "-CAkey", str(key),
+                     "-set_serial", "3", "-days", "3650", "-out", unknown_pem])
+
+        index_path = os.path.join(work, "index.txt")
+        with open(index_path, "w", encoding="ascii", newline="\n") as stream:
+            stream.write(
+                "V\t361101064049Z\t\t"
+                "7212AF381528A1366D0BFC550FBA9B5D7E90F635\tunknown\t"
+                "/C=CN/O=ASN1 Test/CN=ASN1 RSA Self Signed\n"
+                "R\t361101064049Z\t241114000000Z,keyCompromise\t2\tunknown\t"
+                "/CN=ocsp-revoked\n"
+            )
+        request = os.path.join(work, "request.der")
+        run_openssl(["ocsp", "-issuer", str(issuer), "-cert", str(issuer),
+                     "-cert", revoked_pem, "-cert", unknown_pem, "-nonce",
+                     "-reqout", request])
+        common = ["ocsp", "-index", index_path, "-CA", str(issuer),
+                  "-rsigner", str(issuer), "-rkey", str(key),
+                  "-nmin", "60", "-reqin", request]
+        run_openssl(common + ["-respout", str(DATA_DIR / "ocsp_response.der")])
+        run_openssl(common + ["-resp_key_id", "-respout",
+                              str(DATA_DIR / "ocsp_response_bykey.der")])
+    finally:
+        shutil.rmtree(work, ignore_errors=True)
+
+
 def generate_ocsp():
-    """用已提交的自签证书生成 OCSP 请求。
+    """用已提交的自签证书生成 OCSP 请求和成功响应。
 
     无 nonce、无签名的请求由证书哈希决定，重跑得到的字节不变。带签名的
     请求含随机 nonce 和签名，重跑得到的字节与已提交快照不同；测试只读取
-    结构字段，不对 nonce 或签名值做断言。
+    结构字段，不对 nonce 或签名值做断言。响应的时间、nonce 和签名同样
+    会变，见 generate_ocsp_responses。
     """
     issuer = DATA_DIR / "cert_rsa_selfsigned.pem"
     key = DATA_DIR / "key_rsa_pkcs8.pem"
@@ -644,6 +703,7 @@ def generate_ocsp():
     run_openssl(["ocsp", "-issuer", str(issuer), "-cert", str(issuer),
                  "-signer", str(issuer), "-signkey", str(key),
                  "-reqout", str(DATA_DIR / "ocsp_request_signed.der")])
+    generate_ocsp_responses()
 
 
 def c_identifier(stem):
@@ -710,7 +770,7 @@ C 数组表示，测试运行期不读文件。
   `python scripts/gen_test_data.py --cms-authenticated`。
 - 只用已提交的证书/私钥生成 PKCS#12 PFX 样本：
   `python scripts/gen_test_data.py --pkcs12`。
-- 只用已提交的证书/私钥生成 OCSP 请求：
+- 只用已提交的证书/私钥生成 OCSP 请求和成功响应：
   `python scripts/gen_test_data.py --ocsp`。
 
 | 文件 | 内容 |
@@ -747,6 +807,8 @@ C 数组表示，测试运行期不读文件。
 | `pfx_certs_only.der` | PKCS#12 PFX，仅证书，certBag 使用 AES-256-CBC，SHA-256 MAC |
 | `ocsp_request.der` | OCSPRequest，自签证书的 CertID，无 nonce、无签名（`openssl ocsp -no_nonce -reqout`） |
 | `ocsp_request_signed.der` | OCSPRequest，同一 CertID，带 requestorName、nonce 扩展和 optionalSignature（`openssl ocsp -signer -signkey -reqout`） |
+| `ocsp_response.der` | OCSPResponse，successful，responseType 为 id-pkix-ocsp-basic；内容为 good / revoked / unknown 三条 SingleResponse，responderID 为 byName（`openssl ocsp -index -nmin 60 -respout`） |
+| `ocsp_response_bykey.der` | 同一请求的成功响应，responderID 为 byKey（`-resp_key_id`） |
 
 ## 重现性说明
 
@@ -776,7 +838,10 @@ C 数组表示，测试运行期不读文件。
   不同；测试只读取结构字段，不对 MAC 值或密文做断言。
 - OCSP 无签名请求由证书哈希决定，重跑得到的字节与已提交快照一致。带签名
   请求的 nonce 和签名含随机成分，重跑得到的字节不同；测试只读取结构字段，
-  不对 nonce 或签名值做断言。
+  不对 nonce 或签名值做断言。成功响应由同一张自签证书签发，含 good、
+  revoked 与 unknown；producedAt、thisUpdate、nextUpdate、nonce 和签名随
+  生成时刻变化。测试只读取结构字段。撤销时间取自索引里的固定值
+  2024-11-14 00:00:00Z。
 
 ## 变异样本
 

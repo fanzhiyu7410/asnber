@@ -18,6 +18,7 @@ set(ASNBER_OCSP_SOURCES
   src/ocsp_schema_table.cpp
   src/asnber_ocsp_request.cpp
   src/asnber_ocsp_response.cpp
+  src/asnber_ocsp_basic.cpp
   src/asnber_ocsp_version.cpp
 )
 set(ASNBER_OCSP_TARGETS "")

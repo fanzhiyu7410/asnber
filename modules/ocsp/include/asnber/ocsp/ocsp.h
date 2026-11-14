@@ -7,7 +7,9 @@
  * asnber-ocsp 公共头文件（RFC 6960 只读结构访问）。
  *
  * 只读语义：不验签，不判断证书状态，不解释扩展。response 的 OCTET STRING
- * 不会在打开 OCSPResponse 时自动解成 BasicOCSPResponse。
+ * 不会在打开 OCSPResponse 时自动解成 BasicOCSPResponse。调用方把
+ * asnber_ocsp_response_bytes 给出的内容字节交给 asnber_ocsp_basic_open；
+ * 打开基本响应时不核对 responseType。
  *
  * 生命周期：句柄由 open 创建、close 销毁；内部文档与 schema 随句柄创建
  * 和销毁。句柄借用调用方的 asnber_ctx_t，ctx 必须比句柄存活更久。所有由
@@ -24,6 +26,7 @@
 #include <stdint.h>
 
 #include <asnber/asnber_build.h>
+#include <asnber/asnber_node.h>
 
 #if defined(ASNBER_OCSP_STATIC)
 #define ASNBER_OCSP_API
@@ -46,6 +49,7 @@ extern "C" {
 /* 不透明句柄；具体布局属于模块私有实现。 */
 typedef struct asnber_ocsp_request asnber_ocsp_request_t;
 typedef struct asnber_ocsp_response asnber_ocsp_response_t;
+typedef struct asnber_ocsp_basic asnber_ocsp_basic_t;
 
 /* 返回模块版本字符串；静态存储，调用方不得释放。 */
 ASNBER_OCSP_API const char *asnber_ocsp_version_string(void);
@@ -163,6 +167,124 @@ ASNBER_OCSP_API asnber_err_t asnber_ocsp_response_bytes(
     const asnber_ocsp_response_t *response, const char **out_type_oid,
     size_t *out_type_oid_size, const uint8_t **out_response,
     size_t *out_response_size, int *out_present);
+
+/*
+ * 打开一条 DER 编码的 BasicOCSPResponse。输入是 response 的内容字节，
+ * 不是外层 OCSPResponse。不核对 responseType。成功时 *out_basic 非 NULL；
+ * 失败时 *out_basic 置 NULL。空参或 der_size == 0 返回 ASNBER_E_INVALID_ARG。
+ */
+ASNBER_OCSP_API asnber_err_t asnber_ocsp_basic_open(
+    asnber_ctx_t *ctx, const uint8_t *der, size_t der_size,
+    asnber_ocsp_basic_t **out_basic);
+
+/* 关闭基本响应句柄；basic == NULL 为空操作。 */
+ASNBER_OCSP_API void asnber_ocsp_basic_close(asnber_ocsp_basic_t *basic);
+
+/*
+ * version。字段缺省时 *out_version = 0（v1）。值为负或超过 uint32_t
+ * 时返回 ASNBER_E_INVALID_VALUE。
+ */
+ASNBER_OCSP_API asnber_err_t asnber_ocsp_basic_version(
+    const asnber_ocsp_basic_t *basic, uint32_t *out_version);
+
+/*
+ * responderID。*out_choice 为 1 表示 byName，为 2 表示 byKey，与上下文
+ * 标签号一致。byName 时 *out_name 是 Name 的完整 TLV（不含外层 [1]），
+ * *out_key 为空。byKey 时 *out_key 是 KeyHash 的内容字节，*out_name 为空。
+ */
+ASNBER_OCSP_API asnber_err_t asnber_ocsp_basic_responder(
+    const asnber_ocsp_basic_t *basic, int *out_choice, const uint8_t **out_name,
+    size_t *out_name_size, const uint8_t **out_key, size_t *out_key_size);
+
+/* producedAt。调用方无需预先填写 struct_size。 */
+ASNBER_OCSP_API asnber_err_t asnber_ocsp_basic_produced_at(
+    const asnber_ocsp_basic_t *basic, asnber_time_t *out_time);
+
+/* responses 中的 SingleResponse 条数。 */
+ASNBER_OCSP_API asnber_err_t asnber_ocsp_basic_response_count(
+    const asnber_ocsp_basic_t *basic, size_t *out_count);
+
+/*
+ * 第 index 条 SingleResponse 的 CertID。越界返回 ASNBER_E_INVALID_ARG。
+ * 哈希参数是 AlgorithmIdentifier.parameters 的完整 TLV。序列号是十进制文本。
+ */
+ASNBER_OCSP_API asnber_err_t asnber_ocsp_basic_cert_id(
+    const asnber_ocsp_basic_t *basic, size_t index, const char **out_hash_oid,
+    size_t *out_hash_oid_size, const uint8_t **out_hash_params,
+    size_t *out_hash_params_size, int *out_hash_params_present,
+    const uint8_t **out_name_hash, size_t *out_name_hash_size,
+    const uint8_t **out_key_hash, size_t *out_key_hash_size,
+    const char **out_serial, size_t *out_serial_size);
+
+/*
+ * certStatus。*out_status 为 0 表示 good，1 表示 revoked，2 表示 unknown，
+ * 与上下文标签号一致。越界返回 ASNBER_E_INVALID_ARG。
+ */
+ASNBER_OCSP_API asnber_err_t asnber_ocsp_basic_cert_status(
+    const asnber_ocsp_basic_t *basic, size_t index, int *out_status);
+
+/*
+ * revoked 的 revocationTime，以及可选的 revocationReason。certStatus
+ * 不是 revoked 时返回 ASNBER_E_INVALID_ARG。没有 revocationReason 时
+ * *out_reason_present = 0。
+ */
+ASNBER_OCSP_API asnber_err_t asnber_ocsp_basic_revocation(
+    const asnber_ocsp_basic_t *basic, size_t index, asnber_time_t *out_time,
+    int64_t *out_reason, int *out_reason_present);
+
+/* thisUpdate。调用方无需预先填写 struct_size。 */
+ASNBER_OCSP_API asnber_err_t asnber_ocsp_basic_this_update(
+    const asnber_ocsp_basic_t *basic, size_t index, asnber_time_t *out_time);
+
+/*
+ * nextUpdate。字段缺省时返回 ASNBER_OK，*out_present = 0。
+ * 调用方无需预先填写 struct_size。
+ */
+ASNBER_OCSP_API asnber_err_t asnber_ocsp_basic_next_update(
+    const asnber_ocsp_basic_t *basic, size_t index, asnber_time_t *out_time,
+    int *out_present);
+
+/* 第 index 条 SingleResponse 的 singleExtensions 个数；缺省为 0。 */
+ASNBER_OCSP_API asnber_err_t asnber_ocsp_basic_single_extension_count(
+    const asnber_ocsp_basic_t *basic, size_t response_index, size_t *out_count);
+
+/*
+ * 第 response_index 条 SingleResponse 的第 index 个扩展。
+ * extnValue 是 OCTET STRING 的内容字节。critical 缺省为 0。
+ * 越界返回 ASNBER_E_INVALID_ARG。
+ */
+ASNBER_OCSP_API asnber_err_t asnber_ocsp_basic_single_extension_at(
+    const asnber_ocsp_basic_t *basic, size_t response_index, size_t index,
+    const char **out_oid, size_t *out_oid_size, int *out_critical,
+    const uint8_t **out_value, size_t *out_value_size);
+
+/* responseExtensions 个数；缺省为 0。 */
+ASNBER_OCSP_API asnber_err_t asnber_ocsp_basic_extension_count(
+    const asnber_ocsp_basic_t *basic, size_t *out_count);
+
+/* responseExtensions 的第 index 个扩展。越界返回 ASNBER_E_INVALID_ARG。 */
+ASNBER_OCSP_API asnber_err_t asnber_ocsp_basic_extension_at(
+    const asnber_ocsp_basic_t *basic, size_t index, const char **out_oid,
+    size_t *out_oid_size, int *out_critical, const uint8_t **out_value,
+    size_t *out_value_size);
+
+/*
+ * signatureAlgorithm 与 signature。证书个数写入 *out_cert_count，没有
+ * certs 时为 0。哈希参数是 parameters 的完整 TLV。
+ */
+ASNBER_OCSP_API asnber_err_t asnber_ocsp_basic_signature(
+    const asnber_ocsp_basic_t *basic, const char **out_oid, size_t *out_oid_size,
+    const uint8_t **out_params, size_t *out_params_size, int *out_params_present,
+    const uint8_t **out_bits, size_t *out_bits_size, size_t *out_bit_length,
+    uint8_t *out_unused_bits, size_t *out_cert_count);
+
+/*
+ * certs 中第 index 张证书的完整 DER。没有 certs 或越界返回
+ * ASNBER_E_INVALID_ARG。
+ */
+ASNBER_OCSP_API asnber_err_t asnber_ocsp_basic_signature_cert(
+    const asnber_ocsp_basic_t *basic, size_t index, const uint8_t **out_data,
+    size_t *out_size);
 
 #ifdef __cplusplus
 }

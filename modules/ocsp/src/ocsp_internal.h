@@ -30,6 +30,13 @@ struct asnber_ocsp_response {
     const asnber_node_t *root;
 };
 
+struct asnber_ocsp_basic {
+    asnber_ctx_t *ctx;
+    asnber_schema_t *schema;
+    asnber_doc_t *doc;
+    const asnber_node_t *root;
+};
+
 asnber_err_t ocspOpenRequest(asnber_ctx_t *ctx, const uint8_t *der,
                              size_t der_size,
                              asnber_ocsp_request_t **out_request) noexcept;
@@ -38,8 +45,13 @@ asnber_err_t ocspOpenResponse(asnber_ctx_t *ctx, const uint8_t *der,
                               size_t der_size,
                               asnber_ocsp_response_t **out_response) noexcept;
 
+asnber_err_t ocspOpenBasic(asnber_ctx_t *ctx, const uint8_t *der,
+                           size_t der_size,
+                           asnber_ocsp_basic_t **out_basic) noexcept;
+
 void ocspCloseRequest(asnber_ocsp_request_t *request) noexcept;
 void ocspCloseResponse(asnber_ocsp_response_t *response) noexcept;
+void ocspCloseBasic(asnber_ocsp_basic_t *basic) noexcept;
 
 const asnber_node_t *ocspUnwrapExplicit(const asnber_node_t *node) noexcept;
 
