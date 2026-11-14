@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT
 
 # 模块用例只链模块目标：核心库由模块的 PUBLIC 依赖带入。
-set(ASNBER_OCSP_TESTS test_ocsp_request test_ocsp_basic)
+set(ASNBER_OCSP_TESTS test_ocsp_request test_ocsp_basic test_ocsp_builder)
 
 foreach(test_name ${ASNBER_OCSP_TESTS})
   asnber_add_test(${test_name} ${test_name}.c NO_CORE)

@@ -8,17 +8,18 @@ cmake_minimum_required(VERSION 3.20)
 project(
   asnber-ocsp
   VERSION 0.1.1
-  DESCRIPTION "OCSP 结构模块（RFC 6960，只读）"
+  DESCRIPTION "OCSP 结构模块（RFC 6960）"
   LANGUAGES C CXX
 )
 
-# capability: decode
+# capability: decode+encode
 set(ASNBER_OCSP_SOURCES
   src/ocsp_access.cpp
   src/ocsp_schema_table.cpp
   src/asnber_ocsp_request.cpp
   src/asnber_ocsp_response.cpp
   src/asnber_ocsp_basic.cpp
+  src/ocsp_builder.cpp
   src/asnber_ocsp_version.cpp
 )
 set(ASNBER_OCSP_TARGETS "")
