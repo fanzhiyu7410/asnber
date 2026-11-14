@@ -84,6 +84,8 @@ DerivedData/
 .screenshots/
 # 工具过程目录（各轮 spec/tasks 草稿）；需长期保留的结论应汇总进 docs/
 .trae/
+# 中间设计、计划与任务草稿，不入库
+/.superpowers/
 # 本地临时实验目录（探针、变异/往返样本等一次性残留，如 .tmp-auth/）
 .tmp-*/
 
