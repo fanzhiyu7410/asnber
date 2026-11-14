@@ -25,6 +25,8 @@ C 数组表示，测试运行期不读文件。
   `python scripts/gen_test_data.py --cms-authenticated`。
 - 只用已提交的证书/私钥生成 PKCS#12 PFX 样本：
   `python scripts/gen_test_data.py --pkcs12`。
+- 只用已提交的证书/私钥生成 OCSP 请求：
+  `python scripts/gen_test_data.py --ocsp`。
 
 | 文件 | 内容 |
 | --- | --- |
@@ -58,6 +60,8 @@ C 数组表示，测试运行期不读文件。
 | `pfx_rsa_unencrypted.der` | PKCS#12 PFX，证书 + RSA 私钥，SafeContents 未加密、无 MAC，含 friendlyName/localKeyId |
 | `pfx_rsa_encrypted.der` | PKCS#12 PFX，证书 + RSA 私钥，PBES2 / AES-256-CBC，SHA-256 MAC，iterations 2048 |
 | `pfx_certs_only.der` | PKCS#12 PFX，仅证书，certBag 使用 AES-256-CBC，SHA-256 MAC |
+| `ocsp_request.der` | OCSPRequest，自签证书的 CertID，无 nonce、无签名（`openssl ocsp -no_nonce -reqout`） |
+| `ocsp_request_signed.der` | OCSPRequest，同一 CertID，带 requestorName、nonce 扩展和 optionalSignature（`openssl ocsp -signer -signkey -reqout`） |
 
 ## 重现性说明
 
@@ -85,6 +89,9 @@ C 数组表示，测试运行期不读文件。
   结构读取与差分的稳定锚点，不声称被外部实现接受。
 - PKCS#12 样本的 MAC、盐与加密填充含随机成分，重跑得到的字节与已提交快照
   不同；测试只读取结构字段，不对 MAC 值或密文做断言。
+- OCSP 无签名请求由证书哈希决定，重跑得到的字节与已提交快照一致。带签名
+  请求的 nonce 和签名含随机成分，重跑得到的字节不同；测试只读取结构字段，
+  不对 nonce 或签名值做断言。
 
 ## 变异样本
 

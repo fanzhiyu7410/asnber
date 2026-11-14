@@ -80,7 +80,10 @@ int main(void)
     /* 闭包事实：TBSCertificate 可达；BasicConstraints/CertificateList 不可达。 */
     if (!table_contains("TBSCertificate") ||
         table_contains("BasicConstraints") ||
-        table_contains("CertificateList")) {
+        table_contains("CertificateList") ||
+        table_contains("OCSPRequest") ||
+        table_contains("OCSPResponse") ||
+        table_contains("BasicOCSPResponse")) {
         goto done;
     }
 

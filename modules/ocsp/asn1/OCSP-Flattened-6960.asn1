@@ -1,10 +1,12 @@
 -- OCSP-Flattened-6960
 --
 -- 自包含展平模块，来源是 RFC 6960 附录的 1988 模块。
--- 模块使用 EXPLICIT TAGS。不使用 RFC 5912 第 4 节的信息对象写法。
+-- 附录原文是 EXPLICIT TAGS。这里写成 IMPLICIT TAGS，是因为每个带标签的
+-- 字段都已经写明 EXPLICIT 或 IMPLICIT：线上编码与附录相同，而未写标签的
+-- SEQUENCE 仍使用自己的通用标签。CertStatus 的三支保持 IMPLICIT。
 -- 差别见同目录 reconciliation.md。本文件只描述结构，不验签、不判断证书状态。
 OCSP-Flattened-6960
-    DEFINITIONS EXPLICIT TAGS ::=
+    DEFINITIONS IMPLICIT TAGS ::=
 BEGIN
 
 -- 占位：保留完整 TLV，不展开 PKIX 的 Certificate / Name / GeneralName。

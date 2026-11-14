@@ -1,0 +1,171 @@
+/*
+ * Copyright (c) 2026 asnber project contributors
+ * SPDX-License-Identifier: MIT
+ */
+
+/*
+ * asnber-ocsp 公共头文件（RFC 6960 只读结构访问）。
+ *
+ * 只读语义：不验签，不判断证书状态，不解释扩展。response 的 OCTET STRING
+ * 不会在打开 OCSPResponse 时自动解成 BasicOCSPResponse。
+ *
+ * 生命周期：句柄由 open 创建、close 销毁；内部文档与 schema 随句柄创建
+ * 和销毁。句柄借用调用方的 asnber_ctx_t，ctx 必须比句柄存活更久。所有由
+ * 访问器返回的指针均借用句柄，close 后立即失效。close(NULL) 为空操作。
+ */
+
+#ifndef ASNBER_OCSP_OCSP_H_INCLUDED
+#define ASNBER_OCSP_OCSP_H_INCLUDED
+
+/* 由 CMake 从 project(asnber-ocsp VERSION ...) 生成，源码树中不手写版本宏。 */
+#include <asnber/ocsp/ocsp_version.h>
+
+#include <stddef.h>
+#include <stdint.h>
+
+#include <asnber/asnber_build.h>
+
+#if defined(ASNBER_OCSP_STATIC)
+#define ASNBER_OCSP_API
+#elif defined(_WIN32) || defined(__CYGWIN__)
+#if defined(ASNBER_OCSP_BUILDING_LIBRARY)
+#define ASNBER_OCSP_API __declspec(dllexport)
+#else
+#define ASNBER_OCSP_API __declspec(dllimport)
+#endif
+#elif defined(__GNUC__) && __GNUC__ >= 4
+#define ASNBER_OCSP_API __attribute__((visibility("default")))
+#else
+#define ASNBER_OCSP_API
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/* 不透明句柄；具体布局属于模块私有实现。 */
+typedef struct asnber_ocsp_request asnber_ocsp_request_t;
+typedef struct asnber_ocsp_response asnber_ocsp_response_t;
+
+/* 返回模块版本字符串；静态存储，调用方不得释放。 */
+ASNBER_OCSP_API const char *asnber_ocsp_version_string(void);
+
+/*
+ * 打开一条 DER 编码的 OCSPRequest。输入被复制进文档 arena。
+ * 成功时 *out_request 非 NULL；失败时 *out_request 置 NULL。
+ * 空参或 der_size == 0 返回 ASNBER_E_INVALID_ARG。
+ */
+ASNBER_OCSP_API asnber_err_t asnber_ocsp_request_open(
+    asnber_ctx_t *ctx, const uint8_t *der, size_t der_size,
+    asnber_ocsp_request_t **out_request);
+
+/* 关闭请求句柄；request == NULL 为空操作。 */
+ASNBER_OCSP_API void asnber_ocsp_request_close(asnber_ocsp_request_t *request);
+
+/*
+ * tbsRequest.version。字段缺省时返回 0（DEFAULT v1），不要求线上有 [0]。
+ */
+ASNBER_OCSP_API asnber_err_t asnber_ocsp_request_version(
+    const asnber_ocsp_request_t *request, uint32_t *out_version);
+
+/* requestList 条数。 */
+ASNBER_OCSP_API asnber_err_t asnber_ocsp_request_count(
+    const asnber_ocsp_request_t *request, size_t *out_count);
+
+/*
+ * 按下标读取 CertID。hash 参数缺省时 *out_params_present = 0，参数指针为空。
+ * 越界返回 ASNBER_E_INVALID_ARG。序列号是严格十进制文本，借用句柄。
+ */
+ASNBER_OCSP_API asnber_err_t asnber_ocsp_request_cert_id(
+    const asnber_ocsp_request_t *request, size_t index,
+    const char **out_hash_oid, size_t *out_hash_oid_size,
+    const uint8_t **out_hash_params, size_t *out_hash_params_size,
+    int *out_hash_params_present, const uint8_t **out_name_hash,
+    size_t *out_name_hash_size, const uint8_t **out_key_hash,
+    size_t *out_key_hash_size, const char **out_serial, size_t *out_serial_size);
+
+/*
+ * requestorName 的 GeneralName 原始 DER（含标签和长度，不含外层 [1]）。
+ * 缺省时返回 ASNBER_OK，*out_present = 0，数据指针为空。
+ */
+ASNBER_OCSP_API asnber_err_t asnber_ocsp_request_requestor(
+    const asnber_ocsp_request_t *request, const uint8_t **out_data,
+    size_t *out_size, int *out_present);
+
+/* requestExtensions 条数；字段缺省时为 0。 */
+ASNBER_OCSP_API asnber_err_t asnber_ocsp_request_extension_count(
+    const asnber_ocsp_request_t *request, size_t *out_count);
+
+/*
+ * 按下标读取请求扩展。extnValue 是 OCTET STRING 内容（内层 DER），借用句柄。
+ * critical 缺省时 *out_critical = 0。越界返回 ASNBER_E_INVALID_ARG。
+ */
+ASNBER_OCSP_API asnber_err_t asnber_ocsp_request_extension_at(
+    const asnber_ocsp_request_t *request, size_t index, const char **out_oid,
+    size_t *out_oid_size, int *out_critical, const uint8_t **out_value,
+    size_t *out_value_size);
+
+/* 某条 Request 的 singleRequestExtensions 条数；缺省时为 0。记录越界返回 ASNBER_E_INVALID_ARG。 */
+ASNBER_OCSP_API asnber_err_t asnber_ocsp_request_single_extension_count(
+    const asnber_ocsp_request_t *request, size_t request_index, size_t *out_count);
+
+/* 按下标读取 singleRequestExtensions。语义同 asnber_ocsp_request_extension_at。 */
+ASNBER_OCSP_API asnber_err_t asnber_ocsp_request_single_extension_at(
+    const asnber_ocsp_request_t *request, size_t request_index, size_t index,
+    const char **out_oid, size_t *out_oid_size, int *out_critical,
+    const uint8_t **out_value, size_t *out_value_size);
+
+/*
+ * optionalSignature。缺省时返回 ASNBER_OK，*out_present = 0，其余输出为空。
+ * 存在时给出签名算法 OID、parameters 的完整 TLV、签名位串内容，以及 certs 个数。
+ */
+ASNBER_OCSP_API asnber_err_t asnber_ocsp_request_signature(
+    const asnber_ocsp_request_t *request, const char **out_oid,
+    size_t *out_oid_size, const uint8_t **out_params, size_t *out_params_size,
+    int *out_params_present, const uint8_t **out_bits, size_t *out_bits_size,
+    size_t *out_bit_length, uint8_t *out_unused_bits, size_t *out_cert_count,
+    int *out_present);
+
+/*
+ * optionalSignature.certs 中一张证书的原始 DER。没有签名、没有 certs 或下标越界
+ * 时返回 ASNBER_E_INVALID_ARG。
+ */
+ASNBER_OCSP_API asnber_err_t asnber_ocsp_request_signature_cert(
+    const asnber_ocsp_request_t *request, size_t index, const uint8_t **out_data,
+    size_t *out_size);
+
+/*
+ * 打开一条 DER 编码的 OCSPResponse。不展开 response 里的内容字节。
+ * 空参或 der_size == 0 返回 ASNBER_E_INVALID_ARG。
+ */
+ASNBER_OCSP_API asnber_err_t asnber_ocsp_response_open(
+    asnber_ctx_t *ctx, const uint8_t *der, size_t der_size,
+    asnber_ocsp_response_t **out_response);
+
+/* 关闭响应句柄；response == NULL 为空操作。 */
+ASNBER_OCSP_API void asnber_ocsp_response_close(asnber_ocsp_response_t *response);
+
+/*
+ * responseStatus 的枚举值。successful = 0，malformedRequest = 1，
+ * internalError = 2，tryLater = 3，sigRequired = 5，unauthorized = 6。
+ */
+ASNBER_OCSP_API asnber_err_t asnber_ocsp_response_status(
+    const asnber_ocsp_response_t *response, int64_t *out_status);
+
+/*
+ * responseBytes。仅当 responseStatus 为 successful(0) 且字段存在时
+ * *out_present = 1，并给出 responseType 的点分 OID 与 response 的内容字节
+ * （不含 OCTET STRING 标签）。状态不是 successful，或没有 responseBytes 时，
+ * 返回 ASNBER_OK，*out_present = 0，输出为空。模块不判断 OID 是否为
+ * id-pkix-ocsp-basic。
+ */
+ASNBER_OCSP_API asnber_err_t asnber_ocsp_response_bytes(
+    const asnber_ocsp_response_t *response, const char **out_type_oid,
+    size_t *out_type_oid_size, const uint8_t **out_response,
+    size_t *out_response_size, int *out_present);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* ASNBER_OCSP_OCSP_H_INCLUDED */

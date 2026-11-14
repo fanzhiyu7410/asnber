@@ -1,6 +1,6 @@
 # OCSP 展平对账
 
-来源是 RFC 6960 附录的 1988 模块，模块头为 `DEFINITIONS EXPLICIT TAGS`。不使用 RFC 5912 第 4 节。
+来源是 RFC 6960 附录的 1988 模块。附录原文的模块头是 `DEFINITIONS EXPLICIT TAGS`。本文件写成 `IMPLICIT TAGS`，每个带标签的字段仍按附录写明 `EXPLICIT` 或 `IMPLICIT`，线上编码与附录相同。不使用 RFC 5912 第 4 节。
 
 一张描述表，默认根是 `OCSPResponse`（类型号 17）。`OCSPRequest` 是 14，`BasicOCSPResponse` 是 24。号按具名类型在本文件中的出现顺序，从 1 起。加载另两个根时用 `asnber_schema_load_with_root`，不改表字节。
 

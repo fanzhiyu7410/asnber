@@ -113,6 +113,17 @@ bool tagMatches(const asnber::Schema *schema, const asnber::SchemaType *type,
                 const asnber::Node *node, bool unwrapped)
 {
     if (type->kind == ASNBER_TYPE_KIND_ANY) {
+        /* 无包装 ANY 接受任意 TLV。EXPLICIT ANY 先看外层标签，否则
+           SEQUENCE 里靠前的可选 ANY 会吞掉下一个字段。 */
+        if (!unwrapped &&
+            effectiveTagMode(schema, type) == ASNBER_TAG_MODE_EXPLICIT) {
+            uint32_t cls = 0;
+            uint32_t num = 0;
+            if (!expectedTag(schema, type, false, &cls, &num)) {
+                return false;
+            }
+            return node->tagClass == cls && node->tagNumber == num;
+        }
         return true;
     }
     if (type->kind == ASNBER_TYPE_KIND_CHOICE &&

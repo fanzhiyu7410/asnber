@@ -16,6 +16,7 @@
     python scripts/gen_test_data.py --cms-encrypted  # 生成 CMS EncryptedData 样本
     python scripts/gen_test_data.py --cms-compressed # 生成 CMS CompressedData 样本
     python scripts/gen_test_data.py --pkcs12   # 只用已有证书/私钥生成 PKCS#12 样本
+    python scripts/gen_test_data.py --ocsp    # 只用已有证书/私钥生成 OCSP 请求
 
 产物：
     tests/data/*.pem  PEM 文本材料（自签名证书、私钥、CSR）
@@ -624,6 +625,27 @@ def generate_pkcs12():
                      "-out", str(der_path)])
 
 
+def generate_ocsp():
+    """用已提交的自签证书生成 OCSP 请求。
+
+    无 nonce、无签名的请求由证书哈希决定，重跑得到的字节不变。带签名的
+    请求含随机 nonce 和签名，重跑得到的字节与已提交快照不同；测试只读取
+    结构字段，不对 nonce 或签名值做断言。
+    """
+    issuer = DATA_DIR / "cert_rsa_selfsigned.pem"
+    key = DATA_DIR / "key_rsa_pkcs8.pem"
+    for path in (issuer, key):
+        if not path.exists():
+            sys.stderr.write("缺少 OCSP 材料源文件：%s\n" % path)
+            raise SystemExit(1)
+
+    run_openssl(["ocsp", "-issuer", str(issuer), "-cert", str(issuer),
+                 "-no_nonce", "-reqout", str(DATA_DIR / "ocsp_request.der")])
+    run_openssl(["ocsp", "-issuer", str(issuer), "-cert", str(issuer),
+                 "-signer", str(issuer), "-signkey", str(key),
+                 "-reqout", str(DATA_DIR / "ocsp_request_signed.der")])
+
+
 def c_identifier(stem):
     """cert_rsa_selfsigned -> CertRsaSelfsigned。"""
     return "".join(part.capitalize() for part in stem.split("_"))
@@ -688,6 +710,8 @@ C 数组表示，测试运行期不读文件。
   `python scripts/gen_test_data.py --cms-authenticated`。
 - 只用已提交的证书/私钥生成 PKCS#12 PFX 样本：
   `python scripts/gen_test_data.py --pkcs12`。
+- 只用已提交的证书/私钥生成 OCSP 请求：
+  `python scripts/gen_test_data.py --ocsp`。
 
 | 文件 | 内容 |
 | --- | --- |
@@ -721,6 +745,8 @@ C 数组表示，测试运行期不读文件。
 | `pfx_rsa_unencrypted.der` | PKCS#12 PFX，证书 + RSA 私钥，SafeContents 未加密、无 MAC，含 friendlyName/localKeyId |
 | `pfx_rsa_encrypted.der` | PKCS#12 PFX，证书 + RSA 私钥，PBES2 / AES-256-CBC，SHA-256 MAC，iterations 2048 |
 | `pfx_certs_only.der` | PKCS#12 PFX，仅证书，certBag 使用 AES-256-CBC，SHA-256 MAC |
+| `ocsp_request.der` | OCSPRequest，自签证书的 CertID，无 nonce、无签名（`openssl ocsp -no_nonce -reqout`） |
+| `ocsp_request_signed.der` | OCSPRequest，同一 CertID，带 requestorName、nonce 扩展和 optionalSignature（`openssl ocsp -signer -signkey -reqout`） |
 
 ## 重现性说明
 
@@ -748,6 +774,9 @@ C 数组表示，测试运行期不读文件。
   结构读取与差分的稳定锚点，不声称被外部实现接受。
 - PKCS#12 样本的 MAC、盐与加密填充含随机成分，重跑得到的字节与已提交快照
   不同；测试只读取结构字段，不对 MAC 值或密文做断言。
+- OCSP 无签名请求由证书哈希决定，重跑得到的字节与已提交快照一致。带签名
+  请求的 nonce 和签名含随机成分，重跑得到的字节不同；测试只读取结构字段，
+  不对 nonce 或签名值做断言。
 
 ## 变异样本
 
@@ -768,11 +797,13 @@ def main(argv):
     cms_compressed_only = "--cms-compressed" in argv[1:]
     cms_authenticated_only = "--cms-authenticated" in argv[1:]
     pkcs12_only = "--pkcs12" in argv[1:]
+    ocsp_only = "--ocsp" in argv[1:]
 
     try:
         if not headers_only and (derived_only or cms_only or cms_enveloped_only
                                  or cms_encrypted_only or cms_compressed_only
-                                 or cms_authenticated_only or pkcs12_only):
+                                 or cms_authenticated_only or pkcs12_only
+                                 or ocsp_only):
             if derived_only:
                 generate_derived()
             if cms_only:
@@ -787,6 +818,8 @@ def main(argv):
                 generate_cms_authenticated()
             if pkcs12_only:
                 generate_pkcs12()
+            if ocsp_only:
+                generate_ocsp()
         elif not headers_only:
             generate_keys()
             generate_csrs()
@@ -798,6 +831,7 @@ def main(argv):
             generate_cms_compressed()
             generate_cms_authenticated()
             generate_pkcs12()
+            generate_ocsp()
     finally:
         if _CONFIG_PATH is not None and os.path.exists(_CONFIG_PATH):
             os.unlink(_CONFIG_PATH)

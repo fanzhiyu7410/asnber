@@ -10,6 +10,7 @@ option(ASNBER_BUILD_STATIC "构建静态库目标 asnber::static" ON)
 option(ASNBER_BUILD_MODULES "构建 modules/ 下的独立标准模块" ON)
 option(ASNBER_BUILD_MODULE_PKIX "构建 asnber-pkix 模块（仅 ASNBER_BUILD_MODULES=ON 时生效）" ON)
 option(ASNBER_BUILD_MODULE_CMS "构建 asnber-cms 模块（仅 ASNBER_BUILD_MODULES=ON 时生效）" ON)
+option(ASNBER_BUILD_MODULE_OCSP "构建 asnber-ocsp 模块（仅 ASNBER_BUILD_MODULES=ON 时生效）" ON)
 option(ASNBER_BUILD_MODULE_PKCS "构建 asnber-pkcs 门面包（需要同时启用 pkcs1/8/10/12，仅 ASNBER_BUILD_MODULES=ON 时生效）" ON)
 option(ASNBER_BUILD_MODULE_PKCS1 "构建 asnber-pkcs1 模块（仅 ASNBER_BUILD_MODULES=ON 时生效）" ON)
 option(ASNBER_BUILD_MODULE_PKCS8 "构建 asnber-pkcs8 模块（仅 ASNBER_BUILD_MODULES=ON 时生效）" ON)
@@ -44,6 +45,11 @@ option(
 option(
   ASNBER_CMS_REGENERATE_TABLE
   "构建期用 asnberc 重新生成 asnber-cms 描述表，并与检入产物逐字节比对（默认使用检入产物）"
+  OFF
+)
+option(
+  ASNBER_OCSP_REGENERATE_TABLE
+  "构建期用 asnberc 重新生成 asnber-ocsp 描述表，并与检入产物逐字节比对（默认使用检入产物）"
   OFF
 )
 option(ASNBER_BUILD_EXAMPLES "构建 C 与 C++ 消费示例" OFF)
@@ -182,10 +188,11 @@ if(ASNBER_TRIM_PROFILE STREQUAL "cert-decode")
   endif()
   if(ASNBER_BUILD_MODULE_PKCS OR ASNBER_BUILD_MODULE_PKCS1 OR
      ASNBER_BUILD_MODULE_PKCS8 OR ASNBER_BUILD_MODULE_PKCS10 OR
-     ASNBER_BUILD_MODULE_PKCS12 OR ASNBER_BUILD_MODULE_CMS)
+     ASNBER_BUILD_MODULE_PKCS12 OR ASNBER_BUILD_MODULE_CMS OR
+     ASNBER_BUILD_MODULE_OCSP)
     message(FATAL_ERROR
       "ASNBER_TRIM_PROFILE=cert-decode 只允许 PKIX 模块；"
-      "请显式关闭 PKCS/PKCS1/PKCS8/PKCS10/PKCS12/CMS")
+      "请显式关闭 PKCS/PKCS1/PKCS8/PKCS10/PKCS12/CMS/OCSP")
   endif()
   if(ASNBER_BUILD_TESTS)
     message(FATAL_ERROR
@@ -209,10 +216,10 @@ if(ASNBER_TRIM_PROFILE STREQUAL "cert-and-csr")
   endif()
   if(ASNBER_BUILD_MODULE_PKCS OR ASNBER_BUILD_MODULE_PKCS1 OR
      ASNBER_BUILD_MODULE_PKCS8 OR ASNBER_BUILD_MODULE_PKCS12 OR
-     ASNBER_BUILD_MODULE_CMS)
+     ASNBER_BUILD_MODULE_CMS OR ASNBER_BUILD_MODULE_OCSP)
     message(FATAL_ERROR
       "ASNBER_TRIM_PROFILE=cert-and-csr 只允许 PKIX 与 PKCS#10；"
-      "请显式关闭 PKCS/PKCS1/PKCS8/PKCS12/CMS")
+      "请显式关闭 PKCS/PKCS1/PKCS8/PKCS12/CMS/OCSP")
   endif()
   if(ASNBER_BUILD_TESTS)
     message(FATAL_ERROR

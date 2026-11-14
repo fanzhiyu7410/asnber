@@ -111,6 +111,15 @@ bool tagMatches(const Schema *schema, const SchemaType *type, const Node *node,
                 bool unwrapped)
 {
     if (type->kind == ASNBER_TYPE_KIND_ANY) {
+        /* 与解码侧一致：EXPLICIT ANY 只匹配外层标签。 */
+        if (!unwrapped &&
+            effectiveTagMode(schema, type) == ASNBER_TAG_MODE_EXPLICIT) {
+            uint32_t cls = 0;
+            uint32_t num = 0;
+            bool constructed = false;
+            typeTag(schema, type, false, &cls, &num, &constructed);
+            return node->tagClass == cls && node->tagNumber == num;
+        }
         return true;
     }
     if (type->kind == ASNBER_TYPE_KIND_CHOICE &&
