@@ -47,6 +47,7 @@ DEFAULT_MODULES = (
     "asnber-pkcs10",
     "asnber-pkcs12",
     "asnber-cms",
+    "asnber-ocsp",
 )
 
 # 共享库文件名：libasnber.so / libasnber.so.0 / libasnber.dylib / libasnber.dll。
@@ -78,6 +79,10 @@ LIBRARY_PATTERNS = {
     ),
     "asnber-cms": re.compile(
         r"^(?:lib)?asnber-cms(?:\.\d+)*\.(?:so(?:\.\d+)*|dylib|dll)$",
+        re.IGNORECASE,
+    ),
+    "asnber-ocsp": re.compile(
+        r"^(?:lib)?asnber-ocsp(?:\.\d+)*\.(?:so(?:\.\d+)*|dylib|dll)$",
         re.IGNORECASE,
     ),
 }

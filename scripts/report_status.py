@@ -35,6 +35,7 @@ VERSION_HEADERS = [
     ("asnber-pkix", "modules/pkix/generated/include/asnber/pkix/pkix_version.h"),
     ("asnber-pkcs", "modules/pkcs/generated/include/asnber/pkcs/pkcs_version.h"),
     ("asnber-cms", "modules/cms/generated/include/asnber/cms/cms_version.h"),
+    ("asnber-ocsp", "modules/ocsp/generated/include/asnber/ocsp/ocsp_version.h"),
 ]
 
 

@@ -2,7 +2,7 @@
 
 通用 ASN.1 解析/编解码库，配以一组独立的标准化结构模块。
 
-核心库 `asnber` 只处理标签、节点、文档、值、模板描述与编码规则，**不包含任何领域知识**，也不内置标准结构表。X.509/PKIX、CMS/PKCS#7、PKCS#10/#12/#1/#8 等标准结构由独立模块包提供（`asnber-pkix`、`asnber-cms` 与 `asnber-pkcs1/8/10/12`；`asnber-pkcs` 为聚合包），每个模块拥有自己的包名、版本、公共头文件与符号前缀。依赖方向严格单向：模块 → 核心，核心不反向引用任何模块。
+核心库 `asnber` 只处理标签、节点、文档、值、模板描述与编码规则，**不包含任何领域知识**，也不内置标准结构表。X.509/PKIX、CMS/PKCS#7、PKCS#10/#12/#1/#8、OCSP 等标准结构由独立模块包提供（`asnber-pkix`、`asnber-cms`、`asnber-pkcs1/8/10/12` 与 `asnber-ocsp`；`asnber-pkcs` 为聚合包），每个模块拥有自己的包名、版本、公共头文件与符号前缀。依赖方向严格单向：模块 → 核心，核心不反向引用任何模块。
 
 对外只提供 C ABI，内部使用 C++ 实现；标准结构的 ASN.1 定义直接复用公开 RFC 模块，不自创描述格式。`asnberc` 与核心之间共享一份固定的描述表字节契约（`uint8_t[]`、显式小端读取），见[描述表格式](docs/11-描述表格式.md)。
 
@@ -13,7 +13,7 @@
 | 层 | 内容 | 说明 |
 | --- | --- | --- |
 | 核心 `asnber` | 通用 BER 解码、DER 解码/编码、DOM 值树、runtime 构树、内存与错误模型、模板机制 | 零领域知识；不解析 `.asn1` 文本 |
-| 标准模块 | `asnber-pkix`（RFC 5912）、`asnber-cms`（RFC 6268）、`asnber-pkcs1/8/10/12`（RFC 8017/5208/2986/7292，`asnber-pkcs` 为门面） | 各自独立 CMake 包与版本；依赖核心 |
+| 标准模块 | `asnber-pkix`（RFC 5912）、`asnber-cms`（RFC 6268）、`asnber-pkcs1/8/10/12`（RFC 8017/5208/2986/7292，`asnber-pkcs` 为门面）、`asnber-ocsp`（RFC 6960） | 各自独立 CMake 包与版本；依赖核心 |
 | 工具 `asnberc` | 解析 `.asn1` 文本、语义校验、生成描述表（C 数组或二进制） | 独立可执行文件；支持单模块展平输入与多模块 `IMPORTS`（单表合并），单类型参数化展开 |
 
 模板机制是核心一期能力：核心接受**已编译描述表**（C 源数组或二进制资源），也提供运行时注册 C API，两条入口构建同一棵类型树，用于字段命名、结构化约束校验与 `CHOICE` 分支、`SEQUENCE OF`/`SET OF`、`OPTIONAL`、`DEFAULT`、扩展标记判定。类型构造性由类型种类 `kind` 派生，标签行为由 `tag_mode` 与模块默认标注方式决定，`DEFAULT` 以规范 DER TLV 存放，`BIT STRING` 命名位与 `ENUMERATED`/`INTEGER` 数值名由名称表表达。把 `.asn1` 文本解析成描述表的工作只属于 `asnberc`；输入可以是自包含展平模块或多模块 `IMPORTS`（合并为一张表），单类型参数化展开已支持，值参数、多参数参数化与信息对象直接解析仍为后续任务。
@@ -31,6 +31,7 @@
 │  ├─ pkix/                asnber-pkix：include + src + 独立导出包
 │  │  └─ asnber/             RFC 5912 展平模块（PKIX-Flattened-2009.asn1；对账见 reconciliation.md）
 │  ├─ cms/                 asnber-cms
+│  ├─ ocsp/                asnber-ocsp（OCSP 结构读写，不依赖 pkix）
 │  ├─ pkcs1/               asnber-pkcs1（PKCS#1 读写，含公/私钥 builder）
 │  ├─ pkcs8/               asnber-pkcs8（PKCS#8 读写，含 PrivateKeyInfo builder）
 │  ├─ pkcs10/              asnber-pkcs10（PKCS#10 读写，含 CertificationRequest builder）
@@ -130,8 +131,9 @@ ANY 字段（如 `algorithmIdentifier.parameters`）只返回原始 TLV，模块
 | `ASNBER_BUILD_MODULE_CMS` | `ON` | 构建 `asnber-cms`；仅 `ASNBER_BUILD_MODULES=ON` 时生效 |
 | `ASNBER_BUILD_MODULE_PKCS1` / `PKCS8` / `PKCS10` / `PKCS12` | `ON` | 构建四个 PKCS 实现包；仅 `ASNBER_BUILD_MODULES=ON` 时生效 |
 | `ASNBER_BUILD_MODULE_PKCS` | `ON` | 构建 `asnber-pkcs` 聚合包（INTERFACE，无库产物）；启用时四个实现包必须同时启用 |
+| `ASNBER_BUILD_MODULE_OCSP` | `ON` | 构建 `asnber-ocsp`；仅 `ASNBER_BUILD_MODULES=ON` 时生效。裁剪配置必须关闭它 |
 | `ASNBER_BUILD_TOOLS` | `ON` | 构建 `tools/asnberc` |
-| `ASNBER_PKIX_REGENERATE_TABLE` / `ASNBER_PKCS*_REGENERATE_TABLE` / `ASNBER_CMS_*` | `OFF` | 构建期用 `asnberc` 重新生成描述表，并与检入产物逐字节比对（差异即构建失败）；默认直接用检入产物 |
+| `ASNBER_PKIX_REGENERATE_TABLE` / `ASNBER_PKCS*_REGENERATE_TABLE` / `ASNBER_CMS_*` / `ASNBER_OCSP_*` | `OFF` | 构建期用 `asnberc` 重新生成描述表，并与检入产物逐字节比对（差异即构建失败）；默认直接用检入产物 |
 | `ASNBER_BUILD_EXAMPLES` | `OFF` | 构建 C/C++ 消费示例 |
 | `ASNBER_BUILD_TESTS` | `OFF` | 构建测试并注册 CTest |
 | `ASNBER_BUILD_EMBEDDED_TEST` | `OFF` | 构建嵌入式最小用例（可脱离 CTest，交叉编译时只构建不运行） |

@@ -62,6 +62,8 @@
 | `asnber/pkcs10/pkcs10.h` | `asnber-pkcs10` | `asnber_pkcs_` / `ASNBER_PKCS10_` |
 | `asnber/pkcs12/pkcs12.h` | `asnber-pkcs12` | `asnber_pkcs12_` / `ASNBER_PKCS12_` |
 | `asnber/pkcs/pkcs.h` | `asnber-pkcs`（聚合包，不产库） | 无导出宏；聚合上述四个头文件 |
+| `asnber/ocsp/ocsp.h` | `asnber-ocsp` | `asnber_ocsp_` / `ASNBER_OCSP_` |
+| `asnber/ocsp/ocsp_builder.h` | `asnber-ocsp` | `asnber_ocsp_` / `ASNBER_OCSP_` |
 
 **PKCS 函数前缀（0.4.0 起）**：包拆分不改变函数名。PKCS#1/#8/#10 的函数仍为 `asnber_pkcs_*`（31/22/25），PKCS#12 仍为 `asnber_pkcs12_*`（37）；聚合包 `asnber-pkcs` 不产库、不导符号。导出/声明宏按包独立（`ASNBER_PKCS1_*`、`ASNBER_PKCS8_*`、`ASNBER_PKCS10_*`、`ASNBER_PKCS12_*`）。仓库中不存在 `asnber_pkcs1_*`、`asnber_pkcs8_*`、`asnber_pkcs10_*` 三组函数前缀（见 [ADR-0015](adr/0015-PKCS按标准拆分模块.md)）。
 
@@ -396,7 +398,7 @@ WrappedChoice ::= [0] EXPLICIT ExampleChoice
 
 ## 6. 函数清单（设计基线）
 
-模块 API 已拆为独立页：[asnber-pkix](02a-模块API-pkix.md)、[asnber-pkcs](02b-模块API-pkcs.md)、[asnber-cms](02c-模块API-cms.md)；下文 6.8–6.18 只保留索引。
+模块 API 已拆为独立页：[asnber-pkix](02a-模块API-pkix.md)、[asnber-pkcs](02b-模块API-pkcs.md)、[asnber-cms](02c-模块API-cms.md)、[asnber-ocsp](02d-模块API-ocsp.md)；下文 6.8–6.18 只保留索引。
 
 ```c
 /* 版本与能力 */
@@ -940,9 +942,9 @@ struct asnber_buf {
 ```c
 /* 由 CMake 从 project(asnber VERSION ...) 生成到构建目录，源码树中不手写。 */
 #define ASNBER_VERSION_MAJOR 0
-#define ASNBER_VERSION_MINOR 1
-#define ASNBER_VERSION_PATCH 1
-#define ASNBER_VERSION_STRING "0.1.1"
+#define ASNBER_VERSION_MINOR 2
+#define ASNBER_VERSION_PATCH 0
+#define ASNBER_VERSION_STRING "0.2.0"
 
 /* 编码规则：major << 16 | minor << 8 | patch */
 #define ASNBER_VERSION_ENCODED \
@@ -955,7 +957,7 @@ struct asnber_buf {
 - `struct_size` 允许调用方使用旧版结构体；库只读取调用方声明的范围内存，并拒绝非零的未知预留字段。
 - 共享库 SONAME 由 `project(... VERSION ...)` 的**主版本**派生：Linux `libasnber.so.<MAJOR>`、macOS `libasnber.<MAJOR>.dylib`；Windows 无 SONAME，使用 `asnber.dll` + 导入库。次版本升级不改变 SONAME。详细规则见[构建与移植](06-构建与移植.md)第 8 节。
 - 模块包（`asnber-pkix`、`asnber-cms`、`asnber-pkcs`、`asnber-pkcs1`、`asnber-pkcs8`、`asnber-pkcs10`、`asnber-pkcs12`）各自声明版本，安装到独立 `lib/cmake/<pkg>`；模块配置使用 `find_dependency(asnber <最低版本> CONFIG)` 声明对核心的最低版本要求。`asnber-pkcs` 聚合包额外 `find_dependency` 四个实现包。
-- **符号增量的版本门槛**：当前导出符号基线为 `asnber` 73、`asnber-pkix` 57、`asnber-pkcs1` 31、`asnber-pkcs8` 27、`asnber-pkcs10` 25、`asnber-pkcs12` 37、`asnber-cms` 148，共 **7 个包**（`asnber-pkcs` 不产库、不导符号，无基线文件；记录见 [`abi/README.md`](../abi/README.md)）。包版本字符串是 0.1.1。自 0.1.0 起，`asnber-pkix` 增加了 CertificateList 读写（含 CRL 扩展与条目扩展），`asnber-pkcs8` 增加了 EncryptedPrivateKeyInfo builder。此后任何**新增导出符号**都必须进入 minor 或 major 版本，**不得在 patch 版本中新增符号**；删除、改名或改变既有符号语义只能进入 major。`scripts/check_exports.py` 只校验基线与实际导出一致，不替代版本决策。
+- **符号增量的版本门槛**：当前导出符号基线为 `asnber` 73、`asnber-pkix` 57、`asnber-pkcs1` 31、`asnber-pkcs8` 27、`asnber-pkcs10` 25、`asnber-pkcs12` 37、`asnber-cms` 148、`asnber-ocsp` 63，共 **8 个包**（`asnber-pkcs` 不产库、不导符号，无基线文件；记录见 [`abi/README.md`](../abi/README.md)）。包版本字符串是 0.2.0。0.2.0 新增 `asnber-ocsp`。自 0.1.0 起，`asnber-pkix` 增加了 CertificateList 读写（含 CRL 扩展与条目扩展），`asnber-pkcs8` 增加了 EncryptedPrivateKeyInfo builder。此后任何**新增导出符号**都必须进入 minor 或 major 版本，**不得在 patch 版本中新增符号**；删除、改名或改变既有符号语义只能进入 major。`scripts/check_exports.py` 只校验基线与实际导出一致，不替代版本决策。
 - 只导出 `ASNBER_API` 标记的符号；内部 C++ 符号默认隐藏（`CXX_VISIBILITY_PRESET hidden`）。
 - 不导出 C++ 符号、RTTI 信息或模板实例；公共头文件不要求消费者使用 C++。
 - 核心 ABI 稳定期内，模块可在自身次版本内独立升级；模块跨主版本升级同时要求兼容的核心 ABI 范围。

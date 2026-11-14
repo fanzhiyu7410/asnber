@@ -7,7 +7,7 @@ cmake_minimum_required(VERSION 3.20)
 
 project(
   asnber-pkcs12
-  VERSION 0.1.1
+  VERSION 0.2.0
   DESCRIPTION "PKCS#12 结构模块（RFC 7292）"
   LANGUAGES C CXX
 )

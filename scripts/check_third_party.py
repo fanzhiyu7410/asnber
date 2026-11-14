@@ -60,6 +60,7 @@ KNOWN_SINGLE_HEADERS = {
 PROJECT_INCLUDE_PREFIXES = ("asnber/", "asnber_")
 IGNORED_CMAKE_PACKAGES = {
     "threads", "c", "cxx", "asnber", "asnber-pkix", "asnber-cms", "asnber-pkcs",
+    "asnber-ocsp",
 }
 
 # 构建文件中视为第三方引入信号的 CMake 命令。

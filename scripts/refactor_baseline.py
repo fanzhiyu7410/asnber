@@ -51,8 +51,9 @@ TABLE_INVENTORY = (
     ("pkcs10", "pkcs10_schema", 2160, (1, 2)),
     ("pkcs12", "pkcs12_schema", 3112, (1, 7, 8, 11)),
     ("pkix", "pkix_schema", 24144, (20,)),
+    ("ocsp", "ocsp_schema", 7696, (17, 14, 24)),
 )
-EXPECTED_TABLE_TOTAL = 51512
+EXPECTED_TABLE_TOTAL = 59208
 ABI_FILES = (
     ("asnber", "abi/asnber.symbols.txt"),
     ("asnber-pkix", "abi/asnber-pkix.symbols.txt"),
@@ -61,6 +62,7 @@ ABI_FILES = (
     ("asnber-pkcs10", "abi/asnber-pkcs10.symbols.txt"),
     ("asnber-pkcs12", "abi/asnber-pkcs12.symbols.txt"),
     ("asnber-cms", "abi/asnber-cms.symbols.txt"),
+    ("asnber-ocsp", "abi/asnber-ocsp.symbols.txt"),
 )
 CMS_ENVELOPED = (
     "cms_enveloped_ktri.der",

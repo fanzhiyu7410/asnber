@@ -7,7 +7,7 @@ cmake_minimum_required(VERSION 3.20)
 
 project(
   asnber-pkcs8
-  VERSION 0.1.1
+  VERSION 0.2.0
   DESCRIPTION "PKCS#8 结构模块（RFC 5208，读写）"
   LANGUAGES C CXX
 )

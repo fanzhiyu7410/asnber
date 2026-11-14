@@ -2,7 +2,7 @@
 
 本目录保存各共享库的导出符号清单，供 `scripts/check_exports.py` 与 CI 校验。每个文件一个符号一行，`#` 开头为注释。
 
-## 0.1.1 基线
+## 0.2.0 基线
 
 | 包 | 符号文件 | 符号数 |
 | --- | --- | --- |
@@ -13,6 +13,9 @@
 | `asnber-pkcs10` | `asnber-pkcs10.symbols.txt` | 25 |
 | `asnber-pkcs12` | `asnber-pkcs12.symbols.txt` | 37 |
 | `asnber-cms` | `asnber-cms.symbols.txt` | 148 |
+| `asnber-ocsp` | `asnber-ocsp.symbols.txt` | 63 |
+
+0.1.1 基线是上表去掉 `asnber-ocsp` 的七个包。0.2.0 新增该包的 63 个符号，既有符号未改。
 
 `asnber-pkcs` 不产库、不导符号。描述表格式版本为 `1.0`，`header_size = 108`。
 
@@ -29,4 +32,4 @@
 python scripts/check_exports.py --build-dir <共享库构建目录>
 ```
 
-七个包全部一致时退出码为 0；缺少基线中的符号、或出现基线外符号时失败。
+八个包全部一致时退出码为 0；缺少基线中的符号、或出现基线外符号时失败。

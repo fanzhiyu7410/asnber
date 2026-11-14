@@ -4,12 +4,13 @@
  */
 
 /*
- * asnber-ocsp 公共头文件（RFC 6960 只读结构访问）。
+ * asnber-ocsp 公共头文件（RFC 6960 结构访问）。
  *
- * 只读语义：不验签，不判断证书状态，不解释扩展。response 的 OCTET STRING
- * 不会在打开 OCSPResponse 时自动解成 BasicOCSPResponse。调用方把
- * asnber_ocsp_response_bytes 给出的内容字节交给 asnber_ocsp_basic_open；
- * 打开基本响应时不核对 responseType。
+ * 只做结构：不验签，不判断证书状态，不解释扩展。构造接口在
+ * ocsp_builder.h。response 的 OCTET STRING 不会在打开 OCSPResponse 时
+ * 自动解成 BasicOCSPResponse。调用方把 asnber_ocsp_response_bytes 给出
+ * 的内容字节交给 asnber_ocsp_basic_open；打开基本响应时不核对
+ * responseType。
  *
  * 生命周期：句柄由 open 创建、close 销毁；内部文档与 schema 随句柄创建
  * 和销毁。句柄借用调用方的 asnber_ctx_t，ctx 必须比句柄存活更久。所有由

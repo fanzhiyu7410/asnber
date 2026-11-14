@@ -2,6 +2,12 @@
 
 本文件记录对外可见的版本变更；格式参考 Keep a Changelog，版本号遵循语义化版本。
 
+## [0.2.0] - 2026-11-14
+
+### 新增
+
+- `asnber-ocsp`：`OCSPRequest`、`OCSPResponse`、`BasicOCSPResponse` 的结构读取与 builder。不签名、不验签、不判断证书状态、不解释扩展。`response` 的 OCTET STRING 不自动展开。`CRLReason` 按勘误 3259 为 `ENUMERATED`。新增 63 个导出符号，因此版本从 0.1.1 进入 0.2.0，`SOVERSION` 仍为 0。
+
 ## [0.1.1] - 2026-11-11
 
 ### 新增
@@ -31,5 +37,6 @@
 - 模块 `asnber-pkix`、`asnber-cms`、`asnber-pkcs1`、`asnber-pkcs8`、`asnber-pkcs10`、`asnber-pkcs12`，以及不产库的聚合包 `asnber-pkcs`。
 - 库不签名、不加密、不解密，也不校验证书链。
 
+[0.2.0]: https://github.com/fanzhiyu7410/asnber/releases/tag/v0.2.0
 [0.1.1]: https://github.com/fanzhiyu7410/asnber/releases/tag/v0.1.1
 [0.1.0]: https://github.com/fanzhiyu7410/asnber/releases/tag/v0.1.0
