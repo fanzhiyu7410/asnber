@@ -23,5 +23,8 @@ foreach(test_name IN LISTS ASNBER_PKCS_TESTS)
         $<TARGET_FILE:asnber::shared>
         $<TARGET_FILE_DIR:${test_name}>
     )
+    add_dependencies(${test_name}
+      asnber_pkcs1_shared asnber_pkcs8_shared asnber_pkcs10_shared
+      asnber_pkcs12_shared asnber_shared)
   endif()
 endforeach()

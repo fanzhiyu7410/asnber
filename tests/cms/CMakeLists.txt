@@ -31,6 +31,7 @@ foreach(test_name IN LISTS ASNBER_CMS_TESTS)
           $<TARGET_FILE:asnber::shared>
           $<TARGET_FILE_DIR:${test_name}>
       )
+      add_dependencies(${test_name} asnber_cms_shared asnber_shared)
     endif()
   endif()
 endforeach()

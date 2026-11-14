@@ -33,6 +33,7 @@ else()
           $<TARGET_FILE:asnber::shared>
           $<TARGET_FILE_DIR:${test_name}>
       )
+      add_dependencies(${test_name} asnber_pkix_shared asnber_shared)
     endforeach()
   endif()
 endif()

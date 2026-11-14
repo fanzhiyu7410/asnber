@@ -107,6 +107,10 @@ def rel(path):
 
 
 def run(args, **kwargs):
+    # Windows 控制台代码页是 GBK，子进程输出是 UTF-8。按本地编码读管道会在
+    # 读取线程里抛 UnicodeDecodeError，并把 stdout 留成 None。
+    kwargs.setdefault("encoding", "utf-8")
+    kwargs.setdefault("errors", "replace")
     return subprocess.run(args, cwd=ROOT, capture_output=True, text=True, **kwargs)
 
 

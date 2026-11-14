@@ -26,6 +26,8 @@ function(asnber_add_test name source)
           COMMAND ${CMAKE_COMMAND} -E copy_if_different
             $<TARGET_FILE:asnber::shared> $<TARGET_FILE_DIR:${name}>
         )
+        # 导入库可以先于 DLL 落盘；显式依赖避免 VS 并行时复制空路径。
+        add_dependencies(${name} asnber_shared)
       endif()
     endif()
   endif()

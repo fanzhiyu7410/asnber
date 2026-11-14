@@ -5,7 +5,7 @@
 #   cmake -S . -B build -> cmake --build build -> ctest
 # 每个平台留两格：Debug 共享与 Release 静态，全部开启 ASNBER_WARNINGS_AS_ERRORS。
 # 平台为 Linux GCC、macOS arm64、Windows MSVC。Clang 由 sanitizers 覆盖，
-# MinGW 与 macOS Intel 不在此矩阵。模块显式打开 asnber-pkcs 与 asnber-cms。
+# MinGW 与 macOS Intel 不在此矩阵。模块显式打开 asnber-pkcs、asnber-cms 与 asnber-ocsp。
 
 name: ci
 
@@ -50,6 +50,7 @@ jobs:
             -DASNBER_BUILD_MODULES=ON \
             -DASNBER_BUILD_MODULE_PKCS=ON \
             -DASNBER_BUILD_MODULE_CMS=ON \
+            -DASNBER_BUILD_MODULE_OCSP=ON \
             -DASNBER_BUILD_DIFFERENTIAL=ON \
             -DASNBER_BUILD_SHARED=ON \
             -DASNBER_BUILD_STATIC=ON
@@ -137,6 +138,7 @@ jobs:
             -DASNBER_WARNINGS_AS_ERRORS=ON \
             -DASNBER_BUILD_MODULE_PKCS=ON \
             -DASNBER_BUILD_MODULE_CMS=ON \
+            -DASNBER_BUILD_MODULE_OCSP=ON \
             -DASNBER_BUILD_SHARED=${{ matrix.link_mode == 'shared' && 'ON' || 'OFF' }} \
             -DASNBER_BUILD_STATIC=${{ matrix.link_mode == 'static' && 'ON' || 'OFF' }}
 
@@ -150,6 +152,7 @@ jobs:
             -DASNBER_WARNINGS_AS_ERRORS=ON \
             -DASNBER_BUILD_MODULE_PKCS=ON \
             -DASNBER_BUILD_MODULE_CMS=ON \
+            -DASNBER_BUILD_MODULE_OCSP=ON \
             -DASNBER_BUILD_SHARED=${{ matrix.link_mode == 'shared' && 'ON' || 'OFF' }} \
             -DASNBER_BUILD_STATIC=${{ matrix.link_mode == 'static' && 'ON' || 'OFF' }} \
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}

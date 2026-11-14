@@ -20,6 +20,7 @@ else()
       COMMAND ${CMAKE_COMMAND} -E copy_if_different
         $<TARGET_FILE:asnber::shared> $<TARGET_FILE_DIR:test_embedded_pool>
     )
+    add_dependencies(test_embedded_pool asnber_shared)
   endif()
 endif()
 
@@ -72,6 +73,7 @@ if(NOT CMAKE_CROSSCOMPILING)
               $<TARGET_FILE:asnber::shared>
               $<TARGET_FILE_DIR:test_${_module}_pool>
           )
+          add_dependencies(test_${_module}_pool asnber_${_module}_shared asnber_shared)
         endif()
       endif()
       add_test(NAME test_${_module}_pool COMMAND test_${_module}_pool)
@@ -105,6 +107,7 @@ if(ASNBER_TRIM_PROFILE STREQUAL "cert-decode"
           $<TARGET_FILE:asnber::shared>
           $<TARGET_FILE_DIR:test_pkix_cert_trim>
       )
+      add_dependencies(test_pkix_cert_trim asnber_pkix_shared asnber_shared)
     endif()
   endif()
 

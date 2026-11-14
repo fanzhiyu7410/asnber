@@ -19,7 +19,10 @@ set(ASNBER_OCSP_SOURCES
   src/asnber_ocsp_request.cpp
   src/asnber_ocsp_response.cpp
   src/asnber_ocsp_basic.cpp
-  src/ocsp_builder.cpp
+  src/ocsp_builder_common.cpp
+  src/ocsp_request_builder.cpp
+  src/ocsp_response_builder.cpp
+  src/ocsp_basic_builder.cpp
   src/asnber_ocsp_version.cpp
 )
 set(ASNBER_OCSP_TARGETS "")
