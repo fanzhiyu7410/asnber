@@ -58,6 +58,14 @@ cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
 cmake --build build
 ```
 
+日常多平台编译与测试（产物在 `out/<档位>/`，`build` 与 `test` 分开）：
+
+```bash
+python scripts/build_and_test.py build
+python scripts/build_and_test.py test
+python scripts/build_and_test.py build --only msvc-debug
+```
+
 启用示例、测试与严格告警：
 
 ```bash

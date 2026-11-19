@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: MIT
 #
 # libFuzzer 短预算矩阵。长跑不在此工作流。
-# schema_load 语料包含核心与 PKIX/PKCS 描述表；decode/roundtrip 语料包含
-# PKCS#8/PKCS#1/PKCS#10 真实样本。本地等价命令见 tests/fuzz/README.md 与
+# schema_load 语料包含核心与 PKIX/PKCS/CMS/OCSP 描述表；decode/roundtrip 语料包含
+# PKCS 与 OCSP 真实样本。本地等价命令见 tests/fuzz/README.md 与
 # docs/07-测试与验证.md。
 
 name: fuzz
@@ -29,6 +29,7 @@ jobs:
           - pkix_open
           - pkcs_open
           - cms_open
+          - ocsp_open
     steps:
       - uses: actions/checkout@v4
 
@@ -49,7 +50,10 @@ jobs:
             -DASNBER_BUILD_SHARED=OFF \
             -DASNBER_BUILD_TESTS=OFF \
             -DASNBER_BUILD_TOOLS=ON \
-            -DASNBER_BUILD_FUZZ=ON
+            -DASNBER_BUILD_FUZZ=ON \
+            -DASNBER_BUILD_MODULE_PKCS=ON \
+            -DASNBER_BUILD_MODULE_CMS=ON \
+            -DASNBER_BUILD_MODULE_OCSP=ON
 
       - name: 构建
         run: cmake --build build --parallel

@@ -83,6 +83,13 @@ else()
   message(WARNING "fuzz_cms_open 需要 asnber::cms::static；跳过")
 endif()
 
+if(TARGET asnber::ocsp::static)
+  asnber_add_fuzz_harness(fuzz_ocsp_open fuzz_ocsp_open.c)
+  target_link_libraries(fuzz_ocsp_open PRIVATE asnber::ocsp::static)
+else()
+  message(WARNING "fuzz_ocsp_open 需要 asnber::ocsp::static；跳过")
+endif()
+
 # asnberc 工具入口 harness（C++，链接 asnberc_lib 静态库）。
 if(TARGET asnberc_lib)
   add_executable(fuzz_asnberc fuzz_asnberc.cpp)

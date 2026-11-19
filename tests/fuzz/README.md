@@ -14,6 +14,7 @@
 | `fuzz_pkix_open` | `asnber_pkix_certificate_open` + 全部只读访问器 / `find` 路径 | PKIX 表 |
 | `fuzz_pkcs_open` | PKCS#1/#8/#10 五个结构 open + 全部只读访问器 | 各模块表 |
 | `fuzz_cms_open` | `ContentInfo` / `SignedData` / `EnvelopedData` open + 全部只读访问器；builder 单 TLV 入口、signer 追加与编码 | CMS 表 |
+| `fuzz_ocsp_open` | 同一输入依次按 `OCSPRequest` / `OCSPResponse` / `BasicOCSPResponse` open + 全部只读访问器；响应带 `responseBytes` 时再打开基本响应 | OCSP 表 |
 
 模块 harness 对带下标的访问器统一按 `0` / `count` / `SIZE_MAX` 三个值探测，并覆盖 `close(NULL)`、open 参数边界与 NULL 输出参数；`fuzz_walk` 同时探测 `asnber_node_child_at` 的同组下标边界。
 
@@ -50,9 +51,10 @@ CI 用同样参数跑短预算，并记录 `-print_final_stats` 的迭代数。
 - 由 `scripts/gen_fuzz_corpus.py` 确定性生成：真实 DER 样本
   （`tests/data/*.der`，含 CMS ContentInfo/SignedData/EnvelopedData/EncryptedData）+ 合成二进制样本 +
   PKIX / PKCS / CMS 表字节（`schema_load`）+ `.asn1` 文本样本（`fuzz_asnberc`）。
-- 模块 harness 的 `corpus/pkix_open`、`corpus/pkcs_open`、`corpus/cms_open`
-  只放入对应结构的真实样本，并为每份样本派生 `_trunc_half`（截断一半）、
-  `_tagflip`（首字节异或 `0x20`）、`_lenplus1`（长度字段 +1）三类变体。
+- 模块 harness 的 `corpus/pkix_open`、`corpus/pkcs_open`、`corpus/cms_open`、
+  `corpus/ocsp_open` 只放入对应结构的真实样本，并为每份样本派生
+  `_trunc_half`（截断一半）、`_tagflip`（首字节异或 `0x20`）、`_lenplus1`
+  （长度字段 +1）三类变体。
 - 合成样本覆盖：未知扩展字段、ANY 三形态、EXPLICIT ANY、不定长（单层/嵌套）、
   截断、超长长度字段、多字节 tag、SET 乱序、非最短长度、时间格式变体、空输入。
 - 扩展方式：向 `scripts/gen_fuzz_corpus.py` 的 `SYNTH_BINARY` / `REAL_DERS` /

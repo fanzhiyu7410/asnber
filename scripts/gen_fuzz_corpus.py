@@ -29,6 +29,10 @@ CMS_BINS = [
     os.path.join(ROOT, "modules", "cms", "generated", "cms_schema.bin")
 ]
 
+OCSP_BINS = [
+    os.path.join(ROOT, "modules", "ocsp", "generated", "ocsp_schema.bin")
+]
+
 # 需要二进制种子（DER/BER）的 harness。
 BIN_HARNESSES = [
     "decode_ber",
@@ -63,6 +67,10 @@ REAL_DERS = [
     "cms_enveloped_kekri.der",
     "cms_enveloped_pwri.der",
     "cms_encrypted_data.der",
+    "ocsp_request.der",
+    "ocsp_request_signed.der",
+    "ocsp_response.der",
+    "ocsp_response_bykey.der",
 ]
 
 # 合成二进制种子：覆盖未知扩展/ANY 三形态/EXPLICIT ANY/不定长（单层+嵌套）/
@@ -381,6 +389,12 @@ MODULE_CORPORA = {
         "cms_authenticated_data_v1.der",
         "cms_authenticated_data_v3.der",
     ],
+    "ocsp_open": [
+        "ocsp_request.der",
+        "ocsp_request_signed.der",
+        "ocsp_response.der",
+        "ocsp_response_bykey.der",
+    ],
 }
 
 # 无外部生成器样本的结构：手写最小 DER 作为语料，仅用于覆盖只读入口与
@@ -487,7 +501,7 @@ def main():
     hdir = os.path.join(CORPUS, "schema_load")
     write_bytes(os.path.join(hdir, "pkix_schema.bin"),
                 open(PKIX_BIN, "rb").read())
-    for path in PKCS_BINS + CMS_BINS:
+    for path in PKCS_BINS + CMS_BINS + OCSP_BINS:
         write_bytes(os.path.join(hdir, os.path.basename(path)),
                     open(path, "rb").read())
     write_bytes(os.path.join(hdir, "empty"), b"")
