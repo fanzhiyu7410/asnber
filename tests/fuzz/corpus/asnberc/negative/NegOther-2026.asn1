@@ -1,0 +1,8 @@
+NegOther-2026 DEFINITIONS IMPLICIT TAGS ::=
+BEGIN
+
+NegRecord ::= SEQUENCE {
+    y BOOLEAN
+}
+
+END

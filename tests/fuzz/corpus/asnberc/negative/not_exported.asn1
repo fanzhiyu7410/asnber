@@ -1,0 +1,8 @@
+NotExportedSample DEFINITIONS IMPLICIT TAGS ::=
+BEGIN
+
+IMPORTS NegHidden FROM NegExports-2026;
+
+Holder ::= BOOLEAN
+
+END

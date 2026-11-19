@@ -1,0 +1,10 @@
+MissingSymbolSample DEFINITIONS IMPLICIT TAGS ::=
+BEGIN
+
+IMPORTS NegNope FROM NegBase-2026;
+
+Holder ::= SEQUENCE {
+    r NegNope
+}
+
+END

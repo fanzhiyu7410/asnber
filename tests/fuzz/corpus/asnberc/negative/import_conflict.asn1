@@ -1,0 +1,8 @@
+ImportConflictSample DEFINITIONS IMPLICIT TAGS ::=
+BEGIN
+
+IMPORTS NegRecord FROM NegBase-2026;
+
+NegRecord ::= BOOLEAN
+
+END

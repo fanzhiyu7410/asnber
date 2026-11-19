@@ -1,0 +1,7 @@
+-- 负例：约束边界引用未定义值，期望 ASNBERC_E_UNDEFINED_TYPE (9002)。
+
+NegValueRef DEFINITIONS ::= BEGIN
+
+LimitedString ::= OCTET STRING (SIZE (1..undefinedValue))
+
+END

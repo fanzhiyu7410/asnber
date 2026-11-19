@@ -1,0 +1,9 @@
+-- 负例：直接引用参数化模板而不实例化，期望 ASNBERC_E_PARAM_INSTANTIATION (9008)。
+
+NegNoInstance DEFINITIONS ::= BEGIN
+
+Foo { Type } ::= SEQUENCE { a Type }
+
+Bar ::= Foo
+
+END
