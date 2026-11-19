@@ -180,7 +180,7 @@ ANY 字段（如 `algorithmIdentifier.parameters`）只返回原始 TLV，模块
 
 - 运行库零第三方依赖：核心与模块的发版产物只链接 C 运行库与平台系统库。
 - 测试与工具依赖限定宽松许可（MIT、BSD-2/3-Clause、Apache-2.0 含 LLVM 例外）；禁止 GPL/LGPL/AGPL 或许可不明代码。
-- 仓库当前无第三方源码；doctest（测试框架）与 libFuzzer（fuzz 驱动）登记于[第三方依赖与许可证清单](docs/第三方依赖与许可证清单.md)，均不随产物分发。
+- 仓库当前无第三方源码；单元测试为自有 `tests/support/check.h`；libFuzzer（fuzz 驱动）登记于[第三方依赖与许可证清单](docs/第三方依赖与许可证清单.md)，不随产物分发。
 - 发版随包提供 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)（当前为空模板）；`python scripts/check_third_party.py` 检查未登记依赖。
 - 项目许可证：MIT，见 [LICENSE](LICENSE)。策略细节见 [ADR-0011](docs/adr/0011-第三方依赖与许可证策略.md)。
 

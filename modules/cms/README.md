@@ -4,7 +4,7 @@ CMS / PKCS#7 标准结构模块（RFC 5652），以 `.asn1` 描述表驱动，�
 
 ## 模块范围
 
-当前切片覆盖 4 个顶层结构：`ContentInfo`、`SignedData`、`EnvelopedData`、`EncryptedData` 均支持只读打开；后三者另提供结构构造（写）：
+六个顶层容器均已覆盖只读打开；除 `ContentInfo` 外五个提供结构构造（写）：
 
 | 结构 | 标准 | 说明 |
 | --- | --- | --- |
@@ -12,10 +12,12 @@ CMS / PKCS#7 标准结构模块（RFC 5652），以 `.asn1` 描述表驱动，�
 | `SignedData` | RFC 5652 §5 | 版本、摘要算法、封装内容、证书、CRL、签名者信息 |
 | `EnvelopedData` | RFC 5652 §6 | 只读 + 写：版本、originatorInfo、recipientInfos 五分支、加密内容信息、unprotectedAttrs |
 | `EncryptedData` | RFC 5652 §8 | 只读 + 写：版本、加密内容信息、unprotectedAttrs |
+| `CompressedData` | RFC 3274 / 5652 | 只读 + 写：version、compressionAlgorithm、encapContentInfo |
+| `AuthenticatedData` | RFC 5652 §9 | 只读 + 写：version、recipientInfos、macAlgorithm、encapContentInfo、mac 等 |
 
 **不包含**：签名生成/验签、摘要计算、加解密、证书链校验、吊销状态查询、属性语义解析。结构构造只按 RFC 5652 组装节点并输出 DER；`CMSVersion`、算法 OID、eContent、签名值与证书/CRL 原始 DER 全部由调用方给值并原样承载，模块不推导、不校验业务范围。`ANY` 与属性集合只读写原始 TLV，密码学语义由调用方按 OID 二次解析。
 
-后续规划：`AuthenticatedData`、`CompressedData` 后置，不在 0.2.0 实现。
+样本证据边界：`AuthenticatedData`、`EnvelopedData` 的 `OtherRecipientInfo`、`EncryptedData` version 2 的 `unprotectedAttrs` 无外部生产方样本，验证停在构造级（见 `docs/09`）。
 
 ## 公共头与链接
 
@@ -27,12 +29,14 @@ CMS / PKCS#7 标准结构模块（RFC 5652），以 `.asn1` 描述表驱动，�
 
 ## 句柄与生命周期
 
-4 个只读不透明句柄各由 `open` 创建、`close` 销毁：
+6 个只读不透明句柄各由 `open` 创建、`close` 销毁：
 
 - `asnber_cms_content_info_open` / `asnber_cms_content_info_close`
 - `asnber_cms_signed_data_open` / `asnber_cms_signed_data_close`
 - `asnber_cms_enveloped_data_open` / `asnber_cms_enveloped_data_close`
 - `asnber_cms_encrypted_data_open` / `asnber_cms_encrypted_data_close`
+- `asnber_cms_compressed_data_open` / `asnber_cms_compressed_data_close`
+- `asnber_cms_authenticated_data_open` / `asnber_cms_authenticated_data_close`
 
 约束：
 
@@ -269,8 +273,4 @@ cmake --build build-cms-regen --target asnber_cms_table_verify
 
 0.1.0：ContentInfo / SignedData 只读字段访问与结构构造（builder + DER 编码）；只读与构造 C 用例在 MinGW（GCC 13.2，`-Werror`）、MSVC 与 ASan/UBSan 构建下 ctest 通过，5 份样本构造往返逐字节一致。证书集合覆盖 `certificate`/`extendedCertificate`/`v1AttrCert`/`v2AttrCert`/`other` 全部分支：`certificate_at` 一律返回判别与完整原始 TLV，结构化访问器只对 `certificate` 生效，其余分支返回 `ASNBER_E_UNSUPPORTED`。构造侧不生成签名/摘要、不做加解密、不校验证书链。
 
-0.2.0 第一块（未发版，`Unreleased`）：新增 `EnvelopedData` 只读句柄与 27 个导出符号；五份真实样本 + `ori` 构造级用例 + 空 `recipientInfos` 负例 + 整段往返。MinGW GCC 13 Release（共享/静态）全量 ctest 36/36 通过，`-DASNBER_CMS_REGENERATE_TABLE=ON` 下三表逐字节自校验通过。
-
-0.2.0 第二块（未发版）：新增 `EnvelopedData` 写侧 builder 与 14 个导出符号；六份真实样本重建逐字节一致，子结构按描述式规则校验标签/构造位/顺序/重复，空密文与 detached 区分。MinGW 与 ASan/UBSan 全量 ctest 37/37 通过。
-
-0.2.0 第三、四块（未发版）：新增 `EncryptedData` 只读句柄与写侧 builder，共 16 个导出符号；OpenSSL version 0 真实样本、version 2 + `unprotectedAttrs` 构造级逐字节断言、版本配对校验、空密文与 detached 区分、属性集合 `0x31`→`0xA1` 改写。MinGW GCC 13 Release（共享/静态）与 ASan/UBSan 全量 ctest 38/38 通过，`asnber-cms` 导出 100/100 与基线一致，`-DASNBER_CMS_REGENERATE_TABLE=ON` 下四表逐字节自校验通过。
+0.2.0 起：`EnvelopedData`/`EncryptedData` 只读与写侧已随主线发布；其后工作区补齐 `CompressedData`/`AuthenticatedData` 只读与写侧，六个顶层容器收口。`ori`、AuthenticatedData、EncryptedData v2+`unprotectedAttrs` 仍无外部生产方样本，验证停在构造级。历史分块验收数字见 `docs/07` §9。

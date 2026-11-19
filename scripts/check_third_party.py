@@ -58,8 +58,24 @@ KNOWN_SINGLE_HEADERS = {
 
 # 项目自身 include 前缀与 CMake 包名。
 PROJECT_INCLUDE_PREFIXES = ("asnber/", "asnber_")
+# 源码树内相对 include 的首段目录（#include "detail/..." / "schema/..." 等），
+# 不是第三方依赖。
+INTERNAL_INCLUDE_ROOTS = {
+    ".",
+    "..",
+    "ber",
+    "core",
+    "c_api",
+    "der",
+    "detail",
+    "schema",
+    "types",
+    "support",
+}
 IGNORED_CMAKE_PACKAGES = {
-    "threads", "c", "cxx", "asnber", "asnber-pkix", "asnber-cms", "asnber-pkcs",
+    "threads", "c", "cxx", "python3",
+    "asnber", "asnber-pkix", "asnber-cms", "asnber-pkcs",
+    "asnber-pkcs1", "asnber-pkcs8", "asnber-pkcs10", "asnber-pkcs12",
     "asnber-ocsp",
 }
 
@@ -167,9 +183,12 @@ def collect_include_usages(files: list[Path]) -> set[str]:
             lowered = header.lower()
             if lowered.startswith(PROJECT_INCLUDE_PREFIXES):
                 continue
-            if "/" in header:
+            if "/" in header or "\\" in header:
                 # 只把带目录前缀的头视为第三方候选，避免误报标准库。
-                found.add(normalize(header.split("/")[0]))
+                root = normalize(header.replace("\\", "/").split("/", 1)[0])
+                if root in INTERNAL_INCLUDE_ROOTS or root.startswith("."):
+                    continue
+                found.add(root)
             elif lowered in KNOWN_SINGLE_HEADERS:
                 found.add(normalize(header.rsplit(".", 1)[0]))
     return found

@@ -10,7 +10,7 @@
 - `PKIX1Explicit-2009`（RFC 5912 第 14 节）
 - `PKIX1Implicit-2009`（RFC 5912 第 14 节）
 
-`asnberc` 本轮 MVP 已可用：`asnberc -o <PATH> -c <PATH> --root Certificate PKIX-Flattened-2009.asn1` 生成描述表并通过核心 `asnber_schema_load` 加载验证（69 个具名类型 / 173 条类型记录 / 6 处 ANY 字段）。`IMPORTS` 与参数化展开尚未实现，本文件已提前展开、不含这两类构造。
+`asnberc` 已可用：`asnberc -o <PATH> -c <PATH> --root Certificate PKIX-Flattened-2009.asn1` 生成描述表并通过核心 `asnber_schema_load` 加载验证（69 个具名类型 / 173 条类型记录 / 6 处 ANY 字段）。工具现已支持多模块 `IMPORTS` 与单类型参数化展开；本目录仍保留人工展平、自包含输入（无 `IMPORTS` / 无值参数与多参数 / 无 `CLASS`），以便与 RFC 原文对账且不依赖进阶语法。
 
 ## 2. 输入来源
 
@@ -44,7 +44,7 @@
 
 输出模块使用 `DEFINITIONS IMPLICIT TAGS`。原 `PKIX1Explicit-2009` 的裸 `[n]` 标签已逐处改写为 `[n] EXPLICIT`，以保持原 EXPLICIT 默认语义；原 `PKIX1Implicit-2009` 的裸 `[n]` 保持隐式语义。
 
-**与冻结文档的冲突需裁决：** `docs/09-里程碑与分期.md` §3.1 要求“每个模块一个文件”，而本任务书要求“每个输出文件自包含、不留 `IMPORTS`”。两者与 `docs/11-描述表格式.md` §14.2 的“每个类型恰好一个同名类型”不能同时满足：三文件方案必须在各文件重复定义依赖类型，单文件方案才能保证类型唯一。本轮按任务书“允许按依赖关系合并成较少的文件”执行单文件方案；`docs/09` 与 `docs/03`（`IMPORTS` 一期必须支持）的表述需由文档维护方同步。
+**合并说明：** 按依赖合并为自包含单文件，保证 `docs/11-描述表格式.md` §14.2「每个类型恰好一个同名类型」。工具侧另支持多模块 `IMPORTS` 合并成单表；本目录产物仍采用展平单文件，便于与 RFC 5912 原文逐类型对账。
 
 ## 4. 类型总数
 

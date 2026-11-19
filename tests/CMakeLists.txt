@@ -1,7 +1,7 @@
 # Copyright (c) 2026 asnber project contributors
 # SPDX-License-Identifier: MIT
-# 测试骨架。当前用无第三方依赖的最小 C 用例覆盖已落地的版本查询契约；
-# doctest 与 libFuzzer 在登记后接入，规划见 docs/07-测试与验证.md。
+# 测试骨架。无第三方测试框架：C 用例 + tests/support/check.h；
+# libFuzzer harness 在 fuzz/ 子目录按开关接入，见 docs/07-测试与验证.md。
 
 if(NOT ASNBER_BUILD_TESTS)
   return()
