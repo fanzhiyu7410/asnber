@@ -1,7 +1,7 @@
 # Copyright (c) 2026 asnber project contributors
 # SPDX-License-Identifier: MIT
 
-# 六个独立消费工程：核心、PKIX、PKCS 门面、PKCS#1、PKCS#12、CMS。每个只
+# 七个独立消费工程：核心、PKIX、PKCS 门面、PKCS#1、PKCS#12、CMS、OCSP。每个只
 # find_package 对应包（PKCS#1 / PKCS#12 不引入 CMS 依赖），安装到临时前缀后以
 # 共享/静态两种形态构建并运行，再整体移动前缀验证可重定位。
 
@@ -103,3 +103,5 @@ asnber_add_consumer_test(
   pfx_rsa_unencrypted.der)
 asnber_add_consumer_test(
   test_consumer_cms cms asnber-cms consumer_cms.c cms_rsa_attached.der)
+asnber_add_consumer_test(
+  test_consumer_ocsp ocsp asnber-ocsp consumer_ocsp.c ocsp_request.der)

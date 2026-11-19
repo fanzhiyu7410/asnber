@@ -1,7 +1,8 @@
 # asnber-pkcs8
 
 PKCS#8（RFC 5208）结构模块，以 `.asn1` 描述表驱动，提供**只读结构访问**与
-`PrivateKeyInfo` 的**结构构造（DER 编码）**。
+`PrivateKeyInfo`、`EncryptedPrivateKeyInfo` 的**结构构造（DER 编码）**。加密
+builder 只组装算法标识和密文字节，不加密。
 
 ## 模块范围
 

@@ -5,7 +5,7 @@
 | 包 | 标准 | 公共头 | 符号前缀 |
 | --- | --- | --- | --- |
 | [`asnber-pkcs1`](../pkcs1/README.md) | RFC 8017 附录 A | `asnber/pkcs1/pkcs1.h` | `asnber_pkcs_*`（31） |
-| [`asnber-pkcs8`](../pkcs8/README.md) | RFC 5208 | `asnber/pkcs8/pkcs8.h` | `asnber_pkcs_*`（22） |
+| [`asnber-pkcs8`](../pkcs8/README.md) | RFC 5208 | `asnber/pkcs8/pkcs8.h` | `asnber_pkcs_*`（27） |
 | [`asnber-pkcs10`](../pkcs10/README.md) | RFC 2986 | `asnber/pkcs10/pkcs10.h` | `asnber_pkcs_*`（25） |
 | [`asnber-pkcs12`](../pkcs12/README.md) | RFC 7292 | `asnber/pkcs12/pkcs12.h` | `asnber_pkcs12_*`（37） |
 

@@ -65,7 +65,7 @@
 | `asnber/ocsp/ocsp.h` | `asnber-ocsp` | `asnber_ocsp_` / `ASNBER_OCSP_` |
 | `asnber/ocsp/ocsp_builder.h` | `asnber-ocsp` | `asnber_ocsp_` / `ASNBER_OCSP_` |
 
-**PKCS 函数前缀（0.4.0 起）**：包拆分不改变函数名。PKCS#1/#8/#10 的函数仍为 `asnber_pkcs_*`（31/22/25），PKCS#12 仍为 `asnber_pkcs12_*`（37）；聚合包 `asnber-pkcs` 不产库、不导符号。导出/声明宏按包独立（`ASNBER_PKCS1_*`、`ASNBER_PKCS8_*`、`ASNBER_PKCS10_*`、`ASNBER_PKCS12_*`）。仓库中不存在 `asnber_pkcs1_*`、`asnber_pkcs8_*`、`asnber_pkcs10_*` 三组函数前缀（见 [ADR-0015](adr/0015-PKCS按标准拆分模块.md)）。
+**PKCS 函数前缀（0.4.0 起）**：包拆分不改变函数名。PKCS#1/#8/#10 的函数仍为 `asnber_pkcs_*`（31/27/25），PKCS#12 仍为 `asnber_pkcs12_*`（37）；聚合包 `asnber-pkcs` 不产库、不导符号。导出/声明宏按包独立（`ASNBER_PKCS1_*`、`ASNBER_PKCS8_*`、`ASNBER_PKCS10_*`、`ASNBER_PKCS12_*`）。仓库中不存在 `asnber_pkcs1_*`、`asnber_pkcs8_*`、`asnber_pkcs10_*` 三组函数前缀（见 [ADR-0015](adr/0015-PKCS按标准拆分模块.md)）。
 
 消费者通过 `find_package(asnber-pkix CONFIG REQUIRED)` 获取模块目标；模块包自动声明对 `asnber` 的依赖。公共头文件统一使用 `extern "C"` 包裹（仅 C++ 编译时生效），并使用传统 include guard。
 

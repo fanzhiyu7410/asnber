@@ -76,7 +76,7 @@ if(ASNBER_EXAMPLE_PKIX AND ASNBER_EXAMPLE_PKCS10
   endif()
 endif()
 
-# PKCS#1 / PKCS#8 / PKCS#12 / CMS。静态库优先。编码关闭时不编这些示例。
+# PKCS#1 / PKCS#8 / PKCS#12 / CMS / OCSP。静态库优先。编码关闭时不编这些示例。
 function(asnber_example_prefer_static out_var static_target shared_target)
   if(TARGET ${static_target})
     set(${out_var} ${static_target} PARENT_SCOPE)
@@ -95,6 +95,8 @@ asnber_example_prefer_static(ASNBER_EXAMPLE_PKCS12 asnber::pkcs12::static
                            asnber::pkcs12::shared)
 asnber_example_prefer_static(ASNBER_EXAMPLE_CMS asnber::cms::static
                            asnber::cms::shared)
+asnber_example_prefer_static(ASNBER_EXAMPLE_OCSP asnber::ocsp::static
+                           asnber::ocsp::shared)
 
 function(asnber_add_module_example target source library)
   if(NOT library OR NOT ASNBER_ENABLE_ENCODE OR NOT ASNBER_ENABLE_BUILD_API)
@@ -121,3 +123,5 @@ asnber_add_module_example(asnber_example_pkcs12 c/example_pkcs12.c
                         "${ASNBER_EXAMPLE_PKCS12}")
 asnber_add_module_example(asnber_example_cms c/example_cms.c
                         "${ASNBER_EXAMPLE_CMS}")
+asnber_add_module_example(asnber_example_ocsp c/example_ocsp.c
+                        "${ASNBER_EXAMPLE_OCSP}")

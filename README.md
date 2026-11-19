@@ -29,7 +29,7 @@
 │                          schema/ 模板注册/描述表，c_api/ C ABI）
 ├─ modules/
 │  ├─ pkix/                asnber-pkix：include + src + 独立导出包
-│  │  └─ asnber/             RFC 5912 展平模块（PKIX-Flattened-2009.asn1；对账见 reconciliation.md）
+│  │  └─ asn1/              RFC 5912 展平模块（PKIX-Flattened-2009.asn1；对账见 reconciliation.md）
 │  ├─ cms/                 asnber-cms
 │  ├─ ocsp/                asnber-ocsp（OCSP 结构读写，不依赖 pkix）
 │  ├─ pkcs1/               asnber-pkcs1（PKCS#1 读写，含公/私钥 builder）
@@ -39,8 +39,8 @@
 │  └─ pkcs/                asnber-pkcs 聚合包（不产库：聚合头 + INTERFACE 转发四包）
 ├─ tools/asnberc/            `.asn1` → 描述表 1.0 生成工具（C 数组/二进制）
 ├─ tests/                  unit / c_api / asnberc / conformance / support / fuzz / bench
-├─ examples/c              C 消费示例（核心占位，以及证书 / CSR / CMS / PKCS 集成）
-├─ examples/cpp            C++ 消费示例（占位）
+├─ examples/c              C 消费示例（核心解码，以及证书 / CSR / CMS / PKCS / OCSP 集成）
+├─ examples/cpp            C++ 消费示例（通过 C ABI 解码）
 ├─ cmake/                  构建选项、编译检查、安装导出、包配置模板
 ├─ docs/                   设计文档体系（入口：docs/文档索引.md）
 ├─ scripts/                辅助脚本（第三方依赖检查等）
@@ -119,12 +119,15 @@ ANY 字段（如 `algorithmIdentifier.parameters`）只返回原始 TLV，模块
 
 | 文件 | 内容 |
 | --- | --- |
+| `examples/c/example_decode.c` | 核心：解码 `SEQUENCE { INTEGER 1 }` |
+| `examples/cpp/example_usage.cpp` | 同上，C++ 翻译单元只调用 C ABI |
 | `examples/c/example_cert_decode.c` | 打开证书 |
 | `examples/c/example_cert_csr.c` | 打开证书、编证书、编 CSR、读回 CSR |
 | `examples/c/example_pkcs1.c` | RSA 公钥与私钥 |
 | `examples/c/example_pkcs8.c` | PrivateKeyInfo 与 EncryptedPrivateKeyInfo |
 | `examples/c/example_pkcs12.c` | PFX 与 AuthenticatedSafe |
 | `examples/c/example_cms.c` | SignedData、data ContentInfo、EnvelopedData |
+| `examples/c/example_ocsp.c` | 打开 OCSPRequest、编最小请求、读回 |
 
 `<asnber/pkcs/pkcs.h>` 只聚合上述 PKCS 头，不另产库。
 

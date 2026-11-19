@@ -7,7 +7,7 @@
 | 包 | 公共头 | 导出宏 | 符号前缀 | 符号数 |
 | --- | --- | --- | --- | --- |
 | `asnber-pkcs1` | `<asnber/pkcs1/pkcs1.h>`（含 `pkcs1_builder.h`） | `ASNBER_PKCS1_API` / `ASNBER_PKCS1_STATIC` | `asnber_pkcs_` | 31 |
-| `asnber-pkcs8` | `<asnber/pkcs8/pkcs8.h>`（含 `pkcs8_builder.h`） | `ASNBER_PKCS8_API` / `ASNBER_PKCS8_STATIC` | `asnber_pkcs_` | 22 |
+| `asnber-pkcs8` | `<asnber/pkcs8/pkcs8.h>`（含 `pkcs8_builder.h`） | `ASNBER_PKCS8_API` / `ASNBER_PKCS8_STATIC` | `asnber_pkcs_` | 27 |
 | `asnber-pkcs10` | `<asnber/pkcs10/pkcs10.h>`（含 `pkcs10_builder.h`） | `ASNBER_PKCS10_API` / `ASNBER_PKCS10_STATIC` | `asnber_pkcs_` | 25 |
 | `asnber-pkcs12` | `<asnber/pkcs12/pkcs12.h>`（含 `pkcs12_builder.h`） | `ASNBER_PKCS12_API` / `ASNBER_PKCS12_STATIC` | `asnber_pkcs12_` | 37 |
 | `asnber-pkcs`（聚合包） | `<asnber/pkcs/pkcs.h>` | — | — | 0（不产库、不导符号） |
@@ -40,6 +40,7 @@
 | `asnber-pkcs1` | `asnber_pkcs_rsa_public_key_builder_*` | 5 |
 | `asnber-pkcs1` | `asnber_pkcs_rsa_private_key_builder_*` | 11 |
 | `asnber-pkcs8` | `asnber_pkcs_private_key_info_builder_*` | 7 |
+| `asnber-pkcs8` | `asnber_pkcs_encrypted_private_key_info_builder_*` | 5 |
 | `asnber-pkcs10` | `asnber_pkcs_certification_request_builder_*` | 11 |
 | `asnber-pkcs12` | `asnber_pkcs12_pfx_builder_*` | 7 |
 | `asnber-pkcs12` | `asnber_pkcs12_authenticated_safe_builder_*` | 5 |
@@ -50,7 +51,7 @@
 - 每个字段只允许成功设置一次，重复设置返回 `ASNBER_E_INVALID_STATE`。
 - `encode` 前校验必填字段，缺失返回 `ASNBER_E_INVALID_STATE`；失败时清零 `out_buf`，成功时由 ctx 分配，调用方用 `asnber_buf_release` 释放。
 - PKCS#1 的大整数字段以**大端无符号幅值**传入，模块统一规整为规范 DER（去冗余前导零、最高位为 1 时补 `00`、零值编码为 `00`；空输入 `ASNBER_E_INVALID_ARG`，超过 8192 字节 `ASNBER_E_INPUT_LIMIT`）。`RSAPrivateKey.version` 固定写 0。
-- 构造侧不做密码学语义：不校验 `n = p·q`，不验证签名，不解密。字段与错误码细节见各模块 README。
+- 构造侧不做密码学语义：不校验 `n = p·q`，不验证签名，不解密。`EncryptedPrivateKeyInfo` builder 只写入算法标识和密文字节，不加密。字段与错误码细节见各模块 README。
 - `asnber-pkcs12` 的 `AuthenticatedSafe` builder 用 `add_data`（builder 把 SafeContents DER 套进 OCTET STRING）与 `add_encrypted_data`（content 原样 TLV）添加条目，`encode` 输出 AuthenticatedSafe DER，即 `authSafe` 的 OCTET STRING 内容，也是 `MacData` 摘要的输入。
 - `PFX` builder 不拼 `ContentInfo`：调用方用 `set_auth_safe(content_type_oid, content_tlv, size)` 给出完整 ContentInfo 的 type 与 content TLV（content 原样放入 `[0]`）；`auth_safe_content_octets` 仅在 type 为 `data` 且 content 为 OCTET STRING 时返回其内容，专供调用方计算 `MacData`。`version` 默认 3，`MacData.iterations` 为 1 时按 DEFAULT 完全省略。
 
